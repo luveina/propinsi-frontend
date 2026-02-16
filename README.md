@@ -146,3 +146,15 @@ PBI-16 (Denah Gantangan): UI Layout Gantangan (grid 24 slot) dengan indikasi war
 PBI-17 (Pembayaran): Komponen File Uploader untuk bukti transfer beserta penanganan pesan error jika nomor gantangan baru saja diambil orang lain.
 
 PBI-19 (E-Ticket): Menu "My Ticket" yang menampilkan status pembayaran (Paid, Pending, Invalid) menggunakan label warna dan fitur unduh tiket.
+
+## Khay 
+Berikut adalah detail implementasi FE berdasarkan Product Backlog Item (PBI) SILOBUR-NG:
+
+PBI-1: Registrasi Peserta
+Halaman registrasi dengan validasi form real-time, toggle visibility password, dan integrasi API untuk pendaftaran akun baru.
+PBI-2 & PBI-3: Login & Logout
+Implementasi landing page berupa form Login dengan penanganan sesi lokal (local storage/cookie) serta fungsi pembersihan sesi saat Logout.
+PBI-17: [C/U] Upload Bukti Pembayaran & Locking Seat
+Komponen File Uploader untuk unggah bukti transfer yang dilengkapi dengan error handling reaktif jika slot gantangan sudah terisi oleh pengguna lain.
+PBI-21: [R/U] Interactive Gantangan & Selection
+Interface khusus juri untuk melakukan pemilihan burung secara visual melalui layout grid interaktif yang dioptimalkan untuk perangkat smartphone.
