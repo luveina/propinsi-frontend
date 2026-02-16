@@ -149,6 +149,13 @@ main (production)
 - `hotfix/nama-urgent-fix` - untuk urgent fixes di production
 - `refactor/nama-refactor` - untuk refactoring code
 
+5. Monitoring & Dashboard (EPIC 05)
+
+PBI-25 & PBI-26 (Presensi): Tabel partisipan dengan fitur Search Bar reaktif dan Toggle Switch untuk check-in peserta secara langsung (auto-save).
+
+
+PBI-27 & PBI-28 (Analytics): Dashboard Koordinator Lomba yang menampilkan 4 Summary Cards (Revenue, Tiket, dll.) serta Line Chart interaktif untuk tren penjualan.
+
 Fitur & Backlog (Front-End Mapping)
 Implementasi Frontend pada aplikasi SILOBUR-NG mengikuti Acceptance Criteria (FE) sebagai berikut:
 
