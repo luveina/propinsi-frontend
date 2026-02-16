@@ -135,3 +135,9 @@ main (production)
 - `fix/nama-bug` - untuk bug fixes
 - `hotfix/nama-urgent-fix` - untuk urgent fixes di production
 - `refactor/nama-refactor` - untuk refactoring code
+
+**Fira**
+Berikut adalah detail implementasi FE berdasarkan Product Backlog Item (PBI) SILOBUR-NG:
+- **PBI-4 dan 5 (Profile)**: PBI-4 & PBI-5 (Profil): Halaman profil Read-Only untuk informasi akun dan Modal Form untuk pembaruan password secara mandiri.
+- **PBI-17 (Pembayaran)**: Komponen File Uploader untuk bukti transfer beserta penanganan pesan error jika nomor gantangan baru saja diambil orang lain.
+- **PBI-22 (Scoring)**: Tampilan klasemen sementara dengan status polling "Menunggu Juri Lain" dan tabel input poin Koncer (A/B).
