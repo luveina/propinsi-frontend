@@ -178,10 +178,7 @@ Berikut adalah daftar **Product Backlog Item (PBI)** yang sedang dan akan saya k
 
 ## 5. Monitoring & Dashboard (EPIC 05)
 
-PBI-25 & PBI-26 (Presensi): Tabel partisipan dengan fitur Search Bar reaktif dan Toggle Switch untuk check-in peserta secara langsung (auto-save).
+- PBI-25 & PBI-26 (Presensi): Tabel partisipan dengan fitur Search Bar reaktif dan Toggle Switch untuk check-in peserta secara langsung (auto-save).
 
 
-PBI-27 & PBI-28 (Analytics): Dashboard Koordinator Lomba yang menampilkan 4 Summary Cards (Revenue, Tiket, dll.) serta Line Chart interaktif untuk tren penjualan.
-
-Fitur & Backlog (Front-End Mapping)
-Implementasi Frontend pada aplikasi SILOBUR-NG mengikuti Acceptance Criteria (FE) sebagai berikut:
+- PBI-27 & PBI-28 (Analytics): Dashboard Koordinator Lomba yang menampilkan 4 Summary Cards (Revenue, Tiket, dll.) serta Line Chart interaktif untuk tren penjualan.
