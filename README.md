@@ -153,3 +153,9 @@ Berikut adalah detail implementasi FE berdasarkan Product Backlog Item (PBI) SIL
 - **PBI-4 dan 5 (Profile)**: PBI-4 & PBI-5 (Profil): Halaman profil Read-Only untuk informasi akun dan Modal Form untuk pembaruan password secara mandiri.
 - **PBI-17 (Pembayaran)**: Komponen File Uploader untuk bukti transfer beserta penanganan pesan error jika nomor gantangan baru saja diambil orang lain.
 - **PBI-22 (Scoring)**: Tampilan klasemen sementara dengan status polling "Menunggu Juri Lain" dan tabel input poin Koncer (A/B).
+5. Monitoring & Dashboard (EPIC 05)
+
+PBI-25 & PBI-26 (Presensi): Tabel partisipan dengan fitur Search Bar reaktif dan Toggle Switch untuk check-in peserta secara langsung (auto-save).
+
+
+PBI-27 & PBI-28 (Analytics): Dashboard Koordinator Lomba yang menampilkan 4 Summary Cards (Revenue, Tiket, dll.) serta Line Chart interaktif untuk tren penjualan.
