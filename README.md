@@ -135,3 +135,14 @@ main (production)
 - `fix/nama-bug` - untuk bug fixes
 - `hotfix/nama-urgent-fix` - untuk urgent fixes di production
 - `refactor/nama-refactor` - untuk refactoring code
+
+Fitur & Backlog (Front-End Mapping)
+Implementasi Frontend pada aplikasi SILOBUR-NG mengikuti Acceptance Criteria (FE) sebagai berikut:
+
+3. Reservasi & Tiket (EPIC 03)
+
+PBI-16 (Denah Gantangan): UI Layout Gantangan (grid 24 slot) dengan indikasi warna untuk status Available dan Booked/Disabled.
+
+PBI-17 (Pembayaran): Komponen File Uploader untuk bukti transfer beserta penanganan pesan error jika nomor gantangan baru saja diambil orang lain.
+
+PBI-19 (E-Ticket): Menu "My Ticket" yang menampilkan status pembayaran (Paid, Pending, Invalid) menggunakan label warna dan fitur unduh tiket.
