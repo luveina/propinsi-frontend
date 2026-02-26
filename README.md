@@ -2,18 +2,17 @@
 
 Frontend application untuk project Propinsi menggunakan Vue 3 dengan Tailwind CSS.
 
-## Backlog & Fitur (Azzahra)
+## Backlog & Fitur
 
-Berikut adalah daftar **Product Backlog Item (PBI)** yang sedang dan akan saya kerjakan:
+Berikut adalah detail implementasi FE berdasarkan Product Backlog Item (PBI) SILOBUR-NG:
 
-- [ ] **[R] Katalog Lomba** Fitur untuk menampilkan daftar lomba yang tersedia bagi peserta.
-- [ ] **[R] Detail Lomba** Halaman untuk melihat informasi lengkap mengenai suatu lomba.
-- [ ] **[R/U] Verifikasi Pembayaran Peserta** Fitur admin untuk melihat bukti bayar dan melakukan validasi (terima/tolak).
-- [ ] **[U] Detail Lomba Juri** Fitur khusus Juri untuk memperbarui atau melengkapi data pada detail lomba.
-- [ ] **[R] Pengumuman Hasil Akhir Lomba** Halaman untuk menampilkan hasil akhir atau pemenang lomba.
-- [ ] **[R] Daftar Partisipan Lomba** Fitur untuk melihat daftar peserta yang sudah terdaftar di lomba tertentu.
-
-*(Keterangan: [R] = Read/View, [U] = Update/Edit)*
+- PBI-11 (Katalog Lomba): Tampilan daftar lomba menggunakan layout Card atau List View yang interaktif, dilengkapi penanda visual untuk lomba yang tersedia bagi peserta.
+- PBI-12 (Detail Lomba): Halaman informasi komprehensif menggunakan hierarki tipografi yang jelas dan badge status untuk menampilkan detail waktu, lokasi, dan persyaratan lomba.
+- PBI-18 (Verifikasi Pembayaran): Antarmuka tabel admin dengan fitur Modal/Lightbox untuk pratinjau bukti transfer dan Action Buttons (Terima/Tolak) yang dilengkapi dengan konfirmasi dialog serta toast notification.
+- PBI-20 (Detail Lomba Juri): Form interaktif khusus role Juri dengan input fields yang dioptimalkan untuk memperbarui atau melengkapi data teknis pada detail lomba.
+- PBI-24 (Hasil Akhir): Komponen Leaderboard atau klasemen akhir lomba yang menyoroti data pemenang menggunakan elemen visual (warna khusus/ikon) agar mudah dibaca.
+- PBI-25 (Daftar Partisipan): Tabel data Read-Only berisikan daftar peserta terdaftar dalam suatu lomba, dilengkapi dengan fitur paginasi atau scroll vertikal.
+- PBI-26 (Status Kehadiran): Komponen toggle switch (merah/hijau) pada tabel partisipan untuk mengubah status kehadiran secara otomatis (auto-save), dilengkapi toast notification saat berhasil.
 
 ## Prerequisites
 
