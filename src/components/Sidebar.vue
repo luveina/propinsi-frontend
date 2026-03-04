@@ -1,10 +1,20 @@
 <script setup lang="ts">
-// Komponen Sidebar tidak butuh banyak script untuk saat ini
+import { ref } from 'vue'
+import { useAuthStore } from '@/stores/auth/auth.store'
+import LogoutModal from '@/components/modals/LogoutModal.vue'
+
+const authStore = useAuthStore()
+const showLogoutModal = ref(false)
+
+function handleLogout() {
+  showLogoutModal.value = false
+  authStore.logout()
+}
 </script>
 
 <template>
-  <aside class="w-64 h-screen bg-[#314EAE] flex flex-col font-plus-jakarta text-white shadow-xl z-40">
-    
+  <aside class="w-64 h-screen bg-[#314EAE] flex flex-col font-plus-jakarta text-white shadow-xl">
+
     <div class="pt-8 pb-2 px-4 flex items-center justify-center gap-3">
       <img src="@/assets/siloburputih.png" alt="Logo" class="h-17 w-auto object-contain" />
     </div>
@@ -16,13 +26,22 @@
         </svg>
         Manajemen Akun
       </a>
-      
-      </nav>
+    </nav>
 
     <div class="p-5 mb-2">
-      <button class="w-full bg-white text-[#314EAE] font-bold py-3 rounded-lg text-sm hover:bg-gray-100 transition-colors flex justify-center items-center shadow-md">
+      <button
+        @click="showLogoutModal = true"
+        class="w-full bg-white text-[#314EAE] font-bold py-3 rounded-lg text-sm hover:bg-gray-100 transition-colors flex justify-center items-center shadow-md"
+      >
         Log Out
       </button>
     </div>
   </aside>
+
+  <LogoutModal
+    :show="showLogoutModal"
+    :loading="authStore.loading"
+    @close="showLogoutModal = false"
+    @confirm="handleLogout"
+  />
 </template>
