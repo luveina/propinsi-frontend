@@ -17,15 +17,9 @@ export default {
   ],
   theme: {
     extend: {
-      colors: {
-        'silobur-dark': '#2E42B2',    /* Sidebar/Header */
-        'silobur-primary': '#2D48C8', /* Button */
-        'silobur-light': '#6D9BED',   /* Field Active/Username */
-        'silobur-soft': '#DEE8FB',    /* Field BG */
-      },
       fontFamily: {
-        jakarta: ['Plus Jakarta Sans', 'sans-serif'],
-      },
+        sans: ['"Plus Jakarta Sans"', ...defaultTheme.fontFamily.sans],
+      }
     },
   },
   plugins: [],

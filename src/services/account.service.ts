@@ -1,0 +1,63 @@
+import axios, { AxiosError } from 'axios';
+import type { AccountRequest } from '@/interfaces/account.interface';
+
+// Sesuaikan URL dengan port backend Spring Boot kamu
+const API_URL = 'http://localhost:8080/api/accounts';
+
+/**
+ * Service untuk mengirim data pendaftaran akun baru ke Backend.
+ * @param payload - Data akun (nama, username, telp, role)
+ */
+export const postCreateAccount = async (payload: AccountRequest): Promise<any> => {
+  try {
+    const response = await axios.post(API_URL, payload);
+    
+    // Mengembalikan data dari backend (biasanya status 201 Created)
+    return response.data;
+  } catch (error: unknown) {
+    // Menangani error dari Axios secara spesifik agar tidak muncul error 'unknown'
+    if (axios.isAxiosError(error)) {
+      const axiosError = error as AxiosError<any>;
+      
+      // Mengambil pesan error dari backend jika ada (misal: "Username sudah terdaftar")
+      const serverMessage = axiosError.response?.data;
+      
+      // Melempar kembali error agar bisa ditangkap oleh komponen UI (Modal)
+      throw serverMessage || 'Terjadi kesalahan pada server';
+    }
+    
+    // Jika error bukan dari Axios
+    throw 'Terjadi kesalahan sistem yang tidak diketahui';
+  }
+};
+
+// Tambahkan ini di bawah fungsi POST yang kemarin
+export const getAllAccounts = async () => {
+  try {
+    const response = await axios.get(API_URL);
+    return response.data;
+  } catch (error) {
+    console.error("Gagal mengambil data akun", error);
+    throw error;
+  }
+};
+
+export const updateAccount = async (id: number, data: any) => {
+  try {
+    const response = await axios.put(`${API_URL}/${id}`, data);
+    return response.data;
+  } catch (error) {
+    console.error("Gagal update akun", error);
+    throw error;
+  }
+};
+
+export const deleteAccount = async (id: number) => {
+  try {
+    const response = await axios.delete(`${API_URL}/${id}`);
+    return response.data;
+  } catch (error) {
+    console.error("Gagal menghapus akun", error);
+    throw error;
+  }
+};
