@@ -14,6 +14,10 @@ const filterRole = ref('');      // Menyimpan pilihan filter dropdown
 const isModalOpen = ref(false);  // Mengatur buka/tutup modal
 const isEditMode = ref(false); // Menyimpan status apakah sedang dalam mode edit
 const selectedAccount = ref<any>(null); // Menyimpan data akun yang sedang diedit (jika ada)
+const currentUser = ref({
+  fullName: '',
+  role: ''
+});
 
 // delete confirmation
 const isDeleteModalOpen = ref(false);
@@ -37,6 +41,19 @@ const fetchAccounts = async () => {
 
 onMounted(() => {
   fetchAccounts();
+
+  const userRaw = localStorage.getItem('user');
+  if (userRaw) {
+    const userParsed = JSON.parse(userRaw);
+    
+    // Debug dulu untuk memastikan fullName sudah muncul
+    console.log("Data Login Baru:", userParsed);
+
+    currentUser.value = {
+      fullName: userParsed.fullName || 'Nama Tidak Ditemukan',
+      role: userParsed.role || 'Admin'
+    };
+  }
 });
 
 // ==============================
@@ -128,8 +145,8 @@ const closeModal = () => {
       <div class="bg-white px-12 py-6 shadow-sm flex justify-between items-center">
         <h1 class="text-3xl font-bold text-[#2E42B2]">Daftar Akun</h1>
         <div class="text-right leading-tight">
-          <p class="font-semibold">Kimi Antonelli</p>
-          <p class="text-xs text-gray-500">Admin</p>
+          <p class="font-semibold">{{ currentUser.fullName }}</p>
+          <p class="text-xs text-gray-500">{{ currentUser.role }}</p>
         </div>
       </div>
 
@@ -212,8 +229,8 @@ const closeModal = () => {
                 :class="['odd:bg-white even:bg-[#DEE8FB] hover:bg-[#EBEBEC] transition-colors', account.status === 'Inactive' ? 'bg-red-50' : '']"
               >
                 <td class="py-3 px-6 text-sm text-[#2E42B2] font-medium text-center">{{ account.username }}</td>
-                <td class="py-3 px-6 text-sm text-[#2E42B2] text-center">{{ account.namaLengkap }}</td>
-                <td class="py-3 px-6 text-sm text-[#2E42B2] text-center">{{ account.nomorWhatsapp }}</td>
+                <td class="py-3 px-6 text-sm text-[#2E42B2] text-center">{{ account.fullName }}</td>
+                <td class="py-3 px-6 text-sm text-[#2E42B2] text-center">{{ account.phoneNumber }}</td>
                 <td class="py-3 px-6 text-sm text-center">
                   <span class="inline-block whitespace-nowrap bg-[#9CBFF4] text-[#2E42B2] py-1 px-4 rounded-full text-xs font-semibold border border-[#2E42B2]">
                     {{ account.role }}

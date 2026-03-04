@@ -18,12 +18,12 @@
 
           <div>
             <label class="block text-sm font-semibold mb-1">Nama Lengkap</label>
-            <input v-model="form.namaLengkap" type="text" class="w-full border rounded-lg px-3 py-2 focus:outline-blue-500" placeholder="Masukkan nama lengkap" required />
+            <input v-model="form.fullName" type="text" class="w-full border rounded-lg px-3 py-2 focus:outline-blue-500" placeholder="Masukkan nama lengkap" required />
           </div>
 
           <div>
             <label class="block text-sm font-semibold mb-1">Nomor WhatsApp</label>
-            <input v-model="form.nomorWhatsapp" type="text" class="w-full border rounded-lg px-3 py-2 focus:outline-blue-500" placeholder="Masukkan nomor WhatsApp" required />
+            <input v-model="form.phoneNumber" type="text" class="w-full border rounded-lg px-3 py-2 focus:outline-blue-500" placeholder="Masukkan nomor WhatsApp" required />
           </div>
 
           <div v-if="!isEdit">
@@ -89,8 +89,8 @@ const title = computed(() => (props.isEdit ? 'Edit Akun' : 'Tambah Akun'));
 
 const form = reactive({
   username: '',
-  namaLengkap: '',
-  nomorWhatsapp: '',
+  fullName: '',
+  phoneNumber: '',
   role: ''
 });
 
@@ -100,13 +100,13 @@ watch(
   ([isEdit, editData]) => {
     if (isEdit && editData) {
       form.username = editData.username || '';
-      form.namaLengkap = editData.namaLengkap || '';
-      form.nomorWhatsapp = editData.nomorWhatsapp || '';
+      form.fullName = editData.fullName || '';
+      form.phoneNumber = editData.phoneNumber || '';
       form.role = editData.role || '';
     } else {
       form.username = '';
-      form.namaLengkap = '';
-      form.nomorWhatsapp = '';
+      form.fullName = '';
+      form.phoneNumber = '';
       form.role = '';
     }
   },
@@ -117,8 +117,9 @@ const submitForm = async () => {
   try {
     if (props.isEdit && props.editData && props.editData.id) {
       const payload: any = {
-        namaLengkap: form.namaLengkap,
-        nomorWhatsapp: form.nomorWhatsapp,
+        username: form.username,
+        fullName: form.fullName,
+        phoneNumber: form.phoneNumber,
         role: form.role
       };
       await updateAccount(props.editData.id, payload);
