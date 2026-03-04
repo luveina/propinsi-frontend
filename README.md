@@ -2,6 +2,18 @@
 
 Frontend application untuk project Propinsi menggunakan Vue 3 dengan Tailwind CSS.
 
+## Backlog & Fitur
+
+Berikut adalah detail implementasi FE berdasarkan Product Backlog Item (PBI) SILOBUR-NG:
+
+- PBI-11 (Katalog Lomba): Tampilan daftar lomba menggunakan layout Card atau List View yang interaktif, dilengkapi penanda visual untuk lomba yang tersedia bagi peserta.
+- PBI-12 (Detail Lomba): Halaman informasi komprehensif menggunakan hierarki tipografi yang jelas dan badge status untuk menampilkan detail waktu, lokasi, dan persyaratan lomba.
+- PBI-18 (Verifikasi Pembayaran): Antarmuka tabel admin dengan fitur Modal/Lightbox untuk pratinjau bukti transfer dan Action Buttons (Terima/Tolak) yang dilengkapi dengan konfirmasi dialog serta toast notification.
+- PBI-20 (Detail Lomba Juri): Form interaktif khusus role Juri dengan input fields yang dioptimalkan untuk memperbarui atau melengkapi data teknis pada detail lomba.
+- PBI-24 (Hasil Akhir): Komponen Leaderboard atau klasemen akhir lomba yang menyoroti data pemenang menggunakan elemen visual (warna khusus/ikon) agar mudah dibaca.
+- PBI-25 (Daftar Partisipan): Tabel data Read-Only berisikan daftar peserta terdaftar dalam suatu lomba, dilengkapi dengan fitur paginasi atau scroll vertikal.
+- PBI-26 (Status Kehadiran): Komponen toggle switch (merah/hijau) pada tabel partisipan untuk mengubah status kehadiran secara otomatis (auto-save), dilengkapi toast notification saat berhasil.
+
 ## Prerequisites
 
 Sebelum menjalankan aplikasi ini, pastikan Anda telah menginstall:
@@ -136,49 +148,14 @@ main (production)
 - `hotfix/nama-urgent-fix` - untuk urgent fixes di production
 - `refactor/nama-refactor` - untuk refactoring code
 
-## 1. Manajemen Akun (EPIC 01) 
-Berikut adalah detail implementasi FE berdasarkan Product Backlog Item (PBI) SILOBUR-NG:
-
-- PBI-1: Registrasi Peserta
-Halaman registrasi dengan validasi form real-time, toggle visibility password, dan integrasi API untuk pendaftaran akun baru.
-- PBI-2 & PBI-3: Login & Logout
-Implementasi landing page berupa form Login dengan penanganan sesi lokal (local storage/cookie) serta fungsi pembersihan sesi saat Logout.
-- PBI-17: [C/U] Upload Bukti Pembayaran & Locking Seat
-Komponen File Uploader untuk unggah bukti transfer yang dilengkapi dengan error handling reaktif jika slot gantangan sudah terisi oleh pengguna lain.
-- PBI-21: [R/U] Interactive Gantangan & Selection
-Interface khusus juri untuk melakukan pemilihan burung secara visual melalui layout grid interaktif yang dioptimalkan untuk perangkat smartphone.
-
-## 2. Katalog & Manajemen Lomba (EPIC 02)
-
+**Fira**
 Berikut adalah detail implementasi FE berdasarkan Product Backlog Item (PBI) SILOBUR-NG:
 - **PBI-4 dan 5 (Profile)**: PBI-4 & PBI-5 (Profil): Halaman profil Read-Only untuk informasi akun dan Modal Form untuk pembaruan password secara mandiri.
 - **PBI-17 (Pembayaran)**: Komponen File Uploader untuk bukti transfer beserta penanganan pesan error jika nomor gantangan baru saja diambil orang lain.
 - **PBI-22 (Scoring)**: Tampilan klasemen sementara dengan status polling "Menunggu Juri Lain" dan tabel input poin Koncer (A/B).
+5. Monitoring & Dashboard (EPIC 05)
 
-## 3. Reservasi & Tiket (EPIC 03)
-
-- PBI-16 (Denah Gantangan): UI Layout Gantangan (grid 24 slot) dengan indikasi warna untuk status Available dan Booked/Disabled.
-
-- PBI-17 (Pembayaran): Komponen File Uploader untuk bukti transfer beserta penanganan pesan error jika nomor gantangan baru saja diambil orang lain.
-
-- PBI-19 (E-Ticket): Menu "My Ticket" yang menampilkan status pembayaran (Paid, Pending, Invalid) menggunakan label warna dan fitur unduh tiket.
-
-## 4. Interface Penjurian (EPIC 04)
-
-Berikut adalah daftar **Product Backlog Item (PBI)** yang sedang dan akan saya kerjakan:
-
-- [ ] **[R] Katalog Lomba** Fitur untuk menampilkan daftar lomba yang tersedia bagi peserta.
-- [ ] **[R] Detail Lomba** Halaman untuk melihat informasi lengkap mengenai suatu lomba.
-- [ ] **[R/U] Verifikasi Pembayaran Peserta** Fitur admin untuk melihat bukti bayar dan melakukan validasi (terima/tolak).
-- [ ] **[U] Detail Lomba Juri** Fitur khusus Juri untuk memperbarui atau melengkapi data pada detail lomba.
-- [ ] **[R] Pengumuman Hasil Akhir Lomba** Halaman untuk menampilkan hasil akhir atau pemenang lomba.
-- [ ] **[R] Daftar Partisipan Lomba** Fitur untuk melihat daftar peserta yang sudah terdaftar di lomba tertentu.
-
-*(Keterangan: [R] = Read/View, [U] = Update/Edit)*
-
-## 5. Monitoring & Dashboard (EPIC 05)
-
-- PBI-25 & PBI-26 (Presensi): Tabel partisipan dengan fitur Search Bar reaktif dan Toggle Switch untuk check-in peserta secara langsung (auto-save).
+PBI-25 & PBI-26 (Presensi): Tabel partisipan dengan fitur Search Bar reaktif dan Toggle Switch untuk check-in peserta secara langsung (auto-save).
 
 
-- PBI-27 & PBI-28 (Analytics): Dashboard Koordinator Lomba yang menampilkan 4 Summary Cards (Revenue, Tiket, dll.) serta Line Chart interaktif untuk tren penjualan.
+PBI-27 & PBI-28 (Analytics): Dashboard Koordinator Lomba yang menampilkan 4 Summary Cards (Revenue, Tiket, dll.) serta Line Chart interaktif untuk tren penjualan.

@@ -1,9 +1,7 @@
-<script setup lang="ts"></script>
-
 <template>
-  <div class="bg-red-200">
-    Hello, World!
-  </div>
+  <RouterView />
 </template>
 
-<style scoped></style>
+<style>
+body { margin: 0; background-color: #F4F7FE; }
+</style>
