@@ -3,6 +3,7 @@ import { createRouter, createWebHistory } from 'vue-router'
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import ChangePasswordView from '@/views/ChangePasswordView.vue'
+import ProfileView from '@/views/ProfileView.vue'
 // import HomeView from '@/views/HomeView.vue'
 
 const router = createRouter({
@@ -33,6 +34,12 @@ const router = createRouter({
       component: () => import('@/views/ManajemenAkunView.vue'),
       meta: { requiresAuth: true },
     },
+    {
+    path: '/profile',
+    name: 'profile',
+    component: () => import('@/views/ProfileView.vue'), 
+    meta: { requiresAuth: true },
+  },
   
   ],
 })

@@ -33,7 +33,12 @@
           </div>
 
           <div v-if="isEdit">
-            <button type="button" @click="showResetPasswordModal = true" class="w-full bg-blue-700 text-white font-bold py-2 rounded-lg hover:bg-blue-800 transition cursor-pointer">
+            <label class="block text-sm font-semibold mb-1">Password</label>
+            <button 
+              type="button" 
+              @click="showResetConfirm = true" 
+              class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer"
+            >
               Reset Password?
             </button>
           </div>
@@ -41,18 +46,17 @@
           <div>
             <label class="block text-sm font-semibold mb-1">Role</label>
             <div class="relative">
-                <select v-model="form.role" class="w-full border rounded-lg px-3 py-2 focus:outline-blue-500" required>
+                <select v-model="form.role" class="w-full border rounded-lg px-3 py-2 focus:outline-blue-500 appearance-none" required>
                     <option value="" disabled>Pilih Role untuk Pengguna</option>
                     <option value="Juri">Juri</option>
                     <option value="Koordinator Lomba">Koordinator Lomba</option>
                     <option value="Koordinator Pendaftaran">Koordinator Pendaftaran</option>
                     <option value="Peserta">Peserta</option>
                 </select>
-
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
                 </div>
             </div>
           </div>
@@ -64,27 +68,37 @@
       </form>
     </div>
   </div>
+
+  <ResetConfirmModal 
+    :show="showResetConfirm" 
+    @close="showResetConfirm = false" 
+    @confirm="handleExecuteReset" 
+  />
+
+  <ResetSuccessModal 
+    :show="showResetSuccess" 
+    @close="showResetSuccess = false" 
+  />
 </template>
 
 <script setup lang="ts">
 import { reactive, watch, computed, ref } from 'vue';
-import { postCreateAccount, updateAccount } from '@/services/account.service';
+import { postCreateAccount, updateAccount, resetPasswordAccount } from '@/services/account.service';
+import ResetConfirmModal from '@/components/modals/ResetConfirmModal.vue';
+import ResetSuccessModal from '@/components/modals/ResetSuccessModal.vue';
 
 const props = defineProps<{
   isEdit?: boolean;
   editData?: any;
 }>();
 
-// create reactive aliases for template readability
 const isEdit = computed(() => !!props.isEdit);
-const editData = computed(() => props.editData);
-
 const emit = defineEmits(['close', 'success']);
 
-// reset password modal
-const showResetPasswordModal = ref(false);
+// States untuk Reset Password
+const showResetConfirm = ref(false);
+const showResetSuccess = ref(false);
 
-// judul dinamis berdasarkan mode
 const title = computed(() => (props.isEdit ? 'Edit Akun' : 'Tambah Akun'));
 
 const form = reactive({
@@ -94,7 +108,7 @@ const form = reactive({
   role: ''
 });
 
-// isi ulang form ketika props berubah
+// Watcher untuk mengisi form saat edit
 watch(
   () => [props.isEdit, props.editData],
   ([isEdit, editData]) => {
@@ -113,23 +127,30 @@ watch(
   { immediate: true }
 );
 
+const handleExecuteReset = async () => {
+  try {
+    if (props.editData?.id) {
+      await resetPasswordAccount(props.editData.id);
+      showResetConfirm.value = false;
+      showResetSuccess.value = true;
+    }
+  } catch (error) {
+    alert("Gagal mereset password: " + error);
+  }
+};
+
 const submitForm = async () => {
   try {
-    if (props.isEdit && props.editData && props.editData.id) {
-      const payload: any = {
-        username: form.username,
-        fullName: form.fullName,
-        phoneNumber: form.phoneNumber,
-        role: form.role
-      };
+    if (isEdit.value && props.editData?.id) {
+      const payload = { ...form };
       await updateAccount(props.editData.id, payload);
     } else {
-      await postCreateAccount(form as any);
+      await postCreateAccount(form);
     }
     emit('success');
     emit('close');
   } catch (error) {
-    alert("Gagal: " + error);
+    alert("Gagal menyimpan: " + error);
   }
 };
 </script>

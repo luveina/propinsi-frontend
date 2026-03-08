@@ -80,3 +80,20 @@ export const deleteAccount = async (id: number) => {
     throw error;
   }
 };
+
+export const resetPasswordAccount = async (id: number): Promise<any> => {
+  const token = localStorage.getItem('token'); // Ambil token dari storage
+  try {
+    const response = await axios.put(`${API_URL}/${id}/reset`, {}, {
+      headers: { 
+        Authorization: `Bearer ${token}` 
+      }
+    });
+    return response.data;
+  } catch (error: any) {
+    if (axios.isAxiosError(error)) {
+      throw error.response?.data || 'Gagal mereset password';
+    }
+    throw 'Terjadi kesalahan sistem';
+  }
+};
