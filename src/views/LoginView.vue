@@ -90,7 +90,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth/auth.store'
 import { useBreakpoint } from '@/composables/useBreakpoint'
 import PasswordInput from '@/components/PasswordInput.vue'
@@ -98,12 +99,22 @@ import ErrorModal from '@/components/modals/ErrorModal.vue'
 import ForgotPasswordModal from '@/components/modals/ForgotPasswordModal.vue'
 
 const authStore = useAuthStore()
+const route = useRoute()
 const { isDesktop } = useBreakpoint()
 
 const form = ref({ username: '', password: '' })
 const showErrorModal = ref(false)
 const showForgotModal = ref(false)
 const errorMessage = ref('')
+
+onMounted(() => {
+  // Cek apakah ada query parameter 'alert=session_expired' di URL
+  if (route.query.alert === 'session_expired') {
+    errorMessage.value = 'Sesi Anda telah berakhir. Silakan login kembali.'
+    showErrorModal.value = true
+  }
+})
+
 
 async function handleLogin() {
   authStore.clearError()

@@ -152,6 +152,7 @@ import ErrorModal from '@/components/modals/ErrorModal.vue';
 import { useBreakpoint } from '@/composables/useBreakpoint';
 import { useAuthStore } from '@/stores/auth/auth.store';
 import { getProfile } from '@/services/profile.service';
+import { useRouter } from 'vue-router'
 
 const { isDesktop } = useBreakpoint();
 const authStore = useAuthStore();
@@ -160,11 +161,27 @@ const profile = ref({ username: '', fullName: '', phoneNumber: '', role: '' });
 const showChangePasswordModal = ref(false);
 const statusModal = reactive({ show: false, type: 'success' as 'success' | 'error', message: '' });
 
+const router = useRouter()
+
 const loadProfile = async () => {
   try {
     const response = await getProfile();
     profile.value = response.data;
-  } catch (error) { console.error("Gagal memuat profil", error); }
+  } catch (error: any) {
+    // CEK APAKAH ERROR 401 (UNAUTHORIZED)
+    if (error.response?.status === 401) {
+      // 1. Hapus sesi lokal (panggil logout di store)
+      authStore.logout(); 
+      
+      // 2. Redirect ke login dengan query parameter
+      router.push({ 
+        name: 'login', 
+        query: { alert: 'session_expired' } 
+      });
+    } else {
+      console.error("Gagal memuat profil", error);
+    }
+  }
 };
 
 onMounted(loadProfile);

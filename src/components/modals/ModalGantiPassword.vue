@@ -23,8 +23,10 @@
 
         <button 
           type="submit" 
-          :disabled="loading"
-          class="w-full bg-[#2E42B2] text-white font-bold py-2.5 rounded-lg mt-4 hover:bg-blue-800 transition disabled:opacity-50 cursor-pointer text-sm"
+          :disabled="loading || !isFormValid"
+          class="w-full text-white font-bold py-2.5 rounded-lg mt-4 transition shadow-md text-sm
+                 enabled:bg-[#2E42B2] enabled:hover:bg-blue-800 enabled:cursor-pointer
+                 disabled:bg-gray-400 disabled:cursor-not-allowed"
         >
           {{ loading ? 'Memproses...' : 'Simpan' }}
         </button>
@@ -34,7 +36,7 @@
 </template>
 
 <script setup lang="ts">
-import { reactive, ref } from 'vue';
+import { reactive, ref, computed } from 'vue'; 
 import PasswordInput from '@/components/PasswordInput.vue';
 import { updatePassword } from '@/services/profile.service';
 
@@ -46,6 +48,14 @@ const form = reactive({
   oldPassword: '',
   newPassword: '',
   confirmPassword: ''
+});
+
+const isFormValid = computed(() => {
+  return (
+    form.oldPassword.trim() !== '' &&
+    form.newPassword.trim() !== '' &&
+    form.confirmPassword.trim() !== ''
+  );
 });
 
 const handleSubmit = async () => {
