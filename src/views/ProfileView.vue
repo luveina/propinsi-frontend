@@ -13,7 +13,7 @@
           <h1 class="text-2xl font-bold text-[#2E42B2] mb-6 text-left">Profil Akun</h1>
 
           <div class="w-full bg-white p-8 rounded-xl shadow-sm border border-gray-100">
-            <h2 class="text-lg font-bold text-[#1E3A8A] mb-6">Informasi Akun</h2>
+            <h2 class="text-xl font-bold text-[#1E3A8A] mb-6">Informasi Akun</h2>
 
             <div class="space-y-5">
               <div class="flex flex-col gap-1">
