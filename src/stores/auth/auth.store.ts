@@ -43,12 +43,12 @@ export const useAuthStore = defineStore('auth', () => {
         id: data.data.id,
         username: data.data.username,
         role: data.data.role,
-        isFirstLogin: data.data.isFirstLogin,
+        isFirstLogin: data.data.firstLogin, // BE returns "firstLogin"
       }
       localStorage.setItem('token', data.data.token)
       localStorage.setItem('user', JSON.stringify(user.value))
 
-      if (data.data.isFirstLogin) {
+      if (data.data.firstLogin) {
         router.push('/change-password')
       } else {
         router.push('/')

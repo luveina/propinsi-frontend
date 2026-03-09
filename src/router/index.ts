@@ -1,10 +1,9 @@
 import { createRouter, createWebHistory } from 'vue-router'
-
 import LoginView from '@/views/LoginView.vue'
 import RegisterView from '@/views/RegisterView.vue'
 import ChangePasswordView from '@/views/ChangePasswordView.vue'
+import ManajemenAkunView from '@/views/ManajemenAkunView.vue'
 import ProfileView from '@/views/ProfileView.vue'
-// import HomeView from '@/views/HomeView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -12,35 +11,33 @@ const router = createRouter({
     {
       path: '/login',
       name: 'login',
-      // component: LoginView,
-      component: () => import('@/views/LoginView.vue'),
+      component: LoginView,
       meta: { requiresGuest: true },
     },
     {
       path: '/register',
       name: 'register',
-      component: () => import('@/views/RegisterView.vue'),
+      component: RegisterView,
       meta: { requiresGuest: true },
     },
     {
       path: '/change-password',
       name: 'change-password',
-      component: () => import('@/views/ChangePasswordView.vue'),
+      component: ChangePasswordView,
       meta: { requiresAuth: true, requiresFirstLogin: true },
     },
     {
       path: '/',
       name: 'home',
-      component: () => import('@/views/ManajemenAkunView.vue'),
+      component: ManajemenAkunView,
       meta: { requiresAuth: true },
     },
     {
-    path: '/profile',
-    name: 'profile',
-    component: () => import('@/views/ProfileView.vue'), 
-    meta: { requiresAuth: true },
-  },
-  
+      path: '/profile',
+      name: 'profile',
+      component: ProfileView,
+      meta: { requiresAuth: true },
+    },
   ],
 })
 
@@ -57,21 +54,20 @@ router.beforeEach((to, _from, next) => {
     return next({ name: 'login' })
   }
 
-  // Halaman yang hanya untuk first login (change-password)
+  // Halaman change-password: hanya untuk first login
   if (to.meta.requiresFirstLogin && !isFirstLogin) {
     return next({ name: 'home' })
   }
 
-  // Kalau sudah login tapi coba akses login/register, redirect ke home
+  // Kalau sudah login tapi coba akses login/register
   if (to.meta.requiresGuest && isAuthenticated) {
-    // Tapi kalau masih first login, biarkan akses change-password
     if (isFirstLogin) {
       return next({ name: 'change-password' })
     }
     return next({ name: 'home' })
   }
 
-  // Kalau sudah login tapi masih firstLogin, paksa ke change-password dulu
+  // Kalau sudah login dan masih firstLogin 
   if (isAuthenticated && isFirstLogin && to.name !== 'change-password') {
     return next({ name: 'change-password' })
   }
