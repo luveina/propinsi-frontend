@@ -3,7 +3,7 @@
     <RouterLink to="/profile" class="flex items-center hover:opacity-80 transition-opacity cursor-pointer">
         <div class="text-right font-plus-jakarta">
           <h4 class="text-[#1E3A8A] font-bold text-sm leading-tight">{{ authStore.user?.fullName }}</h4>
-          <p class="text-[#718EBF] text-xs font-medium uppercase">{{ authStore.user?.role }}</p>
+          <p class="text-[#718EBF] text-xs font-medium uppercase">{{ authStore.user?.role.replace('_', ' ') }}</p>
         </div>
     </RouterLink>
   </header>
