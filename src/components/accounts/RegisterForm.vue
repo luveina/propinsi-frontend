@@ -2,50 +2,91 @@
   <div class="register-form">
     <div class="brand">
       <img src="@/assets/silobur-biru.png" alt="SILOBUR-NG Logo" class="brand-logo" />
-     
     </div>
 
     <div class="subtitle">
-      Daftar sebagai peserta <b class="silobur">SILOBUR-</b><i class="silobur">NG</i>
+      Daftar sebagai peserta <b class="silobur">SILOBUR-</b><i class="silobur ng">NG</i>
     </div>
 
+    <!-- Username -->
     <div class="field-group">
       <label class="field-label">Username</label>
-      <input v-model="form.username" class="text-input" placeholder="Username" type="text" autocomplete="username" />
+      <input
+        v-model="form.username"
+        class="text-input"
+        placeholder="Username"
+        type="text"
+        autocomplete="username"
+        @blur="validateField('username')"
+      />
+      <span v-if="errors.username" class="error-msg">{{ errors.username }}</span>
     </div>
 
+    <!-- Nama Lengkap -->
     <div class="field-group">
       <label class="field-label">Nama Lengkap</label>
-      <input v-model="form.fullName" class="text-input" placeholder="Nama Lengkap" type="text" autocomplete="name" />
+      <input
+        v-model="form.fullName"
+        class="text-input"
+        placeholder="Nama Lengkap"
+        type="text"
+        autocomplete="name"
+        @blur="validateField('fullName')"
+      />
+      <span v-if="errors.fullName" class="error-msg">{{ errors.fullName }}</span>
     </div>
 
+    <!-- Nomor WhatsApp -->
     <div class="field-group">
       <label class="field-label">Nomor WhatsApp</label>
-      <input v-model="form.phoneNumber" class="text-input" placeholder="Nomor WA" type="tel" autocomplete="tel" />
+      <input
+        v-model="form.phoneNumber"
+        class="text-input"
+        placeholder="Nomor WA (contoh: 08123456789)"
+        type="tel"
+        autocomplete="tel"
+        @blur="validateField('phoneNumber')"
+      />
+      <span v-if="errors.phoneNumber" class="error-msg">{{ errors.phoneNumber }}</span>
     </div>
 
+    <!-- Password -->
     <div class="field-group">
       <label class="field-label">Password</label>
-      <PasswordInput v-model="form.password" placeholder="Password" autocomplete="new-password" />
+      <PasswordInput
+        v-model="form.password"
+        placeholder="Password"
+        autocomplete="new-password"
+        @blur="validateField('password')"
+      />
+      <span v-if="errors.password" class="error-msg">{{ errors.password }}</span>
     </div>
 
+    <!-- Konfirmasi Password -->
     <div class="field-group">
       <label class="field-label">Konfirmasi Password</label>
-      <PasswordInput v-model="form.confirmPassword" placeholder="Konfirmasi Password" autocomplete="new-password" />
+      <PasswordInput
+        v-model="form.confirmPassword"
+        placeholder="Konfirmasi Password"
+        autocomplete="new-password"
+        @blur="validateField('confirmPassword')"
+      />
+      <span v-if="errors.confirmPassword" class="error-msg">{{ errors.confirmPassword }}</span>
     </div>
 
-    <button class="btn-submit" @click="$emit('submit', form)" :disabled="loading">
+    <button class="btn-submit" @click="handleSubmit" :disabled="loading || !isFormValid">
       <b>{{ loading ? 'Loading...' : 'Daftar' }}</b>
     </button>
   </div>
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed } from 'vue'
 import PasswordInput from '@/components/PasswordInput.vue'
 
 defineProps<{ loading?: boolean }>()
-defineEmits<{
+
+const emit = defineEmits<{
   submit: [form: {
     fullName: string
     username: string
@@ -62,6 +103,79 @@ const form = ref({
   password: '',
   confirmPassword: '',
 })
+
+const errors = ref({
+  username: '',
+  fullName: '',
+  phoneNumber: '',
+  password: '',
+  confirmPassword: '',
+})
+
+function validateField(field: keyof typeof form.value) {
+  switch (field) {
+    case 'username':
+      if (!form.value.username)
+        errors.value.username = 'Username wajib diisi'
+      else if (form.value.username.length < 4)
+        errors.value.username = 'Username minimal 4 karakter'
+      else
+        errors.value.username = ''
+      break
+    case 'fullName':
+      errors.value.fullName = form.value.fullName ? '' : 'Nama Lengkap wajib diisi'
+      break
+    case 'phoneNumber':
+      if (!form.value.phoneNumber)
+        errors.value.phoneNumber = 'Nomor WhatsApp wajib diisi'
+      else if (!/^08\d{8,11}$/.test(form.value.phoneNumber))
+        errors.value.phoneNumber = 'Format nomor tidak valid (contoh: 08123456789)'
+      else
+        errors.value.phoneNumber = ''
+      break
+    case 'password':
+      if (!form.value.password)
+        errors.value.password = 'Password wajib diisi'
+      else if (form.value.password.length < 6)
+        errors.value.password = 'Password minimal 6 karakter'
+      else
+        errors.value.password = ''
+      if (form.value.confirmPassword) validateField('confirmPassword')
+      break
+    case 'confirmPassword':
+      if (!form.value.confirmPassword)
+        errors.value.confirmPassword = 'Konfirmasi Password wajib diisi'
+      else if (form.value.confirmPassword !== form.value.password)
+        errors.value.confirmPassword = 'Password dan Konfirmasi Password tidak cocok'
+      else
+        errors.value.confirmPassword = ''
+      break
+  }
+}
+
+function validateAll() {
+  validateField('username')
+  validateField('fullName')
+  validateField('phoneNumber')
+  validateField('password')
+  validateField('confirmPassword')
+}
+
+const isFormValid = computed(() => {
+  return (
+    form.value.username.length >= 4 &&
+    form.value.fullName !== '' &&
+    /^08\d{8,11}$/.test(form.value.phoneNumber) &&
+    form.value.password.length >= 6 &&
+    form.value.confirmPassword === form.value.password
+  )
+})
+
+function handleSubmit() {
+  validateAll()
+  if (!isFormValid.value) return
+  emit('submit', { ...form.value })
+}
 </script>
 
 <style scoped>
@@ -70,16 +184,11 @@ const form = ref({
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 20px;
+  gap: 16px;
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-.brand {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-}
+.brand { text-align: center; }
 
 .brand-logo {
   height: 100px;
@@ -87,16 +196,8 @@ const form = ref({
   object-fit: contain;
 }
 
-.brand-text {
-  font-family: 'Afacad', sans-serif;
-  font-size: 48px;
-  letter-spacing: -0.25px;
-  line-height: 64px;
-  color: #2e42b2;
-}
-
 .ng { font-weight: 700; }
-.silobur { font-weight: 700; }
+.silobur { color: #2e42b2; }
 
 .subtitle {
   font-size: 16px;
@@ -109,7 +210,7 @@ const form = ref({
   align-self: stretch;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 
 .field-label {
@@ -137,6 +238,12 @@ const form = ref({
 .text-input::placeholder { color: #4b79e6; }
 .text-input:focus { border-color: #1c244f; }
 
+.error-msg {
+  font-size: 12px;
+  color: #d93e39;
+  font-weight: 500;
+}
+
 .btn-submit {
   align-self: stretch;
   border-radius: 6px;
@@ -149,8 +256,9 @@ const form = ref({
   cursor: pointer;
   letter-spacing: 0.2px;
   line-height: 24px;
+  margin-top: 4px;
 }
 
 .btn-submit:hover:not(:disabled) { background-color: #2339a8; }
-.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 </style>
