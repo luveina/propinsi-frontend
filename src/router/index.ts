@@ -38,6 +38,10 @@ const router = createRouter({
       component: ProfileView,
       meta: { requiresAuth: true },
     },
+    {
+    path: '/buat-lomba',
+    name: 'BuatLomba',
+    component: () => import('@/views/lomba/BuatLombaView.vue'),  },
   ],
 })
 
@@ -77,7 +81,7 @@ router.beforeEach((to, _from, next) => {
     }
   }
 
-  // Kalau sudah login dan masih firstLogin 
+  // Kalau sudah login dan masih firstLogin
   if (isAuthenticated && isFirstLogin && to.name !== 'change-password') {
     return next({ name: 'change-password' })
   }
