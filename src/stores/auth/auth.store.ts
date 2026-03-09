@@ -52,7 +52,12 @@ export const useAuthStore = defineStore('auth', () => {
       if (data.data.firstLogin) {
         router.push('/change-password')
       } else {
-        router.push('/')
+        // Redirect berdasarkan role user
+        if (user.value?.role === 'ADMIN') {
+          router.push('/manajemen-akun')
+        } else {
+          router.push('/profile')
+        }
       }
     } catch (e: any) {
       error.value = e.message
@@ -97,7 +102,12 @@ export const useAuthStore = defineStore('auth', () => {
         user.value.isFirstLogin = false
         localStorage.setItem('user', JSON.stringify(user.value))
       }
-      router.push('/')
+      // Redirect berdasarkan role user
+      if (user.value?.role === 'ADMIN') {
+        router.push('/manajemen-akun')
+      } else {
+        router.push('/profile')
+      }
       return true
     } catch (e: any) {
       error.value = e.message

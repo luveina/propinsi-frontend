@@ -27,10 +27,10 @@ const router = createRouter({
       meta: { requiresAuth: true, requiresFirstLogin: true },
     },
     {
-      path: '/',
-      name: 'home',
+      path: '/manajemen-akun',
+      name: 'manajemen-akun',
       component: ManajemenAkunView,
-      meta: { requiresAuth: true },
+      meta: { requiresAuth: true, requiredRole: 'ADMIN' },
     },
     {
       path: '/profile',
@@ -56,7 +56,12 @@ router.beforeEach((to, _from, next) => {
 
   // Halaman change-password: hanya untuk first login
   if (to.meta.requiresFirstLogin && !isFirstLogin) {
-    return next({ name: 'home' })
+    // Redirect berdasarkan role
+    if (user?.role === 'Admin') {
+      return next({ name: 'manajemen-akun' })
+    } else {
+      return next({ name: 'profile' })
+    }
   }
 
   // Kalau sudah login tapi coba akses login/register
@@ -64,12 +69,25 @@ router.beforeEach((to, _from, next) => {
     if (isFirstLogin) {
       return next({ name: 'change-password' })
     }
-    return next({ name: 'home' })
+    // Jika sudah login dan bukan first login, redirect sesuai role
+    if (user?.role === 'ADMIN') {
+      return next({ name: 'manajemen-akun' })
+    } else {
+      return next({ name: 'profile' })
+    }
   }
 
   // Kalau sudah login dan masih firstLogin 
   if (isAuthenticated && isFirstLogin && to.name !== 'change-password') {
     return next({ name: 'change-password' })
+  }
+
+  // Role-based access control untuk route yang membutuhkan role spesifik
+  if (to.meta.requiredRole && isAuthenticated) {
+    if (user?.role !== to.meta.requiredRole) {
+      // Jika user tidak punya role yang diperlukan, redirect ke profile
+      return next({ name: 'profile' })
+    }
   }
 
   next()

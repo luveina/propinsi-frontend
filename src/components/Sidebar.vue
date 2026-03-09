@@ -24,7 +24,7 @@ function handleLogout() {
       
       <RouterLink 
         v-if="authStore.user?.role === 'ADMIN'"
-        to="/" 
+        to="/manajemen-akun" 
         class="flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-semibold transition-colors hover:bg-[#1E3A8A]"
         active-class="bg-[#1E3A8A] shadow-inner"
       >

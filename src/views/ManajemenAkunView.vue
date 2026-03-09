@@ -59,6 +59,25 @@ onMounted(() => {
 // ==============================
 // 3. FITUR SEARCH & FILTER
 // ==============================
+
+// Helper function untuk normalize role dari enum name ke label
+const normalizeRole = (role: string): string => {
+  if (!role) return '';
+  const roleMap: Record<string, string> = {
+    'ADMIN': 'Admin',
+    'JURI': 'Juri',
+    'KOORDINATOR_LOMBA': 'Koordinator Lomba',
+    'KOORDINATOR_PENDAFTARAN': 'Koordinator Pendaftaran',
+    'PESERTA': 'Peserta',
+    'Admin': 'Admin',
+    'Juri': 'Juri',
+    'Koordinator Lomba': 'Koordinator Lomba',
+    'Koordinator Pendaftaran': 'Koordinator Pendaftaran',
+    'Peserta': 'Peserta'
+  };
+  return roleMap[role] || role;
+};
+
 const filteredAccounts = computed(() => {
   return accounts.value.filter((account) => {
     const matchSearch = account.username?.toLowerCase().includes(searchQuery.value.toLowerCase()) || false;
@@ -71,13 +90,19 @@ const filteredAccounts = computed(() => {
 // 4. HANDLER SETELAH SIMPAN
 // ==============================
 const handleSuccessAdd = () => {
+  notification.value = 'Akun berhasil dibuat';
+  notificationType.value = 'success';
   isModalOpen.value = false;
   fetchAccounts();
+  setTimeout(() => (notification.value = ''), 3000);
 };
 
 const handleSuccessUpdate = () => {
+  notification.value = 'Akun berhasil diperbarui';
+  notificationType.value = 'success';
   isModalOpen.value = false;
   fetchAccounts();
+  setTimeout(() => (notification.value = ''), 3000);
 };
 
 const handleModalSuccess = () => {
@@ -235,7 +260,7 @@ const closeModal = () => {
                 <td class="py-3 px-6 text-sm text-[#2E42B2] text-center">{{ account.phoneNumber }}</td>
                 <td class="py-3 px-6 text-sm text-center">
                   <span class="inline-block whitespace-nowrap bg-[#9CBFF4] text-[#2E42B2] py-1 px-4 rounded-full text-xs font-semibold border border-[#2E42B2]">
-                    {{ account.role }}
+                    {{ normalizeRole(account.role) }}
                   </span>
                 </td>
                 <td class="py-3 px-6 text-sm text-center">
@@ -252,7 +277,7 @@ const closeModal = () => {
                       class="bg-[#FCD34D] hover:bg-yellow-600 text-yellow-900 px-3 py-1 rounded text-xs font-medium transition-colors cursor-pointer"
                     >Edit</button>
                     <button
-                      v-if="account.status !== 'Inactive' && account.role !== 'ADMIN'"
+                      v-if="account.status !== 'Inactive' && account.role !== 'Admin'"
                       @click="openDeleteModal(account)"
                       class="bg-[#EF4444] hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-medium transition-colors cursor-pointer"
                     >Hapus</button>

@@ -53,7 +53,7 @@
               </button>
 
               <p class="text-center text-[#4B79E6] font-medium text-xs mt-4">
-                Harap Hubungi Admin (0822-2222-1111) untuk Pengubahan Detail Akun Lainnya.
+                Harap Hubungi Admin (0812-3456-7890) untuk Pengubahan Detail Akun Lainnya.
               </p>
             </div>
           </div>
@@ -104,7 +104,7 @@
               <div class="flex flex-col gap-1">
                 <label class="text-[#1E3A8A] font-bold text-xs">Role</label>
                 <div class="w-full bg-[#DEE8FB] border border-[#2D48C8] rounded-lg px-4 py-2 text-[#1C244F] font-semibold text-sm">
-                  {{ profile.role }}
+                  {{formatRole(profile.role)}}
                 </div>
               </div>
 
@@ -113,7 +113,7 @@
               </button>
 
               <p class="text-center text-[#4B79E6] text-[10px] mt-4 px-4 font-bold leading-tight">
-                Harap Hubungi Admin (0822-2222-1111) untuk Pengubahan Detail Akun Lainnya.
+                Harap Hubungi Admin (0812-3456-7890) untuk Pengubahan Detail Akun Lainnya.
               </p>
         </div>
       </main>
@@ -182,6 +182,15 @@ const loadProfile = async () => {
       console.error("Gagal memuat profil", error);
     }
   }
+};
+
+const formatRole = (role: string) => {
+  if (!role) return "";
+  return role
+    .toLowerCase()
+    .split('_')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
 };
 
 onMounted(loadProfile);
