@@ -1,31 +1,23 @@
 <template>
-  <div class="bg-white rounded-lg border border-gray-600 w-full p-8 shadow-sm font-plus-jakarta">
-    <div class="flex flex-col items-center gap-2 mb-6 text-blue-800">
-      <h2 class="text-2xl font-bold">{{ isEdit ? 'Edit Lomba' : 'Buat Lomba Baru' }}</h2>
-      <p class="text-sm text-gray-600 text-center">
-        Pastikan semua detail lomba sudah benar <br/>sebelum {{ isEdit ? 'diperbarui' : 'dibuat' }}.
-      </p>
-    </div>
-
-    <form @submit.prevent="submitForm" class="space-y-5">
+  <form @submit.prevent="submitForm" class="space-y-5 font-plus-jakarta">
       <!-- Row 1: Nama & Lokasi -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-semibold mb-2">Nama Lomba <span class="text-red-500">*</span></label>
+          <label class="block text-sm font-semibold mb-2 text-[#1E3A8A]">Nama Lomba <span class="text-red-500">*</span></label>
           <input
             v-model="form.namaLomba"
             type="text"
-            class="w-full border border-blue-800 rounded-lg px-4 py-3 bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400"
             placeholder="Nama Lomba"
             required
           />
         </div>
         <div>
-          <label class="block text-sm font-semibold mb-2">Lokasi <span class="text-red-500">*</span></label>
+          <label class="block text-sm font-semibold mb-2 text-[#1E3A8A]">Lokasi <span class="text-red-500">*</span></label>
           <input
             v-model="form.lokasi"
             type="text"
-            class="w-full border border-blue-800 rounded-lg px-4 py-3 bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400"
             placeholder="Lokasi"
             required
           />
@@ -35,116 +27,130 @@
       <!-- Row 2: Tanggal & Jenis Burung -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-semibold mb-2">Tanggal - Waktu <span class="text-red-500">*</span></label>
+          <label class="block text-sm font-semibold mb-2 text-[#1E3A8A]">Tanggal - Waktu <span class="text-red-500">*</span></label>
           <input
             v-model="form.waktuTanggal"
             type="datetime-local"
-            class="w-full border border-blue-800 rounded-lg px-4 py-3 bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400"
             required
           />
         </div>
         <div>
-          <label class="block text-sm font-semibold mb-2">Jenis Burung <span class="text-red-500">*</span></label>
-          <select
-            v-model="form.jenisBurung"
-            class="w-full border border-blue-800 rounded-lg px-4 py-3 bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-            required
-          >
-            <option value="" disabled>Jenis Burung</option>
-            <option value="MURAI_BATU">Murai Batu</option>
-            <option value="CUCAK_IJO">Cucak Ijo</option>
-            <option value="KACER">Kacer</option>
-            <option value="KENARI">Kenari</option>
-            <option value="ANIS_KEMBANG">Anis Kembang</option>
-            <option value="LOVE_BIRD">Love Bird</option>
-          </select>
+          <label class="block text-sm font-semibold mb-2 text-[#1E3A8A]">Jenis Burung <span class="text-red-500">*</span></label>
+          <div class="relative">
+            <select
+              v-model="form.jenisBurung"
+              class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none"
+              required
+            >
+              <option value="" disabled>Jenis Burung</option>
+              <option value="MURAI_BATU">Murai Batu</option>
+              <option value="CUCAK_IJO">Cucak Ijo</option>
+              <option value="KACER">Kacer</option>
+              <option value="KENARI">Kenari</option>
+              <option value="ANIS_KEMBANG">Anis Kembang</option>
+              <option value="LOVE_BIRD">Love Bird</option>
+            </select>
+            <svg class="w-4 h-4 absolute right-3 top-3.5 text-[#2D48C8] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
         </div>
       </div>
 
-      <!-- Row 3: Kelas & Harga -->
+      <!-- Row 3: Kelas (dropdown) & Harga -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-semibold mb-2">Kelas</label>
-          <input
-            v-model="form.kelas"
-            type="text"
-            class="w-full border border-blue-800 rounded-lg px-4 py-3 bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Kelas"
-            required
-          />
+          <label class="block text-sm font-semibold mb-2 text-[#1E3A8A]">Kelas <span class="text-red-500">*</span></label>
+          <div class="relative">
+            <select
+              v-model="form.kelas"
+              class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none"
+              required
+            >
+              <option value="" disabled>Pilih Kelas</option>
+              <option value="Standard">Standard</option>
+              <option value="Ekonomis">Ekonomis</option>
+              <option value="Premium">Premium</option>
+              <option value="Ultimate">Ultimate</option>
+              <option value="Super Priority">Super Priority</option>
+            </select>
+            <svg class="w-4 h-4 absolute right-3 top-3.5 text-[#2D48C8] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
         </div>
         <div>
-          <label class="block text-sm font-semibold mb-2">Harga Tiket <span class="text-red-500">*</span></label>
+          <label class="block text-sm font-semibold mb-2 text-[#1E3A8A]">Harga Tiket <span class="text-red-500">*</span></label>
           <input
             v-model.number="form.hargaTiket"
             type="number"
             min="0"
-            class="w-full border border-blue-800 rounded-lg px-4 py-3 bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+            class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400"
             placeholder="Rp -"
             required
           />
         </div>
       </div>
 
-      <!-- Juri Section -->
+      <!-- Juri Section: 4 dropdown -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div v-for="juriIndex in 4" :key="juriIndex">
-          <label class="block text-sm font-semibold mb-2">Juri {{ juriIndex }} <span class="text-red-500">*</span></label>
-          <select
-            v-model="selectedJuriIds[juriIndex - 1]"
-            class="w-full border border-blue-800 rounded-lg px-4 py-3 bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 appearance-none"
-            required
-          >
-            <option :value="null" disabled>Juri {{ juriIndex }}</option>
-            <option
-              v-for="juri in availableJuriList"
-              :key="juri.id"
-              :value="juri.id"
-              :disabled="selectedJuriIds.includes(juri.id) && selectedJuriIds[juriIndex - 1] !== juri.id"
+          <label class="block text-sm font-semibold mb-2 text-[#1E3A8A]">Juri {{ juriIndex }} <span class="text-red-500">*</span></label>
+          <div class="relative">
+            <select
+              v-model="selectedJuriIds[juriIndex - 1]"
+              class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none"
+              required
             >
-              {{ juri.fullName }}
-            </option>
-          </select>
+              <option :value="null" disabled>Juri {{ juriIndex }}</option>
+              <option
+                v-for="juri in availableJuriList"
+                :key="juri.id"
+                :value="juri.id"
+                :disabled="selectedJuriIds.includes(juri.id) && selectedJuriIds[juriIndex - 1] !== juri.id"
+              >
+                {{ juri.fullName }}
+              </option>
+            </select>
+            <svg class="w-4 h-4 absolute right-3 top-3.5 text-[#2D48C8] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path></svg>
+          </div>
         </div>
       </div>
 
-      <!-- Contact Person -->
+      <!-- Contact Person + Jumlah Juara & Hadiah -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div>
-          <label class="block text-sm font-semibold mb-2">Contact Person <span class="text-red-500">*</span></label>
+          <label class="block text-sm font-semibold mb-2 text-[#1E3A8A]">Contact Person <span class="text-red-500">*</span></label>
           <input
             v-model="form.contactPerson"
             type="text"
-            class="w-full border border-blue-800 rounded-lg px-4 py-3 bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
-            placeholder="Contact Person"
+            class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400"
+            placeholder="Nama - Nomor WA"
             required
           />
         </div>
 
-        <!-- Jumlah Juara + Hadiah Side by Side -->
+        <!-- Jumlah Juara + Hadiah -->
         <div class="flex gap-4">
           <div class="w-32">
-            <label class="block text-sm font-semibold mb-2">Jumlah Juara <span class="text-red-500">*</span></label>
+            <label class="block text-sm font-semibold mb-2 text-[#1E3A8A]">Jumlah Juara <span class="text-red-500">*</span></label>
             <input
               v-model.number="jumlahJuara"
               type="number"
               min="1"
               max="10"
               @input="updateHadiahArray"
-              class="w-full border border-blue-800 rounded-lg px-4 py-3 bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-center"
+              class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-bold text-center focus:outline-none focus:ring-2 focus:ring-blue-400"
               required
             />
           </div>
           <div class="flex-1">
-            <label class="block text-sm font-semibold mb-2">Hadiah</label>
+            <label class="block text-sm font-semibold mb-2 text-[#1E3A8A]">Hadiah per Juara</label>
             <div class="space-y-2">
               <div v-for="(prize, index) in form.hadiah" :key="index" class="flex items-center gap-2">
-                <span class="text-xs font-medium w-16">Juara {{ index + 1 }} <span class="text-red-500">*</span></span>
+                <span class="text-xs font-semibold text-[#1E3A8A] w-14 shrink-0">Juara {{ index + 1 }} <span class="text-red-500">*</span></span>
                 <input
                   v-model.number="form.hadiah[index]"
                   type="number"
                   min="0"
-                  class="flex-1 border border-blue-800 rounded-lg px-3 py-2 bg-blue-50 focus:outline-none focus:ring-2 focus:ring-blue-500 text-sm"
+                  class="flex-1 border border-[#2D48C8] rounded-lg px-3 py-2 bg-[#DEE8FB] text-[#1C244F] font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
                   placeholder="Rp -"
                   required
                 />
@@ -155,24 +161,31 @@
       </div>
 
       <!-- Tombol Action -->
-      <div class="flex justify-center gap-3 pt-6">
+      <div class="flex justify-center gap-3 pt-4">
         <button
           type="button"
           @click="$emit('cancel')"
-          class="bg-gray-300 text-gray-800 px-8 py-3 rounded-lg font-bold hover:bg-gray-400 transition"
+          class="bg-gray-200 text-gray-700 px-8 py-2.5 rounded-lg font-bold hover:bg-gray-300 transition text-sm"
         >
           Kembali
         </button>
         <button
           type="submit"
-          class="bg-blue-800 text-white px-8 py-3 rounded-lg font-bold hover:bg-blue-900 transition min-w-[150px]"
+          class="bg-[#2E42B2] text-white px-8 py-2.5 rounded-lg font-bold hover:bg-blue-900 transition min-w-[160px] text-sm"
           :disabled="isLoading"
         >
           {{ isLoading ? 'Loading...' : (isEdit ? 'Simpan Perubahan' : 'Buat Lomba') }}
         </button>
       </div>
-    </form>
-  </div>
+  </form>
+
+  <ConfirmLombaModal
+    :show="showConfirmModal"
+    :is-edit="isEdit"
+    :loading="isLoading"
+    @close="showConfirmModal = false"
+    @confirm="executeSubmit"
+  />
 </template>
 
 <script setup lang="ts">
@@ -180,6 +193,7 @@ import { reactive, ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { postCreateLomba, putUpdateLomba, getAvailableJuri, postAssignJuri } from '@/services/lomba.service';
 import type { UserSummary } from '@/interfaces/lomba.interface';
+import ConfirmLombaModal from '@/components/modals/ConfirmLombaModal.vue';
 
 const props = defineProps<{
   isEdit?: boolean;
@@ -193,6 +207,7 @@ const isLoading = ref(false);
 const availableJuriList = ref<UserSummary[]>([]);
 const selectedJuriIds = ref<(number | null)[]>([null, null, null, null]);
 const jumlahJuara = ref(1);
+const showConfirmModal = ref(false);
 
 const form = reactive({
   namaLomba: '',
@@ -272,6 +287,13 @@ const submitForm = async () => {
     return;
   }
 
+  // Buka modal konfirmasi
+  showConfirmModal.value = true;
+};
+
+const executeSubmit = async () => {
+  const validJuriIds = selectedJuriIds.value.filter(id => id !== null) as number[];
+
   try {
     isLoading.value = true;
 
@@ -293,11 +315,12 @@ const submitForm = async () => {
     // Assign juri
     await postAssignJuri(lombaIdToAssign, { juriIds: validJuriIds });
 
-    alert(props.isEdit ? "Data lomba berhasil diperbarui" : "Lomba berhasil dibuat");
+    showConfirmModal.value = false;
     emit('success');
     router.push('/katalog-lomba');
 
   } catch (error: any) {
+    showConfirmModal.value = false;
     const errorMsg = error.response?.data?.message || error.message || "Terjadi kesalahan";
     alert("Gagal menyimpan lomba: " + errorMsg);
   } finally {

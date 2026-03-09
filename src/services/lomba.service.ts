@@ -48,3 +48,17 @@ export const postAssignJuri = async (lombaId: string, payload: AssignJuriRequest
   });
   return response.data;
 };
+
+export const getAllLomba = async () => {
+  const response = await axios.get(API_URL, {
+    headers: getAuthHeaders()
+  });
+  return response.data;
+};
+
+export const deleteLomba = async (id: string) => {
+  const response = await axios.delete(`${API_URL}/${id}`, {
+    headers: getAuthHeaders()
+  });
+  return response.data;
+};

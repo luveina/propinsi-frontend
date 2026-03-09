@@ -41,7 +41,15 @@ const router = createRouter({
     {
     path: '/buat-lomba',
     name: 'BuatLomba',
-    component: () => import('@/views/lomba/BuatLombaView.vue'),  },
+    component: () => import('@/views/lomba/BuatLombaView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/edit-lomba/:id',
+    name: 'EditLomba',
+    component: () => import('@/views/lomba/EditLombaView.vue'),
+    meta: { requiresAuth: true },
+  },
   ],
 })
 
