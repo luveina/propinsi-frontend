@@ -5,16 +5,16 @@
     <!-- ============================== -->
     <div v-if="isDesktop" class="flex flex-1">
       <Sidebar />
-      
+
       <div class="flex-1 flex flex-col min-w-0">
         <Header />
-        
+
         <main class="p-8 pb-20 flex-1">
           <h1 class="text-2xl font-bold text-[#2E42B2] mb-6 text-left">Profil Akun</h1>
-          
+
           <div class="w-full bg-white p-8 rounded-xl shadow-sm border border-gray-100">
             <h2 class="text-lg font-bold text-[#1E3A8A] mb-6">Informasi Akun</h2>
-            
+
             <div class="space-y-5">
               <div class="flex flex-col gap-1">
                 <label class="text-sm font-bold text-[#2D48C8]">Username</label>
@@ -45,7 +45,7 @@
                 </div>
               </div>
 
-              <button 
+              <button
                 @click="showChangePasswordModal = true"
                 class="w-full bg-[#2E42B2] text-white font-bold py-2.5 rounded-lg hover:bg-blue-800 transition-all shadow-md mt-4 cursor-pointer text-sm"
               >
@@ -124,18 +124,18 @@
         </button>
       </div>
     </div>
-    
-    <ModalGantiPassword 
-      :show="showChangePasswordModal" 
-      @close="showChangePasswordModal = false" 
+
+    <ModalGantiPassword
+      :show="showChangePasswordModal"
+      @close="showChangePasswordModal = false"
       @success="handlePasswordSuccess"
       @error="handlePasswordError"
     />
 
-    <ErrorModal 
-      :show="statusModal.show" 
-      :type="statusModal.type" 
-      :message="statusModal.message" 
+    <ErrorModal
+      :show="statusModal.show"
+      :type="statusModal.type"
+      :message="statusModal.message"
       confirm-label="Kembali"
       @confirm="statusModal.show = false"
       @close="statusModal.show = false"
@@ -171,12 +171,12 @@ const loadProfile = async () => {
     // CEK APAKAH ERROR 401 (UNAUTHORIZED)
     if (error.response?.status === 401) {
       // 1. Hapus sesi lokal (panggil logout di store)
-      authStore.logout(); 
-      
+      authStore.logout();
+
       // 2. Redirect ke login dengan query parameter
-      router.push({ 
-        name: 'login', 
-        query: { alert: 'session_expired' } 
+      router.push({
+        name: 'login',
+        query: { alert: 'session_expired' }
       });
     } else {
       console.error("Gagal memuat profil", error);
