@@ -1,15 +1,15 @@
 export interface AccountRequest {
-  namaLengkap: string;
+  fullName: string;
   username: string;
-  nomorWhatsapp: string;
+  phoneNumber: string;
   role: string;
 }
 
 export interface AccountResponse {
   id: number;
   username: string;
-  namaLengkap: string;
-  nomorWhatsapp: string;
+  fullName: string;
+  phoneNumber: string;
   role: string;
   createdAt: string;
 }

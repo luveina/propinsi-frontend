@@ -20,6 +20,7 @@ export interface JwtResponse {
   token: string
   id: number
   username: string
+  fullName: string
   role: string
   isFirstLogin: boolean
 }
@@ -33,6 +34,7 @@ export interface BaseResponse<T> {
 export interface AuthUser {
   id: number
   username: string
+  fullName: string
   role: string
   isFirstLogin: boolean
 }

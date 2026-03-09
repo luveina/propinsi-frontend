@@ -12,7 +12,6 @@
       <div class="form">
         <div class="brand">
           <img src="@/assets/silobur-biru.png" alt="SILOBUR-NG Logo" class="brand-logo" />
-          <!-- <span class="brand-text"><b>SILOBUR-</b><i class="ng">NG</i></span> -->
         </div>
         <div class="subtitle">
           Harap login untuk menggunakan SILOBUR-<i class="ng">NG</i>
@@ -20,16 +19,30 @@
 
         <div class="field-group">
           <label class="field-label">Username</label>
-          <input v-model="form.username" class="text-input" placeholder="Username" type="text" autocomplete="username" />
+          <input
+            v-model="form.username"
+            class="text-input"
+            placeholder="Username"
+            type="text"
+            autocomplete="username"
+            @blur="validateField('username')"
+          />
+          <span v-if="errors.username" class="error-msg">{{ errors.username }}</span>
         </div>
 
         <div class="field-group">
           <label class="field-label">Password</label>
-          <PasswordInput v-model="form.password" placeholder="Password" autocomplete="current-password" />
-          <button type="button" class="forgot-link" style="align-self: flex-end;" @click="showForgotModal = true">Lupa password?</button>
+          <PasswordInput
+            v-model="form.password"
+            placeholder="Password"
+            autocomplete="current-password"
+            @blur="validateField('password')"
+          />
+          <span v-if="errors.password" class="error-msg">{{ errors.password }}</span>
+          <button type="button" class="forgot-link" @click="showForgotModal = true">Lupa password?</button>
         </div>
 
-        <button class="btn-submit" @click="handleLogin" :disabled="authStore.loading">
+        <button class="btn-submit" @click="handleLogin" :disabled="authStore.loading || !isFormValid">
           <b>{{ authStore.loading ? 'Loading...' : 'Login' }}</b>
         </button>
 
@@ -54,16 +67,30 @@
 
       <div class="field-group">
         <label class="field-label">Username</label>
-        <input v-model="form.username" class="text-input" placeholder="Username" type="text" autocomplete="username" />
+        <input
+          v-model="form.username"
+          class="text-input"
+          placeholder="Username"
+          type="text"
+          autocomplete="username"
+          @blur="validateField('username')"
+        />
+        <span v-if="errors.username" class="error-msg">{{ errors.username }}</span>
       </div>
 
       <div class="field-group">
         <label class="field-label">Password</label>
-        <PasswordInput v-model="form.password" placeholder="Password" autocomplete="current-password" />
+        <PasswordInput
+          v-model="form.password"
+          placeholder="Password"
+          autocomplete="current-password"
+          @blur="validateField('password')"
+        />
+        <span v-if="errors.password" class="error-msg">{{ errors.password }}</span>
         <button type="button" class="forgot-link" @click="showForgotModal = true">Lupa password?</button>
       </div>
 
-      <button class="btn-submit" @click="handleLogin" :disabled="authStore.loading">
+      <button class="btn-submit" @click="handleLogin" :disabled="authStore.loading || !isFormValid">
         <b>{{ authStore.loading ? 'Loading...' : 'Login' }}</b>
       </button>
 
@@ -90,7 +117,8 @@
 </template>
 
 <script setup lang="ts">
-import { ref } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { useAuthStore } from '@/stores/auth/auth.store'
 import { useBreakpoint } from '@/composables/useBreakpoint'
 import PasswordInput from '@/components/PasswordInput.vue'
@@ -98,14 +126,39 @@ import ErrorModal from '@/components/modals/ErrorModal.vue'
 import ForgotPasswordModal from '@/components/modals/ForgotPasswordModal.vue'
 
 const authStore = useAuthStore()
+const route = useRoute()
 const { isDesktop } = useBreakpoint()
 
 const form = ref({ username: '', password: '' })
+const errors = ref({ username: '', password: '' })
 const showErrorModal = ref(false)
 const showForgotModal = ref(false)
 const errorMessage = ref('')
 
+const isFormValid = computed(() => form.value.username !== '' && form.value.password !== '')
+
+function validateField(field: 'username' | 'password') {
+  if (field === 'username')
+    errors.value.username = form.value.username ? '' : 'Username wajib diisi'
+  if (field === 'password')
+    errors.value.password = form.value.password ? '' : 'Password wajib diisi'
+}
+
+function validateAll() {
+  validateField('username')
+  validateField('password')
+}
+
+onMounted(() => {
+  if (route.query.alert === 'session_expired') {
+    errorMessage.value = 'Sesi Anda telah berakhir. Silakan login kembali.'
+    showErrorModal.value = true
+  }
+})
+
 async function handleLogin() {
+  validateAll()
+  if (!isFormValid.value) return
   authStore.clearError()
   await authStore.login(form.value)
   if (authStore.error) {
@@ -180,17 +233,9 @@ async function handleLogin() {
 }
 
 .brand-logo {
-  height: 100px;  /* ganti angka ini */
+  height: 100px;
   width: auto;
   object-fit: contain;
-}
-
-.left-logo {
-  height: 80px;
-  width: auto;
-  object-fit: contain;
-  display: block;
-  margin: 0 auto 16px;
 }
 
 .brand-text {
@@ -222,7 +267,7 @@ async function handleLogin() {
   align-self: stretch;
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 
 .field-label {
@@ -250,6 +295,12 @@ async function handleLogin() {
 .text-input::placeholder { color: #4b79e6; }
 .text-input:focus { border-color: #1c244f; }
 
+.error-msg {
+  font-size: 12px;
+  color: #d93e39;
+  font-weight: 500;
+}
+
 .forgot-link {
   background: none;
   border: none;
@@ -258,10 +309,9 @@ async function handleLogin() {
   font-weight: 700;
   line-height: 16px;
   color: #6b7280;
-  text-align: center;
   font-family: 'Plus Jakarta Sans', sans-serif;
   padding: 0;
-  align-self: center;
+  align-self: flex-end;
 }
 
 .btn-submit {
@@ -279,7 +329,7 @@ async function handleLogin() {
 }
 
 .btn-submit:hover:not(:disabled) { background-color: #2339a8; }
-.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
 
 .register-link {
   font-size: 16px;

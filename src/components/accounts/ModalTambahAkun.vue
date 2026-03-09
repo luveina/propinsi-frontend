@@ -18,12 +18,13 @@
 
           <div>
             <label class="block text-sm font-semibold mb-1">Nama Lengkap</label>
-            <input v-model="form.namaLengkap" type="text" class="w-full border rounded-lg px-3 py-2 focus:outline-blue-500" placeholder="Masukkan nama lengkap" required />
+            <input v-model="form.fullName" type="text" class="w-full border rounded-lg px-3 py-2 focus:outline-blue-500" placeholder="Masukkan nama lengkap" required />
           </div>
 
           <div>
             <label class="block text-sm font-semibold mb-1">Nomor WhatsApp</label>
-            <input v-model="form.nomorWhatsapp" type="text" class="w-full border rounded-lg px-3 py-2 focus:outline-blue-500" placeholder="Masukkan nomor WhatsApp" required />
+            <input v-model="form.phoneNumber" type="text" class="w-full border rounded-lg px-3 py-2 focus:outline-blue-500" placeholder="Contoh: 08123456789" required />
+            <p v-if="phoneNumberError" class="text-xs text-red-500 mt-1">{{ phoneNumberError }}</p>
           </div>
 
           <div v-if="!isEdit">
@@ -33,7 +34,12 @@
           </div>
 
           <div v-if="isEdit">
-            <button type="button" @click="showResetPasswordModal = true" class="w-full bg-blue-700 text-white font-bold py-2 rounded-lg hover:bg-blue-800 transition cursor-pointer">
+            <label class="block text-sm font-semibold mb-1">Password</label>
+            <button 
+              type="button" 
+              @click="showResetConfirm = true" 
+              class="w-full bg-blue-600 text-white font-bold py-2 rounded-lg hover:bg-blue-700 transition cursor-pointer"
+            >
               Reset Password?
             </button>
           </div>
@@ -41,18 +47,17 @@
           <div>
             <label class="block text-sm font-semibold mb-1">Role</label>
             <div class="relative">
-                <select v-model="form.role" class="w-full border rounded-lg px-3 py-2 focus:outline-blue-500" required>
+                <select v-model="form.role" class="w-full border rounded-lg px-3 py-2 focus:outline-blue-500 appearance-none" required>
                     <option value="" disabled>Pilih Role untuk Pengguna</option>
                     <option value="Juri">Juri</option>
                     <option value="Koordinator Lomba">Koordinator Lomba</option>
                     <option value="Koordinator Pendaftaran">Koordinator Pendaftaran</option>
                     <option value="Peserta">Peserta</option>
                 </select>
-
-            <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600">
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
-                </svg>
+                <div class="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-3 text-gray-600">
+                    <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+                    </svg>
                 </div>
             </div>
           </div>
@@ -64,71 +69,140 @@
       </form>
     </div>
   </div>
+
+  <ResetConfirmModal 
+    :show="showResetConfirm" 
+    @close="showResetConfirm = false" 
+    @confirm="handleExecuteReset" 
+  />
+
+  <ResetSuccessModal 
+    :show="showResetSuccess" 
+    @close="showResetSuccess = false" 
+  />
+
+  <ErrorModal 
+    :show="showErrorModal" 
+    type="error"
+    :message="errorMessage" 
+    @close="showErrorModal = false" 
+  />
 </template>
 
 <script setup lang="ts">
 import { reactive, watch, computed, ref } from 'vue';
-import { postCreateAccount, updateAccount } from '@/services/account.service';
+import { postCreateAccount, updateAccount, resetPasswordAccount } from '@/services/account.service';
+import ResetConfirmModal from '@/components/modals/ResetConfirmModal.vue';
+import ResetSuccessModal from '@/components/modals/ResetSuccessModal.vue';
+import ErrorModal from '@/components/modals/ErrorModal.vue';
 
 const props = defineProps<{
   isEdit?: boolean;
   editData?: any;
 }>();
 
-// create reactive aliases for template readability
 const isEdit = computed(() => !!props.isEdit);
-const editData = computed(() => props.editData);
-
 const emit = defineEmits(['close', 'success']);
 
-// reset password modal
-const showResetPasswordModal = ref(false);
+// States untuk Reset Password
+const showResetConfirm = ref(false);
+const showResetSuccess = ref(false);
+const showErrorModal = ref(false);
+const errorMessage = ref('');
 
-// judul dinamis berdasarkan mode
 const title = computed(() => (props.isEdit ? 'Edit Akun' : 'Tambah Akun'));
 
 const form = reactive({
   username: '',
-  namaLengkap: '',
-  nomorWhatsapp: '',
+  fullName: '',
+  phoneNumber: '',
   role: ''
 });
 
-// isi ulang form ketika props berubah
+// Watcher untuk mengisi form saat edit
 watch(
   () => [props.isEdit, props.editData],
   ([isEdit, editData]) => {
     if (isEdit && editData) {
       form.username = editData.username || '';
-      form.namaLengkap = editData.namaLengkap || '';
-      form.nomorWhatsapp = editData.nomorWhatsapp || '';
+      form.fullName = editData.fullName || '';
+      form.phoneNumber = editData.phoneNumber || '';
       form.role = editData.role || '';
     } else {
       form.username = '';
-      form.namaLengkap = '';
-      form.nomorWhatsapp = '';
+      form.fullName = '';
+      form.phoneNumber = '';
       form.role = '';
     }
   },
   { immediate: true }
 );
 
-const submitForm = async () => {
+const handleExecuteReset = async () => {
   try {
-    if (props.isEdit && props.editData && props.editData.id) {
-      const payload: any = {
-        namaLengkap: form.namaLengkap,
-        nomorWhatsapp: form.nomorWhatsapp,
-        role: form.role
-      };
+    if (props.editData?.id) {
+      await resetPasswordAccount(props.editData.id);
+      showResetConfirm.value = false;
+      showResetSuccess.value = true;
+    }
+  } catch (error) {
+    alert("Gagal mereset password: " + error);
+  }
+};
+
+const phoneNumberError = computed(() => {
+  if (!form.phoneNumber) return '';
+  // Regex: dimulai dengan 08, diikuti 8-11 digit (total 10-13 digit)
+  const phoneRegex = /^08\d{8,11}$/;
+  if (!phoneRegex.test(form.phoneNumber)) {
+    return 'Nomor telepon harus dimulai dengan 08 dan terdiri dari 10-13 digit';
+  }
+  return '';
+});
+
+const submitForm = async () => {
+  // Validasi phoneNumber sebelum submit
+  if (phoneNumberError.value) {
+    errorMessage.value = phoneNumberError.value;
+    showErrorModal.value = true;
+    return;
+  }
+
+  try {
+    if (isEdit.value && props.editData?.id) {
+      const payload = { ...form };
       await updateAccount(props.editData.id, payload);
     } else {
-      await postCreateAccount(form as any);
+      await postCreateAccount(form);
     }
     emit('success');
     emit('close');
-  } catch (error) {
-    alert("Gagal: " + error);
+  } catch (error:any) {
+    // Menangani error dengan pesan yang jelas
+    let message = 'Terjadi kesalahan yang tidak diketahui.';
+    if (error && typeof error === 'object') {
+      // Jika error dari backend, ambil pesan spesifik
+      if (error.message) {
+        message = error.message;
+      } else if (error.error) {
+        message = error.error;
+      } else if (typeof error === 'string') {
+        message = error;
+      }
+    } else if (typeof error === 'string') {
+      message = error;
+    }
+    
+    // Jika pesan mengandung kata-kata terkait username duplikat
+    if (message.toLowerCase().includes('username') && 
+        (message.toLowerCase().includes('sudah ada') || 
+         message.toLowerCase().includes('duplicate') || 
+         message.toLowerCase().includes('exists'))) {
+      message = 'Username sudah digunakan. Silakan pilih username yang berbeda.';
+    }
+    
+    errorMessage.value = message;
+    showErrorModal.value = true;
   }
 };
 </script>

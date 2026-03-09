@@ -14,6 +14,10 @@ const filterRole = ref('');      // Menyimpan pilihan filter dropdown
 const isModalOpen = ref(false);  // Mengatur buka/tutup modal
 const isEditMode = ref(false); // Menyimpan status apakah sedang dalam mode edit
 const selectedAccount = ref<any>(null); // Menyimpan data akun yang sedang diedit (jika ada)
+const currentUser = ref({
+  fullName: '',
+  role: ''
+});
 
 // delete confirmation
 const isDeleteModalOpen = ref(false);
@@ -37,11 +41,43 @@ const fetchAccounts = async () => {
 
 onMounted(() => {
   fetchAccounts();
+
+  const userRaw = localStorage.getItem('user');
+  if (userRaw) {
+    const userParsed = JSON.parse(userRaw);
+    
+    // Debug dulu untuk memastikan fullName sudah muncul
+    console.log("Data Login Baru:", userParsed);
+
+    currentUser.value = {
+      fullName: userParsed.fullName || 'Nama Tidak Ditemukan',
+      role: userParsed.role || 'Admin'
+    };
+  }
 });
 
 // ==============================
 // 3. FITUR SEARCH & FILTER
 // ==============================
+
+// Helper function untuk normalize role dari enum name ke label
+const normalizeRole = (role: string): string => {
+  if (!role) return '';
+  const roleMap: Record<string, string> = {
+    'ADMIN': 'Admin',
+    'JURI': 'Juri',
+    'KOORDINATOR_LOMBA': 'Koordinator Lomba',
+    'KOORDINATOR_PENDAFTARAN': 'Koordinator Pendaftaran',
+    'PESERTA': 'Peserta',
+    'Admin': 'Admin',
+    'Juri': 'Juri',
+    'Koordinator Lomba': 'Koordinator Lomba',
+    'Koordinator Pendaftaran': 'Koordinator Pendaftaran',
+    'Peserta': 'Peserta'
+  };
+  return roleMap[role] || role;
+};
+
 const filteredAccounts = computed(() => {
   return accounts.value.filter((account) => {
     const matchSearch = account.username?.toLowerCase().includes(searchQuery.value.toLowerCase()) || false;
@@ -54,13 +90,19 @@ const filteredAccounts = computed(() => {
 // 4. HANDLER SETELAH SIMPAN
 // ==============================
 const handleSuccessAdd = () => {
+  notification.value = 'Akun berhasil dibuat';
+  notificationType.value = 'success';
   isModalOpen.value = false;
   fetchAccounts();
+  setTimeout(() => (notification.value = ''), 3000);
 };
 
 const handleSuccessUpdate = () => {
+  notification.value = 'Akun berhasil diperbarui';
+  notificationType.value = 'success';
   isModalOpen.value = false;
   fetchAccounts();
+  setTimeout(() => (notification.value = ''), 3000);
 };
 
 const handleModalSuccess = () => {
@@ -101,8 +143,10 @@ const confirmDeleteAccount = async () => {
     notification.value = 'Akun berhasil dinonaktifkan';
     notificationType.value = 'success';
     fetchAccounts();
-  } catch (e) {
-    notification.value = 'Gagal menonaktifkan akun';
+  } catch (e: any) {
+    // Tampilkan pesan error dari backend jika ada
+    const errorMessage = e?.response?.data?.message || 'Gagal menonaktifkan akun';
+    notification.value = errorMessage;
     notificationType.value = 'error';
   } finally {
     closeDeleteModal();
@@ -128,8 +172,8 @@ const closeModal = () => {
       <div class="bg-white px-12 py-6 shadow-sm flex justify-between items-center">
         <h1 class="text-3xl font-bold text-[#2E42B2]">Daftar Akun</h1>
         <div class="text-right leading-tight">
-          <p class="font-semibold">Kimi Antonelli</p>
-          <p class="text-xs text-gray-500">Admin</p>
+          <p class="font-semibold">{{ currentUser.fullName }}</p>
+          <p class="text-xs text-gray-500">{{ currentUser.role }}</p>
         </div>
       </div>
 
@@ -212,11 +256,11 @@ const closeModal = () => {
                 :class="['odd:bg-white even:bg-[#DEE8FB] hover:bg-[#EBEBEC] transition-colors', account.status === 'Inactive' ? 'bg-red-50' : '']"
               >
                 <td class="py-3 px-6 text-sm text-[#2E42B2] font-medium text-center">{{ account.username }}</td>
-                <td class="py-3 px-6 text-sm text-[#2E42B2] text-center">{{ account.namaLengkap }}</td>
-                <td class="py-3 px-6 text-sm text-[#2E42B2] text-center">{{ account.nomorWhatsapp }}</td>
+                <td class="py-3 px-6 text-sm text-[#2E42B2] text-center">{{ account.fullName }}</td>
+                <td class="py-3 px-6 text-sm text-[#2E42B2] text-center">{{ account.phoneNumber }}</td>
                 <td class="py-3 px-6 text-sm text-center">
                   <span class="inline-block whitespace-nowrap bg-[#9CBFF4] text-[#2E42B2] py-1 px-4 rounded-full text-xs font-semibold border border-[#2E42B2]">
-                    {{ account.role }}
+                    {{ normalizeRole(account.role) }}
                   </span>
                 </td>
                 <td class="py-3 px-6 text-sm text-center">
@@ -233,7 +277,7 @@ const closeModal = () => {
                       class="bg-[#FCD34D] hover:bg-yellow-600 text-yellow-900 px-3 py-1 rounded text-xs font-medium transition-colors cursor-pointer"
                     >Edit</button>
                     <button
-                      v-if="account.status !== 'Inactive'"
+                      v-if="account.status !== 'Inactive' && account.role !== 'Admin'"
                       @click="openDeleteModal(account)"
                       class="bg-[#EF4444] hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-medium transition-colors cursor-pointer"
                     >Hapus</button>
