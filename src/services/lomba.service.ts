@@ -49,9 +49,32 @@ export const postAssignJuri = async (lombaId: string, payload: AssignJuriRequest
   return response.data;
 };
 
-export const getAllLomba = async () => {
+export interface LombaFilterParams {
+  jenisBurung?: string
+  status?: string
+  sortBy?: string
+  sortDir?: string
+}
+
+export interface LombaItem {
+  id: string
+  namaLomba: string
+  lokasi: string
+  waktuTanggal: string
+  jenisBurung: string
+  kelas: string
+  hargaTiket: number
+  status: string
+  contactPerson: string
+  jumlahJuri: number
+  jumlahJuara: number
+  hadiah: number[]
+}
+
+export const getAllLomba = async (params?: LombaFilterParams) => {
   const response = await axios.get(API_URL, {
-    headers: getAuthHeaders()
+    headers: getAuthHeaders(),
+    params,
   });
   return response.data;
 };
