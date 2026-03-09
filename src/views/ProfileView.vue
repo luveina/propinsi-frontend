@@ -104,7 +104,7 @@
               <div class="flex flex-col gap-1">
                 <label class="text-[#1E3A8A] font-bold text-xs">Role</label>
                 <div class="w-full bg-[#DEE8FB] border border-[#2D48C8] rounded-lg px-4 py-2 text-[#1C244F] font-semibold text-sm">
-                  {{formatRole(profile.role)}}
+                  {{ profile.role}}
                 </div>
               </div>
 
@@ -182,15 +182,6 @@ const loadProfile = async () => {
       console.error("Gagal memuat profil", error);
     }
   }
-};
-
-const formatRole = (role: string) => {
-  if (!role) return "";
-  return role
-    .toLowerCase()
-    .split('_')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
 };
 
 onMounted(loadProfile);
