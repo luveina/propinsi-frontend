@@ -21,10 +21,10 @@ function handleLogout() {
     </div>
 
     <nav class="flex-1 px-4 pt-2 pb-6 space-y-2 mt-4">
-      
-      <RouterLink 
+
+      <RouterLink
         v-if="authStore.user?.role === 'ADMIN'"
-        to="/manajemen-akun" 
+        to="/manajemen-akun"
         class="flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-semibold transition-colors hover:bg-[#1E3A8A]"
         active-class="bg-[#1E3A8A] shadow-inner"
       >
@@ -34,9 +34,9 @@ function handleLogout() {
         Manajemen Akun
       </RouterLink>
 
-      <RouterLink 
+      <RouterLink
         v-if="authStore.user?.role === 'KOORDINATOR_LOMBA' || authStore.user?.role === 'ADMIN'"
-        to="/katalog-lomba" 
+        to="/katalog-lomba"
         class="flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-semibold transition-colors hover:bg-[#1E3A8A]"
         active-class="bg-[#1E3A8A] shadow-inner"
       >
@@ -46,8 +46,8 @@ function handleLogout() {
         Manajemen Lomba
       </RouterLink>
 
-      <RouterLink 
-        to="/profile" 
+      <RouterLink
+        to="/profile"
         class="flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-semibold transition-colors hover:bg-[#1E3A8A]"
         active-class="bg-[#1E3A8A] shadow-inner"
       >
@@ -58,7 +58,7 @@ function handleLogout() {
       </RouterLink>
 
     </nav>
-    
+
 
     <div class="p-5 mb-2">
       <button
