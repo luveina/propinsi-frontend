@@ -72,6 +72,14 @@ async function handleRegister(formData: {
   password: string
   confirmPassword: string
 }) {
+  // Validasi format nomor telepon
+  const phoneRegex = /^08\d{8,11}$/;
+  if (!phoneRegex.test(formData.phoneNumber)) {
+    errorMessage.value = 'Nomor telepon harus dimulai dengan 08 dan terdiri dari 10-13 digit';
+    showErrorModal.value = true;
+    return;
+  }
+
   authStore.clearError()
   const success = await authStore.register(formData)
   if (authStore.error) {

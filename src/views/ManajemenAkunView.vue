@@ -118,8 +118,10 @@ const confirmDeleteAccount = async () => {
     notification.value = 'Akun berhasil dinonaktifkan';
     notificationType.value = 'success';
     fetchAccounts();
-  } catch (e) {
-    notification.value = 'Gagal menonaktifkan akun';
+  } catch (e: any) {
+    // Tampilkan pesan error dari backend jika ada
+    const errorMessage = e?.response?.data?.message || 'Gagal menonaktifkan akun';
+    notification.value = errorMessage;
     notificationType.value = 'error';
   } finally {
     closeDeleteModal();
@@ -250,7 +252,7 @@ const closeModal = () => {
                       class="bg-[#FCD34D] hover:bg-yellow-600 text-yellow-900 px-3 py-1 rounded text-xs font-medium transition-colors cursor-pointer"
                     >Edit</button>
                     <button
-                      v-if="account.status !== 'Inactive'"
+                      v-if="account.status !== 'Inactive' && account.role !== 'ADMIN'"
                       @click="openDeleteModal(account)"
                       class="bg-[#EF4444] hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-medium transition-colors cursor-pointer"
                     >Hapus</button>

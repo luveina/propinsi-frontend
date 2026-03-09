@@ -1,7 +1,6 @@
 import axios, { AxiosError } from 'axios';
 import type { AccountRequest } from '@/interfaces/account.interface';
 
-// Sesuaikan URL dengan port backend Spring Boot kamu
 const API_URL = 'http://localhost:8080/api/accounts';
 
 /**
@@ -32,7 +31,7 @@ export const postCreateAccount = async (payload: AccountRequest): Promise<any> =
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError<any>;
       
-      // Mengambil pesan error dari backend jika ada (misal: "Username sudah terdaftar")
+      // Mengambil pesan error dari backend
       const serverMessage = axiosError.response?.data;
       
       // Melempar kembali error agar bisa ditangkap oleh komponen UI (Modal)

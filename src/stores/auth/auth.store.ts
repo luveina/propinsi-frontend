@@ -42,6 +42,7 @@ export const useAuthStore = defineStore('auth', () => {
       user.value = {
         id: data.data.id,
         username: data.data.username,
+        fullName: data.data.fullName,
         role: data.data.role,
         isFirstLogin: data.data.firstLogin, // BE returns "firstLogin"
       }

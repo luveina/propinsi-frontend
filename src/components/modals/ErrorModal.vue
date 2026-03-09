@@ -32,7 +32,7 @@
           <button
             class="btn"
             :class="type === 'success' ? 'btn-primary' : type === 'logout' ? 'btn-primary' : 'btn-danger'"
-            @click="$emit('confirm')"
+            @click="handleConfirm"
           >
             <b>{{ confirmLabel }}</b>
           </button>
@@ -43,19 +43,29 @@
 </template>
 
 <script setup lang="ts">
-defineProps<{
+// provide default labels so modal buttons are never empty
+const props = withDefaults(defineProps<{
   show: boolean
   type: 'error' | 'success' | 'info' | 'logout'
   message: string
   confirmLabel?: string
   cancelLabel?: string
   showCancel?: boolean
-}>()
+}>(), {
+  confirmLabel: 'OK',
+  cancelLabel: 'Batal',
+  showCancel: false
+})
 
-defineEmits<{
+const emit = defineEmits<{
   close: []
   confirm: []
 }>()
+
+function handleConfirm() {
+  emit('confirm')
+  emit('close')
+}
 </script>
 
 <style scoped>

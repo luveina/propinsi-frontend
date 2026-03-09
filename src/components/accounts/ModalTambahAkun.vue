@@ -23,7 +23,8 @@
 
           <div>
             <label class="block text-sm font-semibold mb-1">Nomor WhatsApp</label>
-            <input v-model="form.phoneNumber" type="text" class="w-full border rounded-lg px-3 py-2 focus:outline-blue-500" placeholder="Masukkan nomor WhatsApp" required />
+            <input v-model="form.phoneNumber" type="text" class="w-full border rounded-lg px-3 py-2 focus:outline-blue-500" placeholder="Contoh: 08123456789" required />
+            <p v-if="phoneNumberError" class="text-xs text-red-500 mt-1">{{ phoneNumberError }}</p>
           </div>
 
           <div v-if="!isEdit">
@@ -79,6 +80,13 @@
     :show="showResetSuccess" 
     @close="showResetSuccess = false" 
   />
+
+  <ErrorModal 
+    :show="showErrorModal" 
+    type="error"
+    :message="errorMessage" 
+    @close="showErrorModal = false" 
+  />
 </template>
 
 <script setup lang="ts">
@@ -86,6 +94,7 @@ import { reactive, watch, computed, ref } from 'vue';
 import { postCreateAccount, updateAccount, resetPasswordAccount } from '@/services/account.service';
 import ResetConfirmModal from '@/components/modals/ResetConfirmModal.vue';
 import ResetSuccessModal from '@/components/modals/ResetSuccessModal.vue';
+import ErrorModal from '@/components/modals/ErrorModal.vue';
 
 const props = defineProps<{
   isEdit?: boolean;
@@ -98,6 +107,8 @@ const emit = defineEmits(['close', 'success']);
 // States untuk Reset Password
 const showResetConfirm = ref(false);
 const showResetSuccess = ref(false);
+const showErrorModal = ref(false);
+const errorMessage = ref('');
 
 const title = computed(() => (props.isEdit ? 'Edit Akun' : 'Tambah Akun'));
 
@@ -139,7 +150,24 @@ const handleExecuteReset = async () => {
   }
 };
 
+const phoneNumberError = computed(() => {
+  if (!form.phoneNumber) return '';
+  // Regex: dimulai dengan 08, diikuti 8-11 digit (total 10-13 digit)
+  const phoneRegex = /^08\d{8,11}$/;
+  if (!phoneRegex.test(form.phoneNumber)) {
+    return 'Nomor telepon harus dimulai dengan 08 dan terdiri dari 10-13 digit';
+  }
+  return '';
+});
+
 const submitForm = async () => {
+  // Validasi phoneNumber sebelum submit
+  if (phoneNumberError.value) {
+    errorMessage.value = phoneNumberError.value;
+    showErrorModal.value = true;
+    return;
+  }
+
   try {
     if (isEdit.value && props.editData?.id) {
       const payload = { ...form };
@@ -149,8 +177,32 @@ const submitForm = async () => {
     }
     emit('success');
     emit('close');
-  } catch (error) {
-    alert("Gagal menyimpan: " + error);
+  } catch (error:any) {
+    // Menangani error dengan pesan yang jelas
+    let message = 'Terjadi kesalahan yang tidak diketahui.';
+    if (error && typeof error === 'object') {
+      // Jika error dari backend, ambil pesan spesifik
+      if (error.message) {
+        message = error.message;
+      } else if (error.error) {
+        message = error.error;
+      } else if (typeof error === 'string') {
+        message = error;
+      }
+    } else if (typeof error === 'string') {
+      message = error;
+    }
+    
+    // Jika pesan mengandung kata-kata terkait username duplikat
+    if (message.toLowerCase().includes('username') && 
+        (message.toLowerCase().includes('sudah ada') || 
+         message.toLowerCase().includes('duplicate') || 
+         message.toLowerCase().includes('exists'))) {
+      message = 'Username sudah digunakan. Silakan pilih username yang berbeda.';
+    }
+    
+    errorMessage.value = message;
+    showErrorModal.value = true;
   }
 };
 </script>
