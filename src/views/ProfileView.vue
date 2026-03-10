@@ -12,7 +12,11 @@
         <main class="p-8 pb-20 flex-1">
           <h1 class="text-2xl font-bold text-[#2E42B2] mb-6 text-left">Profil Akun</h1>
 
-          <div class="w-full bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+          <div v-if="loading" class="flex justify-center items-center py-24">
+            <div class="animate-spin rounded-full h-10 w-10 border-4 border-[#2E42B2] border-t-transparent"></div>
+          </div>
+
+          <div v-else class="w-full bg-white p-8 rounded-xl shadow-sm border border-gray-100">
             <h2 class="text-xl font-bold text-[#1E3A8A] mb-6">Informasi Akun</h2>
 
             <div class="space-y-5">
@@ -61,12 +65,12 @@
       </div>
     </div>
 
-    <!-- ============================== -->
+    <!-- ============================================================ -->
     <!-- LAYOUT MOBILE (Juri & Peserta) -->
-    <!-- ============================== -->
+    <!-- ============================================================ -->
     <div v-else class="flex flex-col min-h-screen bg-white">
       <header class="bg-[#314EAE] py-4 px-5 flex items-center justify-between text-white shadow-md">
-        <button class="p-1">
+        <button class="p-1 cursor-pointer">
           <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
         </button>
         <h1 class="text-xl font-bold">Profil Akun</h1>
@@ -75,10 +79,14 @@
         </div>
       </header>
 
-      <main class="p-6 pb-12 flex-1">
-        <h2 class="text-xl font-bold text-[#1E3A8A] mb-8 text-center">Informasi Akun</h2>
+      <main class="p-8 pb-12 flex-1">
+        <h2 class="text-2xl font-bold text-[#2E42B2] mb-8 text-left">Informasi Akun</h2>
 
-        <div class="space-y-4">
+        <div v-if="loading" class="flex justify-center items-center py-16">
+          <div class="animate-spin rounded-full h-10 w-10 border-4 border-[#2E42B2] border-t-transparent"></div>
+        </div>
+
+        <div v-else class="space-y-4">
               <div class="flex flex-col gap-1">
                 <label class="text-[#1E3A8A] font-bold text-xs">Username</label>
                 <div class="w-full bg-[#6D9BED] border border-[#2D48C8] rounded-lg px-4 py-2">
@@ -103,12 +111,15 @@
 
               <div class="flex flex-col gap-1">
                 <label class="text-[#1E3A8A] font-bold text-xs">Role</label>
-                <div class="w-full bg-[#DEE8FB] border border-[#2D48C8] rounded-lg px-4 py-2 text-[#1C244F] font-semibold text-sm">
-                  {{ profile.role}}
+                <div class="w-full bg-[#DEE8FB] border border-[#2D48C8] rounded-lg px-4 py-2 text-[#1C244F] font-semibold text-sm uppercase">
+                  {{ formatRole(profile.role) }}
                 </div>
               </div>
 
-              <button class="w-full bg-[#2E42B2] text-white font-bold py-3 rounded-lg mt-4 shadow-md text-sm">
+              <button 
+                @click="showChangePasswordModal = true"
+                class="w-full bg-[#2E42B2] text-white font-bold py-3 rounded-lg mt-4 shadow-md text-sm cursor-pointer active:bg-blue-900 transition-colors"
+              >
                 Ganti Password
               </button>
 
@@ -119,12 +130,16 @@
       </main>
 
       <div class="p-6">
-        <button @click="handleLogout" class="w-full border border-[#2E42B2] text-[#2E42B2] font-bold py-2.5 rounded-lg text-sm">
+        <button 
+          @click="handleLogout" 
+          class="w-full border border-[#2E42B2] text-[#2E42B2] font-bold py-2.5 rounded-lg text-sm cursor-pointer active:bg-gray-100 transition-colors"
+        >
           Log Out
         </button>
       </div>
     </div>
 
+    <!-- MODALS -->
     <ModalGantiPassword
       :show="showChangePasswordModal"
       @close="showChangePasswordModal = false"
@@ -156,31 +171,40 @@ import { useRouter } from 'vue-router'
 
 const { isDesktop } = useBreakpoint();
 const authStore = useAuthStore();
+const router = useRouter();
 
 const profile = ref({ username: '', fullName: '', phoneNumber: '', role: '' });
 const showChangePasswordModal = ref(false);
 const statusModal = reactive({ show: false, type: 'success' as 'success' | 'error', message: '' });
+const loading = ref(true);
 
-const router = useRouter()
+// Helper untuk membersihkan tampilan role
+const roleLabels: Record<string, string> = {
+  ADMIN: 'ADMIN',
+  JURI: 'JURI',
+  KOORDINATOR_LOMBA: 'KOORDINATOR LOMBA',
+  KOORDINATOR_PENDAFTARAN: 'KOORDINATOR PENDAFTARAN',
+  PESERTA: 'PESERTA'
+};
+
+const formatRole = (role: string) => {
+  return roleLabels[role] || role.replace(/_/g, ' ');
+};
 
 const loadProfile = async () => {
+  loading.value = true;
   try {
     const response = await getProfile();
     profile.value = response.data;
   } catch (error: any) {
-    // CEK APAKAH ERROR 401 (UNAUTHORIZED)
     if (error.response?.status === 401) {
-      // 1. Hapus sesi lokal (panggil logout di store)
       authStore.logout();
-
-      // 2. Redirect ke login dengan query parameter
-      router.push({
-        name: 'login',
-        query: { alert: 'session_expired' }
-      });
+      router.push({ name: 'login', query: { alert: 'session_expired' } });
     } else {
       console.error("Gagal memuat profil", error);
     }
+  } finally {
+    loading.value = false;
   }
 };
 

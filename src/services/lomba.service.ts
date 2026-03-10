@@ -1,7 +1,7 @@
 import axios from 'axios';
 import type { LombaRequest, AssignJuriRequest } from '@/interfaces/lomba.interface';
 
-const API_URL = 'http://localhost:8080/api/lomba';
+const API_URL = `${import.meta.env.VITE_API_URL}/lomba`;
 
 /**
  * Get authorization headers from localStorage

@@ -8,7 +8,9 @@
       <main class="px-10 py-8">
         <h1 class="text-2xl font-bold text-[#2E42B2] mb-6">Edit Lomba</h1>
 
-        <div v-if="isLoading" class="text-center text-gray-400 py-12">Memuat data lomba...</div>
+        <div v-if="isLoading" class="flex justify-center items-center py-24">
+          <div class="animate-spin rounded-full h-10 w-10 border-4 border-[#2E42B2] border-t-transparent"></div>
+        </div>
 
         <div v-else-if="errorLoad" class="bg-red-100 text-red-700 border border-red-300 rounded-lg p-4 text-sm">
           {{ errorLoad }}
