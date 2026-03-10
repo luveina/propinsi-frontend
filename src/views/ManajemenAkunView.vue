@@ -27,15 +27,21 @@ const accountToDelete = ref<any>(null);
 const notification = ref<string>('');
 const notificationType = ref<'success' | 'error'>('success');
 
+// loading
+const loading = ref(false);
+
 // ==============================
 // 2. FUNGSI TARIK DATA (GET)
 // ==============================
 const fetchAccounts = async () => {
+  loading.value = true;
   try {
     const data = await getAllAccounts();
     accounts.value = data;
   } catch (error) {
     console.error("Gagal mengambil data akun:", error);
+  } finally {
+    loading.value = false;
   }
 };
 
@@ -242,7 +248,14 @@ const closeModal = () => {
               </tr>
             </thead>
             <tbody>
-              <tr v-if="filteredAccounts.length === 0">
+              <tr v-if="loading">
+                <td colspan="6" class="py-16 text-center">
+                  <div class="flex justify-center items-center">
+                    <div class="animate-spin rounded-full h-10 w-10 border-4 border-[#2E42B2] border-t-transparent"></div>
+                  </div>
+                </td>
+              </tr>
+              <tr v-else-if="filteredAccounts.length === 0">
                 <td colspan="6" class="py-12 text-center text-gray-500">
                   <div class="flex flex-col items-center justify-center">
                     <img src="@/assets/data-not-found.svg" alt="Kosong" class="w-24 opacity-50 mb-3" />
@@ -251,6 +264,7 @@ const closeModal = () => {
                 </td>
               </tr>
               <tr
+                v-else
                 v-for="(account, index) in filteredAccounts"
                 :key="account.id || index"
                 :class="['odd:bg-white even:bg-[#DEE8FB] hover:bg-[#EBEBEC] transition-colors', account.status === 'Inactive' ? 'bg-red-50' : '']"
