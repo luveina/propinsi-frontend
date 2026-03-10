@@ -1,7 +1,7 @@
 import axios, { AxiosError } from 'axios';
 import type { AccountRequest } from '@/interfaces/account.interface';
 
-const API_URL = 'http://localhost:8080/api/accounts';
+const API_URL = `${import.meta.env.VITE_API_URL}/accounts`;
 
 /**
  * Get authorization headers from localStorage
