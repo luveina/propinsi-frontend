@@ -59,7 +59,6 @@
     <div class="form">
       <div class="brand">
         <img src="@/assets/silobur-biru.png" alt="SILOBUR-NG Logo" class="brand-logo" />
-        <span class="brand-text"><b>SILOBUR-</b><i class="ng">NG</i></span>
       </div>
       <div class="subtitle-mobile">
         Harap login untuk menggunakan <b>SILOBUR-</b><i class="ng">NG</i>
