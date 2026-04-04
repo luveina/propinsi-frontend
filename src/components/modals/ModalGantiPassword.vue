@@ -14,6 +14,7 @@
         <div class="flex flex-col gap-1">
           <label class="text-xs font-bold text-[#2E42B2]">Password Baru</label>
           <PasswordInput v-model="form.newPassword" placeholder="Masukkan password baru" />
+          <p class="text-[10px] text-gray-500 font-medium">* Minimal 6 karakter</p>
         </div>
 
         <div class="flex flex-col gap-1">
@@ -53,7 +54,7 @@ const form = reactive({
 const isFormValid = computed(() => {
   return (
     form.oldPassword.trim() !== '' &&
-    form.newPassword.trim() !== '' &&
+    form.newPassword.length >= 6 &&
     form.confirmPassword.trim() !== ''
   );
 });
@@ -61,6 +62,12 @@ const isFormValid = computed(() => {
 const handleSubmit = async () => {
   if (form.newPassword !== form.confirmPassword) {
     emit('error', 'Konfirmasi password baru tidak cocok!');
+    return;
+  }
+
+  // Tambahan cek agar tidak sama dengan password lama (Opsional di frontend, karena backend sudah handle)
+  if (form.newPassword === form.oldPassword) {
+    emit('error', 'Password baru tidak boleh sama dengan password lama!');
     return;
   }
 
