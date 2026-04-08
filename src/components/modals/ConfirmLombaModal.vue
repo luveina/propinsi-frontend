@@ -4,24 +4,43 @@
       <div class="modal-card">
         <div class="modal-header">
           <div class="header-spacer" />
-          <b class="modal-title">Lupa password?</b>
+          <b class="modal-title">{{ isEdit ? 'Simpan Lomba' : 'Buat Lomba' }}</b>
           <button class="close-btn" @click="$emit('close')">
             <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
               <path d="M18 6L6 18M6 6L18 18" stroke="#4B5563" stroke-width="2" stroke-linecap="round"/>
             </svg>
           </button>
         </div>
+
         <p class="modal-body">
-          Hubungi Admin melalui nomor<br />WhatsApp <b>081234567890</b> untuk melakukan reset password!
+          Pastikan semua detail lomba sudah benar<br />
+          sebelum {{ isEdit ? 'di-' : '' }}<em>{{ isEdit ? 'edit' : 'dibuat' }}</em>.
         </p>
+
+        <div class="modal-actions">
+          <button class="btn btn-cancel" @click="$emit('close')">
+            <b>Kembali</b>
+          </button>
+          <button class="btn btn-confirm" @click="$emit('confirm')" :disabled="loading">
+            <b>{{ loading ? 'Loading...' : (isEdit ? 'Simpan' : 'Buat') }}</b>
+          </button>
+        </div>
       </div>
     </div>
   </Teleport>
 </template>
 
 <script setup lang="ts">
-defineProps<{ show: boolean }>()
-defineEmits<{ close: [] }>()
+defineProps<{
+  show: boolean
+  isEdit?: boolean
+  loading?: boolean
+}>()
+
+defineEmits<{
+  close: []
+  confirm: []
+}>()
 </script>
 
 <style scoped>
@@ -32,7 +51,7 @@ defineEmits<{ close: [] }>()
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 1000;
+  z-index: 9999;
   padding: 20px;
 }
 
@@ -90,4 +109,29 @@ defineEmits<{ close: [] }>()
   max-width: 360px;
   margin: 0;
 }
+
+.modal-actions {
+  align-self: stretch;
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  margin-top: 10px;
+}
+
+.btn {
+  flex: 1;
+  border: none;
+  border-radius: 6px;
+  padding: 13px 24px;
+  font-size: 16px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  line-height: 24px;
+}
+
+.btn-cancel { background-color: #d2d5db; color: #394050; }
+.btn-confirm { background-color: #2e42b2; color: #fff; }
+.btn:hover:not(:disabled) { opacity: 0.9; }
+.btn:disabled { opacity: 0.6; cursor: not-allowed; }
 </style>

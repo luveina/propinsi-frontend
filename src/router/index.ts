@@ -38,6 +38,32 @@ const router = createRouter({
       component: ProfileView,
       meta: { requiresAuth: true },
     },
+    {
+    path: '/katalog-lomba',
+    name: 'katalog-lomba',
+    component: () => import('@/views/KatalogLombaView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/buat-lomba',
+    name: 'BuatLomba',
+    component: () => import('@/views/lomba/BuatLombaView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/edit-lomba/:id',
+    name: 'EditLomba',
+    component: () => import('@/views/lomba/EditLombaView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/',
+    redirect: { name: 'katalog-lomba' },
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: { name: 'katalog-lomba' },
+  },
   ],
 })
 
@@ -57,10 +83,10 @@ router.beforeEach((to, _from, next) => {
   // Halaman change-password: hanya untuk first login
   if (to.meta.requiresFirstLogin && !isFirstLogin) {
     // Redirect berdasarkan role
-    if (user?.role === 'Admin') {
+    if (user?.role === 'ADMIN') {
       return next({ name: 'manajemen-akun' })
     } else {
-      return next({ name: 'profile' })
+      return next({ name: 'katalog-lomba' })
     }
   }
 
@@ -69,15 +95,10 @@ router.beforeEach((to, _from, next) => {
     if (isFirstLogin) {
       return next({ name: 'change-password' })
     }
-    // Jika sudah login dan bukan first login, redirect sesuai role
-    if (user?.role === 'ADMIN') {
-      return next({ name: 'manajemen-akun' })
-    } else {
-      return next({ name: 'profile' })
-    }
+    return next({ name: 'katalog-lomba' })
   }
 
-  // Kalau sudah login dan masih firstLogin 
+  // Kalau sudah login dan masih firstLogin
   if (isAuthenticated && isFirstLogin && to.name !== 'change-password') {
     return next({ name: 'change-password' })
   }

@@ -12,7 +12,11 @@
         <main class="p-8 pb-20 flex-1">
           <h1 class="text-2xl font-bold text-[#2E42B2] mb-6 text-left">Profil Akun</h1>
 
-          <div class="w-full bg-white p-8 rounded-xl shadow-sm border border-gray-100">
+          <div v-if="loading" class="flex justify-center items-center py-24">
+            <div class="animate-spin rounded-full h-10 w-10 border-4 border-[#2E42B2] border-t-transparent"></div>
+          </div>
+
+          <div v-else class="w-full bg-white p-8 rounded-xl shadow-sm border border-gray-100">
             <h2 class="text-xl font-bold text-[#1E3A8A] mb-6">Informasi Akun</h2>
 
             <div class="space-y-5">
@@ -78,7 +82,11 @@
       <main class="p-8 pb-12 flex-1">
         <h2 class="text-2xl font-bold text-[#2E42B2] mb-8 text-left">Informasi Akun</h2>
 
-        <div class="space-y-4">
+        <div v-if="loading" class="flex justify-center items-center py-16">
+          <div class="animate-spin rounded-full h-10 w-10 border-4 border-[#2E42B2] border-t-transparent"></div>
+        </div>
+
+        <div v-else class="space-y-4">
               <div class="flex flex-col gap-1">
                 <label class="text-[#1E3A8A] font-bold text-xs">Username</label>
                 <div class="w-full bg-[#6D9BED] border border-[#2D48C8] rounded-lg px-4 py-2">
@@ -168,6 +176,7 @@ const router = useRouter();
 const profile = ref({ username: '', fullName: '', phoneNumber: '', role: '' });
 const showChangePasswordModal = ref(false);
 const statusModal = reactive({ show: false, type: 'success' as 'success' | 'error', message: '' });
+const loading = ref(true);
 
 // Helper untuk membersihkan tampilan role
 const roleLabels: Record<string, string> = {
@@ -183,6 +192,7 @@ const formatRole = (role: string) => {
 };
 
 const loadProfile = async () => {
+  loading.value = true;
   try {
     const response = await getProfile();
     profile.value = response.data;
@@ -193,6 +203,8 @@ const loadProfile = async () => {
     } else {
       console.error("Gagal memuat profil", error);
     }
+  } finally {
+    loading.value = false;
   }
 };
 
