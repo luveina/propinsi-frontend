@@ -8,6 +8,7 @@ export interface LombaRequest {
   hadiah: number[];
   jumlahJuri: number;
   contactPerson: string;
+  deskripsi?: string;
 }
 
 export interface UserSummary {

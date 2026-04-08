@@ -89,6 +89,18 @@
         </div>
       </div>
 
+      <!-- Row 4: Deskripsi Lomba -->
+      <div>
+        <label class="block text-sm font-semibold mb-2 text-[#1E3A8A]">Deskripsi Lomba <span class="text-red-500">*</span></label>
+        <textarea
+          v-model="form.deskripsi"
+          rows="4"
+          class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 resize-y"
+          placeholder="Tulis deskripsi lomba"
+          required
+        ></textarea>
+      </div>
+
       <!-- Juri Section: 4 dropdown -->
       <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
         <div v-for="juriIndex in 4" :key="juriIndex">
@@ -217,9 +229,10 @@ const form = reactive({
   jenisBurung: '',
   kelas: '',
   hargaTiket: 0,
+  deskripsi: '',
   hadiah: [0] as number[],
   jumlahJuri: 4, // Fixed 4 juri sesuai Figma
-  contactPerson: ''
+  contactPerson: '',
 });
 
 const formatRupiah = (value: number) => {
@@ -288,6 +301,7 @@ watch(() => props.editData, (newData) => {
     form.jenisBurung = newData.jenisBurung;
     form.kelas = newData.kelas;
     form.hargaTiket = newData.hargaTiket;
+    form.deskripsi = newData.deskripsi ?? '';
     form.hadiah = newData.hadiah && Array.isArray(newData.hadiah) ? [...newData.hadiah] : [0];
     jumlahJuara.value = form.hadiah.length;
     form.jumlahJuri = 4; // Always 4 juri
