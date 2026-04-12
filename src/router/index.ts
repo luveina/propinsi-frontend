@@ -61,6 +61,12 @@ const router = createRouter({
     redirect: { name: 'katalog-lomba' },
   },
   {
+    path: '/reservasi/:lombaId',
+    name: 'reservasi-gantangan',
+    component: () => import('@/views/pendaftaran/ReservasiGantanganView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: { name: 'katalog-lomba' },
   },
