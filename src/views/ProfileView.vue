@@ -1,5 +1,20 @@
 <template>
   <div class="min-h-screen bg-[#F4F7FE] font-plus-jakarta flex flex-col">
+    <Teleport to="body">
+      <Transition name="fade">
+        <div v-if="!isDesktop && isSidebarOpen" 
+             @click="isSidebarOpen = false"
+             class="fixed inset-0 bg-black/50 z-[60] backdrop-blur-sm">
+        </div>
+      </Transition>
+
+      <Transition name="slide">
+        <div v-if="!isDesktop && isSidebarOpen" class="fixed inset-y-0 left-0 z-[70] w-64 shadow-2xl">
+          <Sidebar />
+        </div>
+      </Transition>
+    </Teleport>
+
     <!-- ============================== -->
     <!-- LAYOUT DESKTOP (Admin & Koordinator) -->
     <!-- ============================== -->
@@ -20,6 +35,7 @@
             <h2 class="text-xl font-bold text-[#1E3A8A] mb-6">Informasi Akun</h2>
 
             <div class="space-y-5">
+              <!-- Username -->
               <div class="flex flex-col gap-1">
                 <label class="text-sm font-bold text-[#2D48C8]">Username</label>
                 <div class="w-full bg-[#6D9BED] border border-[#2D48C8] rounded-lg px-4 py-2.5 shadow-sm">
@@ -28,6 +44,7 @@
                 <p class="text-[10px] text-[#4B79E6] font-medium">Username tidak bisa diubah</p>
               </div>
 
+              <!-- Nama Lengkap -->
               <div class="flex flex-col gap-1">
                 <label class="text-sm font-bold text-[#1E3A8A]">Nama Lengkap</label>
                 <div class="w-full bg-[#DEE8FB] border border-[#2D48C8] rounded-lg px-4 py-2.5 text-[#1C244F] font-semibold text-base">
@@ -35,6 +52,7 @@
                 </div>
               </div>
 
+              <!-- Nomor WhatsApp -->
               <div class="flex flex-col gap-1">
                 <label class="text-sm font-bold text-[#1E3A8A]">Nomor WhatsApp</label>
                 <div class="w-full bg-[#DEE8FB] border border-[#2D48C8] rounded-lg px-4 py-2.5 text-[#1C244F] font-semibold text-base">
@@ -42,6 +60,7 @@
                 </div>
               </div>
 
+              <!-- Role -->
               <div class="flex flex-col gap-1">
                 <label class="text-sm font-bold text-[#1E3A8A]">Role</label>
                 <div class="w-full bg-[#DEE8FB] border border-[#2D48C8] rounded-lg px-4 py-2.5 text-[#1C244F] font-semibold text-base">
@@ -69,13 +88,20 @@
     <!-- LAYOUT MOBILE (Juri & Peserta) -->
     <!-- ============================================================ -->
     <div v-else class="flex flex-col min-h-screen bg-white">
-      <header class="bg-[#314EAE] py-4 px-5 flex items-center justify-between text-white shadow-md">
-        <button class="p-1 cursor-pointer">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
+      <header class="bg-[#2E42B2] py-5 px-6 flex items-center justify-between relative shadow-md shrink-0 z-20 text-white">
+        <button 
+          @click="isSidebarOpen = true"
+          class="w-11 h-11 bg-white/10 rounded-xl flex items-center justify-center text-white hover:bg-white/20 transition cursor-pointer z-30"
+        >
+          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 7h16M4 12h16M4 17h16" />
+          </svg>
         </button>
-        <h1 class="text-xl font-bold">Profil Akun</h1>
-        <div class="w-9 h-9 rounded-full bg-white/20 border border-white/40 overflow-hidden flex items-center justify-center">
-            <img :src="`https://ui-avatars.com/api/?name=${profile.fullName || 'User'}`" alt="avatar" />
+        <h1 class="absolute left-1/2 -translate-x-1/2 text-[20px] font-bold font-plus-jakarta whitespace-nowrap z-10">
+          Profil Akun
+        </h1>
+        <div class="w-11 h-11 bg-white rounded-full border border-white/40 overflow-hidden flex items-center justify-center shadow-sm z-30">
+            <img :src="`https://ui-avatars.com/api/?name=${profile.fullName || 'User'}&background=dbdbdb&color=555`" alt="avatar" class="w-full h-full object-cover" />
         </div>
       </header>
 
@@ -172,13 +198,13 @@ import { useRouter } from 'vue-router'
 const { isDesktop } = useBreakpoint();
 const authStore = useAuthStore();
 const router = useRouter();
+const isSidebarOpen = ref(false);
 
 const profile = ref({ username: '', fullName: '', phoneNumber: '', role: '' });
 const showChangePasswordModal = ref(false);
 const statusModal = reactive({ show: false, type: 'success' as 'success' | 'error', message: '' });
 const loading = ref(true);
 
-// Helper untuk membersihkan tampilan role
 const roleLabels: Record<string, string> = {
   ADMIN: 'ADMIN',
   JURI: 'JURI',
@@ -187,9 +213,7 @@ const roleLabels: Record<string, string> = {
   PESERTA: 'PESERTA'
 };
 
-const formatRole = (role: string) => {
-  return roleLabels[role] || role.replace(/_/g, ' ');
-};
+const formatRole = (role: string) => roleLabels[role] || role.replace(/_/g, ' ');
 
 const loadProfile = async () => {
   loading.value = true;
@@ -200,8 +224,6 @@ const loadProfile = async () => {
     if (error.response?.status === 401) {
       authStore.logout();
       router.push({ name: 'login', query: { alert: 'session_expired' } });
-    } else {
-      console.error("Gagal memuat profil", error);
     }
   } finally {
     loading.value = false;
@@ -229,4 +251,10 @@ function handleLogout() { authStore.logout(); }
 <style scoped>
 @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 .font-plus-jakarta { font-family: 'Plus Jakarta Sans', sans-serif; }
+
+.slide-enter-active, .slide-leave-active { transition: transform 0.3s ease; }
+.slide-enter-from, .slide-leave-to { transform: translateX(-100%); }
+
+.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>

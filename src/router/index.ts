@@ -123,9 +123,37 @@ const router = createRouter({
     },
 
     {
-      path: '/:pathMatch(.*)*',
-      redirect: { name: 'katalog-lomba' },
-    },
+    path: '/katalog-lomba',
+    name: 'katalog-lomba',
+    component: () => import('@/views/KatalogLombaView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/buat-lomba',
+    name: 'BuatLomba',
+    component: () => import('@/views/lomba/BuatLombaView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/edit-lomba/:id',
+    name: 'EditLomba',
+    component: () => import('@/views/lomba/EditLombaView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/',
+    redirect: { name: 'katalog-lomba' },
+  },
+  {
+    path: '/reservasi/:lombaId',
+    name: 'reservasi-gantangan',
+    component: () => import('@/views/pendaftaran/ReservasiGantanganView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/:pathMatch(.*)*',
+    redirect: { name: 'katalog-lomba' },
+  },
   ],
 })
 
