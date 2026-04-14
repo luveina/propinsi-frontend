@@ -132,6 +132,7 @@ const refreshCurrentBlock = async () => {
 }
 
 const confirmWarningTarget = ref<ScoringGantangan | null>(null)
+const confirmDisqualifyTarget = ref<ScoringGantangan | null>(null)
 
 const onCardClick = async (item: ScoringGantangan) => {
   if (!isClickable(item) || !selectedBlock.value || selectedBlock.value.locked) return
@@ -146,11 +147,17 @@ const onCardClick = async (item: ScoringGantangan) => {
     return
   }
 
-  const confirmationText = `Yakin diskualifikasi gantangan ${item.nomorGantangan}?`
+  if (mode.value === 'DISKUALIFIKASI') {
+    confirmDisqualifyTarget.value = item
+    return
+  }
+}
 
-  const ok = window.confirm(confirmationText)
-  if (!ok) return
+const proceedDisqualify = async () => {
+  const item = confirmDisqualifyTarget.value
+  if (!item || !selectedBlock.value) return
 
+  confirmDisqualifyTarget.value = null
   saving.value = true
   error.value = ''
   info.value = ''
@@ -299,7 +306,7 @@ onMounted(fetchBlocks)
                 <span class="mode-icon icon-warning">!</span>
                 Peringatan
               </button>
-              <button class="mode-btn" :class="{ active: mode === 'DISKUALIFIKASI' }" @click="mode = 'DISKUALIFIKASI'">
+              <button class="mode-btn disqualified-mode" :class="{ active: mode === 'DISKUALIFIKASI' }" @click="mode = 'DISKUALIFIKASI'">
                 <span class="mode-icon icon-ban">×</span>
                 Diskualifikasi
               </button>
@@ -367,6 +374,21 @@ onMounted(fetchBlocks)
         <div class="flex gap-3 justify-center w-full">
           <button class="btn-secondary flex-1 py-2 rounded-lg bg-gray-200 text-gray-700 font-bold" @click="confirmWarningTarget = null">Batal</button>
           <button class="btn-primary flex-1 py-2 rounded-lg bg-blue-700 text-white font-bold" @click="proceedWarning">Beri Peringatan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Konfirmasi Diskualifikasi -->
+    <div v-if="confirmDisqualifyTarget" class="modal-backdrop">
+      <div class="modal-card text-center">
+        <h3 class="text-black font-bold mb-4">Konfirmasi Diskualifikasi</h3>
+        <p class="text-sm text-gray-600 mb-6">
+          Apakah Anda yakin diskualifikasi <b>Gantangan {{ confirmDisqualifyTarget.nomorGantangan }}</b>?<br />
+          <b>Gantangan tersebut tidak bisa diajukan lagi untuk babak selanjutnya.</b>
+        </p>
+        <div class="flex gap-3 justify-center w-full">
+          <button class="btn-secondary flex-1 py-2 rounded-lg bg-gray-200 text-gray-700 font-bold" @click="confirmDisqualifyTarget = null">Batal</button>
+          <button class="btn-primary flex-1 py-2 rounded-lg bg-black text-white font-bold" @click="proceedDisqualify">Diskualifikasi</button>
         </div>
       </div>
     </div>
@@ -509,6 +531,13 @@ onMounted(fetchBlocks)
     box-shadow: 0 4px 6px rgba(255,180,0,0.2);
   }
 
+  .mode-btn.disqualified-mode.active {
+    background: #000000;
+    border-color: #000000;
+    color: #fff;
+    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+  }
+
 .mode-icon {
   width: 20px;
   height: 20px;
@@ -522,7 +551,8 @@ onMounted(fetchBlocks)
 .icon-check { border: 2px solid rgba(255, 255, 255, 0.75); }
 .mode-btn:not(.active) .icon-check { border-color: #8f9bc9; color: #4f5ca7; }
 .icon-warning { background: #ffb400; color: #fff; }
-.icon-ban { background: #ecf0f7; color: #1f2937; border: 1px solid #6b7280; }
+.icon-ban { background: #000; color: #fff; border: 1px solid #000; }
+.mode-btn.disqualified-mode:not(.active) .icon-ban { background: transparent; color: #000; }
 
 .block-navigator {
     margin: 14px 0 10px;
@@ -607,7 +637,7 @@ onMounted(fetchBlocks)
   .gantangan-card.default { background: #8eb1e3; }
   .gantangan-card.selected { background: #3041b3; box-shadow: 0 4px 8px rgba(48,65,179,0.3); }
 .gantangan-card.warning { background: #fce598; color: #fff; }
-.gantangan-card.disqualified { background: #767b8a; color: #e5e7eb; }
+.gantangan-card.disqualified { background: #000; color: #fff; }
 .gantangan-card.unbooked { background: #c1c3ca; color: #e8e9ed; box-shadow: none; }
 .gantangan-card:disabled { cursor: not-allowed; }
 
