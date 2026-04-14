@@ -67,6 +67,12 @@ const router = createRouter({
     meta: { requiresAuth: true }
   },
   {
+    path: '/katalog-lomba/:id', 
+    name: 'detail-lomba',
+    component: () => import('@/views/lomba/DetailLombaView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/:pathMatch(.*)*',
     redirect: { name: 'katalog-lomba' },
   },
