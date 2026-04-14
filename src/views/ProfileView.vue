@@ -15,14 +15,14 @@
       </Transition>
     </Teleport>
 
-    <!-- ============================== -->
+    <!-- ============================================================ -->
     <!-- LAYOUT DESKTOP (Admin & Koordinator) -->
-    <!-- ============================== -->
+    <!-- ============================================================ -->
     <div v-if="isDesktop" class="flex flex-1">
       <Sidebar />
 
       <div class="flex-1 flex flex-col min-w-0">
-        <Header />
+        <Header /> 
 
         <main class="p-8 pb-20 flex-1">
           <h1 class="text-2xl font-bold text-[#2E42B2] mb-6 text-left">Profil Akun</h1>
@@ -35,16 +35,13 @@
             <h2 class="text-xl font-bold text-[#1E3A8A] mb-6">Informasi Akun</h2>
 
             <div class="space-y-5">
-              <!-- Username -->
               <div class="flex flex-col gap-1">
                 <label class="text-sm font-bold text-[#2D48C8]">Username</label>
                 <div class="w-full bg-[#6D9BED] border border-[#2D48C8] rounded-lg px-4 py-2.5 shadow-sm">
                   <span class="font-bold text-[#1E3A8A] text-base">{{ profile.username }}</span>
                 </div>
-                <p class="text-[10px] text-[#4B79E6] font-medium">Username tidak bisa diubah</p>
               </div>
 
-              <!-- Nama Lengkap -->
               <div class="flex flex-col gap-1">
                 <label class="text-sm font-bold text-[#1E3A8A]">Nama Lengkap</label>
                 <div class="w-full bg-[#DEE8FB] border border-[#2D48C8] rounded-lg px-4 py-2.5 text-[#1C244F] font-semibold text-base">
@@ -52,7 +49,6 @@
                 </div>
               </div>
 
-              <!-- Nomor WhatsApp -->
               <div class="flex flex-col gap-1">
                 <label class="text-sm font-bold text-[#1E3A8A]">Nomor WhatsApp</label>
                 <div class="w-full bg-[#DEE8FB] border border-[#2D48C8] rounded-lg px-4 py-2.5 text-[#1C244F] font-semibold text-base">
@@ -60,24 +56,16 @@
                 </div>
               </div>
 
-              <!-- Role -->
               <div class="flex flex-col gap-1">
                 <label class="text-sm font-bold text-[#1E3A8A]">Role</label>
-                <div class="w-full bg-[#DEE8FB] border border-[#2D48C8] rounded-lg px-4 py-2.5 text-[#1C244F] font-semibold text-base">
-                  {{ profile.role }}
+                <div class="w-full bg-[#DEE8FB] border border-[#2D48C8] rounded-lg px-4 py-2.5 text-[#1C244F] font-semibold text-base uppercase">
+                  {{ formatRole(profile.role) }}
                 </div>
               </div>
 
-              <button
-                @click="showChangePasswordModal = true"
-                class="w-full bg-[#2E42B2] text-white font-bold py-2.5 rounded-lg hover:bg-blue-800 transition-all shadow-md mt-4 cursor-pointer text-sm"
-              >
+              <button @click="showChangePasswordModal = true" class="w-full bg-[#2E42B2] text-white font-bold py-2.5 rounded-lg hover:bg-blue-800 transition-all shadow-md mt-4 cursor-pointer text-sm">
                 Ganti Password
               </button>
-
-              <p class="text-center text-[#4B79E6] font-medium text-xs mt-4">
-                Harap Hubungi Admin (0812-3456-7890) untuk Pengubahan Detail Akun Lainnya.
-              </p>
             </div>
           </div>
         </main>
@@ -88,22 +76,11 @@
     <!-- LAYOUT MOBILE (Juri & Peserta) -->
     <!-- ============================================================ -->
     <div v-else class="flex flex-col min-h-screen bg-white">
-      <header class="bg-[#2E42B2] py-5 px-6 flex items-center justify-between relative shadow-md shrink-0 z-20 text-white">
-        <button 
-          @click="isSidebarOpen = true"
-          class="w-11 h-11 bg-white/10 rounded-xl flex items-center justify-center text-white hover:bg-white/20 transition cursor-pointer z-30"
-        >
-          <svg class="w-7 h-7" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M4 7h16M4 12h16M4 17h16" />
-          </svg>
-        </button>
-        <h1 class="absolute left-1/2 -translate-x-1/2 text-[20px] font-bold font-plus-jakarta whitespace-nowrap z-10">
-          Profil Akun
-        </h1>
-        <div class="w-11 h-11 bg-white rounded-full border border-white/40 overflow-hidden flex items-center justify-center shadow-sm z-30">
-            <img :src="`https://ui-avatars.com/api/?name=${profile.fullName || 'User'}&background=dbdbdb&color=555`" alt="avatar" class="w-full h-full object-cover" />
-        </div>
-      </header>
+      
+      <HeaderMobile 
+        title="Profil Akun" 
+        @menu-click="isSidebarOpen = true" 
+      />
 
       <main class="p-8 pb-12 flex-1">
         <h2 class="text-2xl font-bold text-[#2E42B2] mb-8 text-left">Informasi Akun</h2>
@@ -118,7 +95,6 @@
                 <div class="w-full bg-[#6D9BED] border border-[#2D48C8] rounded-lg px-4 py-2">
                   <span class="font-bold text-[#1E3A8A] text-sm">{{ profile.username }}</span>
                 </div>
-                <p class="text-[9px] text-[#4B79E6] font-bold">Username tidak bisa diubah</p>
               </div>
 
               <div class="flex flex-col gap-1">
@@ -166,21 +142,8 @@
     </div>
 
     <!-- MODALS -->
-    <ModalGantiPassword
-      :show="showChangePasswordModal"
-      @close="showChangePasswordModal = false"
-      @success="handlePasswordSuccess"
-      @error="handlePasswordError"
-    />
-
-    <ErrorModal
-      :show="statusModal.show"
-      :type="statusModal.type"
-      :message="statusModal.message"
-      confirm-label="Kembali"
-      @confirm="statusModal.show = false"
-      @close="statusModal.show = false"
-    />
+    <ModalGantiPassword :show="showChangePasswordModal" @close="showChangePasswordModal = false" @success="handlePasswordSuccess" @error="handlePasswordError" />
+    <ErrorModal :show="statusModal.show" :type="statusModal.type" :message="statusModal.message" @confirm="statusModal.show = false" @close="statusModal.show = false" />
   </div>
 </template>
 
@@ -188,6 +151,8 @@
 import { ref, onMounted, reactive } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Header from '@/components/Header.vue';
+import HeaderMobile from '@/components/HeaderMobile.vue';
+
 import ModalGantiPassword from '@/components/modals/ModalGantiPassword.vue';
 import ErrorModal from '@/components/modals/ErrorModal.vue';
 import { useBreakpoint } from '@/composables/useBreakpoint';
@@ -249,12 +214,9 @@ function handleLogout() { authStore.logout(); }
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 .font-plus-jakarta { font-family: 'Plus Jakarta Sans', sans-serif; }
-
 .slide-enter-active, .slide-leave-active { transition: transform 0.3s ease; }
 .slide-enter-from, .slide-leave-to { transform: translateX(-100%); }
-
 .fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
 .fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>
