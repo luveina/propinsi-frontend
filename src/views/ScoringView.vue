@@ -131,6 +131,8 @@ const refreshCurrentBlock = async () => {
   selectedBlock.value = await getScoringBlockDetail(lombaId.value, selectedBlock.value.blokId)
 }
 
+const confirmWarningTarget = ref<ScoringGantangan | null>(null)
+
 const onCardClick = async (item: ScoringGantangan) => {
   if (!isClickable(item) || !selectedBlock.value || selectedBlock.value.locked) return
 
@@ -139,10 +141,12 @@ const onCardClick = async (item: ScoringGantangan) => {
     return
   }
 
-  const confirmationText =
-    mode.value === 'PERINGATAN'
-      ? `Tambahkan peringatan untuk gantangan ${item.nomorGantangan}?`
-      : `Yakin diskualifikasi gantangan ${item.nomorGantangan}?`
+  if (mode.value === 'PERINGATAN') {
+    confirmWarningTarget.value = item
+    return
+  }
+
+  const confirmationText = `Yakin diskualifikasi gantangan ${item.nomorGantangan}?`
 
   const ok = window.confirm(confirmationText)
   if (!ok) return
@@ -152,14 +156,29 @@ const onCardClick = async (item: ScoringGantangan) => {
   info.value = ''
 
   try {
-    if (mode.value === 'PERINGATAN') {
-      await postScoringWarning(lombaId.value, item.id)
-      info.value = `Peringatan untuk gantangan ${item.nomorGantangan} berhasil dikirim.`
-    } else {
-      await postScoringDisqualify(lombaId.value, item.id)
-      info.value = `Gantangan ${item.nomorGantangan} berhasil didiskualifikasi.`
-    }
+    await postScoringDisqualify(lombaId.value, item.id, selectedBlock.value.blokId)
+    info.value = `Gantangan ${item.nomorGantangan} berhasil didiskualifikasi.`
 
+    await refreshCurrentBlock()
+  } catch (err: any) {
+    error.value = err?.response?.data?.message || 'Aksi gagal diproses.'
+  } finally {
+    saving.value = false
+  }
+}
+
+const proceedWarning = async () => {
+  const item = confirmWarningTarget.value
+  if (!item || !selectedBlock.value) return
+
+  confirmWarningTarget.value = null
+  saving.value = true
+  error.value = ''
+  info.value = ''
+
+  try {
+    await postScoringWarning(lombaId.value, item.id, selectedBlock.value.blokId)
+    info.value = `Peringatan untuk gantangan ${item.nomorGantangan} berhasil dikirim.`
     await refreshCurrentBlock()
   } catch (err: any) {
     error.value = err?.response?.data?.message || 'Aksi gagal diproses.'
@@ -276,7 +295,7 @@ onMounted(fetchBlocks)
                 <span class="mode-icon icon-check">✓</span>
                 Ajuan
               </button>
-              <button class="mode-btn" :class="{ active: mode === 'PERINGATAN' }" @click="mode = 'PERINGATAN'">
+              <button class="mode-btn warning-mode" :class="{ active: mode === 'PERINGATAN' }" @click="mode = 'PERINGATAN'">
                 <span class="mode-icon icon-warning">!</span>
                 Peringatan
               </button>
@@ -306,10 +325,14 @@ onMounted(fetchBlocks)
               @click="onCardClick(item)"
             >
               <span class="number">{{ item.nomorGantangan }}</span>
+              
+              <div v-if="item.warningCount > 0 && item.status !== 'DISQUALIFIED'" class="warning-indicator mt-1 text-xs font-bold text-yellow-700 flex items-center justify-center gap-1 z-10 w-full absolute bottom-3">
+                <span class="w-4 h-4 rounded-full bg-yellow-500 text-white flex items-center justify-center text-[10px]">!</span>
+                {{ item.warningCount }}/3
+              </div>
 
-              <span v-if="mode === 'AJUAN' && isSelected(item.id)" class="badge check">✓</span>
-              <span v-else-if="item.warningCount > 0 && item.status !== 'DISQUALIFIED'" class="badge warning">{{ item.warningCount }}</span>
-              <span v-if="item.status === 'DISQUALIFIED'" class="overlay-text">Didiskualifikasi</span>
+              <span v-if="mode === 'AJUAN' && isSelected(item.id)" class="badge check z-10">✓</span>
+              <span v-if="item.status === 'DISQUALIFIED'" class="overlay-text z-10">Didiskualifikasi</span>
             </button>
           </div>
 
@@ -329,6 +352,21 @@ onMounted(fetchBlocks)
         <div class="modal-actions">
           <button class="btn-secondary" @click="showEmptySubmitConfirm = false">Batal</button>
           <button class="btn-primary" @click="submitAjuanFinal">Tetap Ajukan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Konfirmasi Peringatan -->
+    <div v-if="confirmWarningTarget" class="modal-backdrop">
+      <div class="modal-card text-center">
+        <h3 class="text-blue-700 font-bold mb-4">Berikan Peringatan</h3>
+        <p class="text-sm text-gray-600 mb-6">
+          Apakah Anda yakin ingin memberikan peringatan pada <b>Gantangan {{ confirmWarningTarget.nomorGantangan }}</b>?<br />
+          Tersisa <b>{{ 3 - (confirmWarningTarget.warningCount || 0) }} peringatan lagi</b> sebelum diskualifikasi otomatis.
+        </p>
+        <div class="flex gap-3 justify-center w-full">
+          <button class="btn-secondary flex-1 py-2 rounded-lg bg-gray-200 text-gray-700 font-bold" @click="confirmWarningTarget = null">Batal</button>
+          <button class="btn-primary flex-1 py-2 rounded-lg bg-blue-700 text-white font-bold" @click="proceedWarning">Beri Peringatan</button>
         </div>
       </div>
     </div>
@@ -464,6 +502,13 @@ onMounted(fetchBlocks)
     box-shadow: 0 4px 6px rgba(48,65,179,0.2);
   }
 
+  .mode-btn.warning-mode.active {
+    background: #ffb400;
+    border-color: #ffb400;
+    color: #fff;
+    box-shadow: 0 4px 6px rgba(255,180,0,0.2);
+  }
+
 .mode-icon {
   width: 20px;
   height: 20px;
@@ -561,7 +606,7 @@ onMounted(fetchBlocks)
   
   .gantangan-card.default { background: #8eb1e3; }
   .gantangan-card.selected { background: #3041b3; box-shadow: 0 4px 8px rgba(48,65,179,0.3); }
-.gantangan-card.warning { background: #f3c556; color: #fff; }
+.gantangan-card.warning { background: #fce598; color: #fff; }
 .gantangan-card.disqualified { background: #767b8a; color: #e5e7eb; }
 .gantangan-card.unbooked { background: #c1c3ca; color: #e8e9ed; box-shadow: none; }
 .gantangan-card:disabled { cursor: not-allowed; }
@@ -580,7 +625,6 @@ onMounted(fetchBlocks)
 }
 
 .badge.check { background: #3041b3; border: 2px solid rgba(255, 255, 255, 0.85); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
-.badge.warning { background: rgba(255, 255, 255, 0.9); color: #734f0d; width: auto; padding: 0 6px; }
 
 .overlay-text {
   position: absolute;

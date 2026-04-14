@@ -42,19 +42,19 @@ export const postScoringVote = async (lombaId: string, payload: ScoringVoteReque
   return response.data.data
 }
 
-export const postScoringWarning = async (lombaId: string, gantanganId: string): Promise<ScoringGantangan> => {
+export const postScoringWarning = async (lombaId: string, gantanganId: string, blokId?: number): Promise<ScoringGantangan> => {
   const response = await axios.post<BaseApiResponse<ScoringGantangan>>(
-    `${API_URL}/warning/${gantanganId}`,
-    {},
+    `${API_URL}/warning`,
+    { gantanganId, blokId },
     { headers: getAuthHeaders(), params: { lombaId } },
   )
   return response.data.data
 }
 
-export const postScoringDisqualify = async (lombaId: string, gantanganId: string): Promise<ScoringGantangan> => {
+export const postScoringDisqualify = async (lombaId: string, gantanganId: string, blokId?: number): Promise<ScoringGantangan> => {
   const response = await axios.post<BaseApiResponse<ScoringGantangan>>(
-    `${API_URL}/disqualify/${gantanganId}`,
-    {},
+    `${API_URL}/disqualify`,
+    { gantanganId, blokId },
     { headers: getAuthHeaders(), params: { lombaId } },
   )
   return response.data.data
