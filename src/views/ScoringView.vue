@@ -36,6 +36,30 @@ const showEmptySubmitConfirm = ref(false)
 
 const isJuri = computed(() => (authStore.user?.role || '').toUpperCase().includes('JURI'))
 
+const sortedBlocks = computed(() => {
+  const desiredOrder = ['BLOK II', 'BLOK III', 'BLOK I', 'BLOK IV']
+  return [...blocks.value].sort((a, b) => {
+    const aLabel = a.blokLabel.toUpperCase().trim()
+    const bLabel = b.blokLabel.toUpperCase().trim()
+    const aIdx = desiredOrder.indexOf(aLabel)
+    const bIdx = desiredOrder.indexOf(bLabel)
+    const aVal = aIdx !== -1 ? aIdx : 99
+    const bVal = bIdx !== -1 ? bIdx : 99
+    return aVal - bVal
+  })
+})
+
+const selectedBlockIndex = computed(() => {
+  if (!selectedBlock.value) return -1
+  return sortedBlocks.value.findIndex((item) => item.blokId === selectedBlock.value?.blokId)
+})
+const canGoPrev = computed(() => selectedBlockIndex.value > 0)
+const canGoNext = computed(
+  () => selectedBlockIndex.value >= 0 && selectedBlockIndex.value < sortedBlocks.value.length - 1,
+)
+
+const orderedGantangans = computed(() => selectedBlock.value?.gantangan || [])
+
 const fetchBlocks = async () => {
   if (!lombaId.value) {
     error.value = 'Lomba belum dipilih. Silakan kembali ke katalog lomba.'
@@ -76,7 +100,19 @@ const backToBlocks = async () => {
   await fetchBlocks()
 }
 
-const isClickable = (item: ScoringGantangan) => item.isBooked && item.status !== 'DISQUALIFIED'
+const navigateBlock = async (direction: -1 | 1) => {
+  const nextIndex = selectedBlockIndex.value + direction
+  if (nextIndex < 0 || nextIndex >= sortedBlocks.value.length) return
+  const nextBlock = sortedBlocks.value[nextIndex]
+  if (!nextBlock) return
+  await openBlock(nextBlock.blokId)
+}
+
+const isGantanganBooked = (item: ScoringGantangan) => {
+  return item.isBooked || (item.status as any) === 'BOOKED' || item.status === 'ACTIVE'
+}
+
+const isClickable = (item: ScoringGantangan) => isGantanganBooked(item) && item.status !== 'DISQUALIFIED'
 
 const isSelected = (id: string) => selectedAjuan.value.has(id)
 
@@ -169,25 +205,30 @@ const submitAjuanFinal = async () => {
 const cardClass = (item: ScoringGantangan) => {
   const base = 'gantangan-card'
 
-  if (!item.isBooked) return `${base} unbooked`
+  if (!isGantanganBooked(item)) return `${base} unbooked`
   if (item.status === 'DISQUALIFIED') return `${base} disqualified`
   if (mode.value === 'AJUAN' && isSelected(item.id)) return `${base} selected`
   if (item.warningCount > 0) return `${base} warning`
   return `${base} default`
 }
 
+const formatBlockLabel = (label: string) => label.toUpperCase().replace('BLOK ', 'BLOK\n')
+
 onMounted(fetchBlocks)
 </script>
 
 <template>
-  <main class="scoring-page">
-    <section class="phone-shell">
-      <header class="topbar">
+  <div class="flex h-screen bg-white font-plus-jakarta overflow-hidden">
+    <!-- Main Content -->
+    <main class="flex-1 flex flex-col min-w-0 bg-white overflow-y-auto">
+      <header class="topbar sticky top-0 z-30 flex-shrink-0">
+        <button class="chevron chevron-left" aria-label="Kembali" @click="router.push('/katalog-lomba')">
+        </button>
         <h1>Penilaian</h1>
-        <p>{{ authStore.user?.fullName }}</p>
+        <div class="w-[36px]"></div>
       </header>
 
-      <div class="content">
+      <div class="content mx-auto w-full max-w-3xl px-3 py-3 flex-1 flex flex-col">
         <div v-if="!lombaId" class="alert error">
           Lomba belum dipilih. Buka halaman ini dari tombol Penilaian di katalog lomba.
           <div class="mt-2">
@@ -200,40 +241,65 @@ onMounted(fetchBlocks)
         <div v-if="lombaId && !isJuri" class="alert error">Halaman ini hanya untuk role Juri.</div>
 
         <template v-else-if="lombaId && !selectedBlock">
-          <h2 class="title">Pilih Blok untuk Dinilai</h2>
+          <div class="flex flex-col flex-1 justify-center items-center h-full -mt-6">
+            <h2 class="title">Pilih Blok untuk Dinilai</h2>
 
-          <div v-if="loading" class="loading">Memuat blok...</div>
+            <div v-if="loading" class="loading">Memuat blok...</div>
 
-          <div v-else class="block-grid">
-            <button
-              v-for="block in blocks"
-              :key="block.blokId"
+            <div v-else class="block-grid w-full px-2">
+              <button
+                v-for="block in sortedBlocks"
+                :key="block.blokId"
               class="block-card"
               :class="{ locked: block.locked }"
               :disabled="block.locked"
               @click="openBlock(block.blokId)"
             >
-              <span>{{ block.blokLabel }}</span>
-              <small>{{ block.locked ? 'Selesai Dinilai' : 'Belum Dinilai' }}</small>
+              <span class="block-card-label">{{ formatBlockLabel(block.blokLabel) }}</span>
             </button>
+            </div>
           </div>
         </template>
 
         <template v-else>
           <div class="block-head">
-            <button class="back-btn" @click="backToBlocks">&lt; Kembali ke Blok</button>
+            <button class="back-btn" @click="backToBlocks">
+              <span class="chevron chevron-left"></span>
+              Pilih Gantangan - {{ selectedBlock?.blokLabel }}
+            </button>
+          </div>
+
+          <div class="mode-card">
+            <p class="mode-label">Aksi:</p>
+            <div class="mode-switcher">
+              <button class="mode-btn" :class="{ active: mode === 'AJUAN' }" @click="mode = 'AJUAN'">
+                <span class="mode-icon icon-check">✓</span>
+                Ajuan
+              </button>
+              <button class="mode-btn" :class="{ active: mode === 'PERINGATAN' }" @click="mode = 'PERINGATAN'">
+                <span class="mode-icon icon-warning">!</span>
+                Peringatan
+              </button>
+              <button class="mode-btn" :class="{ active: mode === 'DISKUALIFIKASI' }" @click="mode = 'DISKUALIFIKASI'">
+                <span class="mode-icon icon-ban">×</span>
+                Diskualifikasi
+              </button>
+            </div>
+          </div>
+
+          <div class="block-navigator">
+            <button class="nav-btn" :disabled="!canGoPrev" @click="navigateBlock(-1)">
+              <span class="nav-triangle triangle-left"></span>
+            </button>
             <h2>{{ selectedBlock?.blokLabel }}</h2>
+            <button class="nav-btn" :disabled="!canGoNext" @click="navigateBlock(1)">
+              <span class="nav-triangle triangle-right"></span>
+            </button>
           </div>
 
-          <div class="mode-switcher">
-            <button :class="{ active: mode === 'AJUAN' }" @click="mode = 'AJUAN'">Ajuan</button>
-            <button :class="{ active: mode === 'PERINGATAN' }" @click="mode = 'PERINGATAN'">Peringatan</button>
-            <button :class="{ active: mode === 'DISKUALIFIKASI' }" @click="mode = 'DISKUALIFIKASI'">Diskualifikasi</button>
-          </div>
-
-          <div class="grid-wrap">
+          <div class="grid-wrap w-full flex-1 mb-2">
             <button
-              v-for="item in selectedBlock?.gantangan ?? []"
+              v-for="item in orderedGantangans"
               :key="item.id"
               :class="cardClass(item)"
               :disabled="!isClickable(item) || saving || !!selectedBlock?.locked"
@@ -242,7 +308,7 @@ onMounted(fetchBlocks)
               <span class="number">{{ item.nomorGantangan }}</span>
 
               <span v-if="mode === 'AJUAN' && isSelected(item.id)" class="badge check">✓</span>
-              <span v-else-if="item.warningCount > 0 && item.status !== 'DISQUALIFIED'" class="badge warning">{{ item.warningCount }}/3</span>
+              <span v-else-if="item.warningCount > 0 && item.status !== 'DISQUALIFIED'" class="badge warning">{{ item.warningCount }}</span>
               <span v-if="item.status === 'DISQUALIFIED'" class="overlay-text">Didiskualifikasi</span>
             </button>
           </div>
@@ -252,7 +318,7 @@ onMounted(fetchBlocks)
           </button>
         </template>
       </div>
-    </section>
+    </main>
 
     <div v-if="showEmptySubmitConfirm" class="modal-backdrop">
       <div class="modal-card">
@@ -266,306 +332,330 @@ onMounted(fetchBlocks)
         </div>
       </div>
     </div>
-  </main>
+  </div>
 </template>
 
 <style scoped>
-.scoring-page {
-  min-height: 100vh;
-  background: radial-gradient(circle at top right, #dfe8ff 0%, #eef3ff 36%, #f6f8ff 100%);
-  display: flex;
-  justify-content: center;
-  padding: 18px 12px;
-}
-
-.phone-shell {
-  width: 100%;
-  max-width: 390px;
-  border-radius: 20px;
-  border: 1px solid #cfd8f8;
-  background: #ffffff;
-  box-shadow: 0 18px 34px rgba(40, 61, 156, 0.14);
-  overflow: hidden;
-}
-
 .topbar {
-  background: #2f43b3;
+  background: #3041b3;
   color: #fff;
-  padding: 16px;
+  padding: 16px 20px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
 }
 
 .topbar h1 {
   margin: 0;
-  font-size: 18px;
+  text-align: center;
+  font-size: 20px;
   font-weight: 700;
+  flex: 1;
 }
 
-.topbar p {
-  margin: 4px 0 0;
-  font-size: 12px;
-  opacity: 0.9;
-}
-
-.content {
-  padding: 16px;
+@media (min-width: 1024px) {
+  .topbar h1 {
+    text-align: left;
+  }
 }
 
 .title {
-  margin: 0 0 14px;
+  margin: 16px 0 24px;
   text-align: center;
-  font-size: 18px;
-  color: #2f43b3;
+  font-size: 20px;
+  color: #3041b3;
+  font-weight: 700;
 }
 
 .alert {
-  font-size: 12px;
+  font-size: 14px;
   border-radius: 10px;
-  padding: 10px;
-  margin-bottom: 10px;
+  padding: 12px;
+  margin-bottom: 12px;
 }
 
-.alert.error {
-  background: #ffe6e6;
-  color: #7f1d1d;
-}
-
-.alert.info {
-  background: #e8f1ff;
-  color: #1f3a8a;
-}
-
-.loading {
-  text-align: center;
-  color: #5a6aa6;
-}
+.alert.error { background: #ffe6e6; color: #7f1d1d; }
+.alert.info { background: #e8f1ff; color: #1f3a8a; }
+.loading { text-align: center; color: #5360a6; padding: 20px; }
 
 .block-grid {
   display: grid;
   grid-template-columns: repeat(2, minmax(0, 1fr));
-  gap: 10px;
+  gap: 16px;
+  max-width: 400px;
+  margin: 0 auto;
 }
 
 .block-card {
   border: none;
-  border-radius: 10px;
-  min-height: 95px;
-  background: #2f43b3;
-  color: #fff;
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  gap: 6px;
+  border-radius: 12px;
+    height: 200px;
+    background: #3041b3;
+    color: white;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.1s;
+  }
+  .block-card:active { transform: scale(0.98); }
+  
+  .block-card-label {
   font-weight: 700;
 }
 
-.block-card small {
-  font-size: 11px;
-  opacity: 0.85;
-}
+.block-card.locked { background: #c0c2ca; color: #e8e9ed; box-shadow: none; }
 
-.block-card.locked {
-  background: #b7bdcc;
-  color: #eceff7;
-}
-
-.block-head {
-  margin-bottom: 10px;
-}
-
-.block-head h2 {
-  margin: 6px 0 0;
-  text-align: center;
-  color: #2f43b3;
-}
+.block-head { margin-bottom: 16px; }
 
 .back-btn {
   border: none;
   background: transparent;
-  color: #2f43b3;
-  padding: 0;
-  font-size: 13px;
-}
-
-.mode-switcher {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
-  margin: 8px 0 12px;
-}
-
-.mode-switcher button {
-  border-radius: 10px;
-  border: 1px solid #d2daf7;
-  background: #f3f6ff;
-  color: #2f43b3;
-  font-size: 11px;
-  font-weight: 700;
-  padding: 8px 6px;
-}
-
-.mode-switcher button.active {
-  background: #2f43b3;
-  color: #fff;
-  border-color: #2f43b3;
-}
-
-.grid-wrap {
-  display: grid;
-  grid-template-columns: repeat(2, minmax(0, 1fr));
+  color: #3041b3;
+  padding: 8px 0;
+  font-size: 14px;
+  font-weight: 600;
+  display: inline-flex;
+  align-items: center;
   gap: 8px;
 }
 
-.gantangan-card {
-  min-height: 70px;
-  border: none;
-  border-radius: 8px;
-  position: relative;
-  font-weight: 700;
-  color: #fff;
+.mode-card {
+  border: 1px solid #c9ccd6;
+  border-radius: 12px;
+    padding: 12px;
+    background: #f8f9fa;
+    margin-bottom: 14px;
+  }
+  
+  .mode-label {
+    margin: 0 0 8px;
+    font-size: 13px;
+    color: #3041b3;
+    font-weight: 700;
+  }
+  
+  .mode-switcher {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 8px;
+  }
+  
+  .mode-btn {
+    border-radius: 10px;
+    border: 1px solid #c8ccd5;
+    background: #fff;
+    color: #2f3445;
+    font-size: 11px;
+    font-weight: 600;
+    padding: 8px 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 6px;
+  }
+  
+  .mode-btn.active {
+    background: #3041b3;
+    color: #fff;
+    border-color: #3041b3;
+    box-shadow: 0 4px 6px rgba(48,65,179,0.2);
+  }
+
+.mode-icon {
+  width: 20px;
+  height: 20px;
+  border-radius: 999px;
+  display: grid;
+  place-items: center;
+  font-size: 12px;
+  font-weight: 800;
 }
 
-.gantangan-card .number {
-  font-size: 30px;
-}
+.icon-check { border: 2px solid rgba(255, 255, 255, 0.75); }
+.mode-btn:not(.active) .icon-check { border-color: #8f9bc9; color: #4f5ca7; }
+.icon-warning { background: #ffb400; color: #fff; }
+.icon-ban { background: #ecf0f7; color: #1f2937; border: 1px solid #6b7280; }
 
-.gantangan-card.default {
-  background: #8db4ea;
-}
-
-.gantangan-card.selected {
-  background: #2f43b3;
-}
-
-.gantangan-card.warning {
-  background: #f8dd8f;
-  color: #553f05;
-}
-
-.gantangan-card.disqualified {
-  background: #121212;
-  color: #fff;
-}
-
-.gantangan-card.unbooked {
-  background: #c7ccd6;
-  color: #dfe3eb;
-}
-
-.gantangan-card:disabled {
-  cursor: not-allowed;
-}
+.block-navigator {
+    margin: 14px 0 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  
+  .block-navigator h2 {
+    margin: 0;
+    color: #3041b3;
+    font-size: 16px;
+    font-weight: 700;
+  }
+  
+  .nav-btn {
+    width: 32px;
+    height: 32px;
+    border: 1px solid #c4c8d4;
+    background: transparent;
+    display: grid;
+    place-items: center;
+    border-radius: 50%;
+  }
+  
+  .nav-btn:disabled { opacity: 0.45; }
+  
+  .chevron {
+    width: 10px;
+    height: 10px;
+    border-top: 2px solid currentColor;
+    border-right: 2px solid currentColor;
+    display: inline-block;
+  }
+  .chevron-right { transform: rotate(45deg); }
+  .chevron-left { transform: rotate(-135deg); }
+  
+  .nav-triangle {
+    width: 0;
+    height: 0;
+    border-top: 6px solid transparent;
+    border-bottom: 6px solid transparent;
+    display: inline-block;
+  }
+  .triangle-right { 
+    border-left: 8px solid #3041b3; 
+    margin-left: 3px;
+  }
+  .triangle-left { 
+    border-right: 8px solid #3041b3; 
+    margin-right: 3px;
+  }
+  
+  .grid-wrap {
+    display: grid;
+    max-height: max-content;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+    max-width: 250px;
+    margin: 0 auto 16px auto;
+    align-content: start;
+  }
+  
+  .gantangan-card {
+    aspect-ratio: 1 / 1;
+    height: auto;
+    border: none;
+    border-radius: 12px;
+    position: relative;
+    font-weight: 600;
+    color: #fff;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+  
+  .gantangan-card .number {
+    font-size: 32px;
+  }
+  
+  .gantangan-card.default { background: #8eb1e3; }
+  .gantangan-card.selected { background: #3041b3; box-shadow: 0 4px 8px rgba(48,65,179,0.3); }
+.gantangan-card.warning { background: #f3c556; color: #fff; }
+.gantangan-card.disqualified { background: #767b8a; color: #e5e7eb; }
+.gantangan-card.unbooked { background: #c1c3ca; color: #e8e9ed; box-shadow: none; }
+.gantangan-card:disabled { cursor: not-allowed; }
 
 .badge {
   position: absolute;
-  top: 6px;
-  right: 6px;
+  top: 8px;
+  right: 8px;
   width: 22px;
   height: 22px;
   border-radius: 999px;
   display: grid;
   place-items: center;
-  font-size: 11px;
+  font-size: 12px;
   font-weight: 700;
 }
 
-.badge.check {
-  background: rgba(255, 255, 255, 0.2);
-  border: 1px solid rgba(255, 255, 255, 0.5);
-}
-
-.badge.warning {
-  width: auto;
-  min-width: 28px;
-  padding: 0 5px;
-  background: rgba(255, 255, 255, 0.5);
-  color: #4f3a00;
-}
+.badge.check { background: #3041b3; border: 2px solid rgba(255, 255, 255, 0.85); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.badge.warning { background: rgba(255, 255, 255, 0.9); color: #734f0d; width: auto; padding: 0 6px; }
 
 .overlay-text {
   position: absolute;
-  bottom: 6px;
-  left: 6px;
-  right: 6px;
-  font-size: 10px;
+  bottom: 8px;
+  left: 0;
+  right: 0;
+  font-size: 11px;
   text-align: center;
-  opacity: 0.95;
+  font-weight: 600;
 }
 
 .submit-btn {
-  margin-top: 12px;
-  width: 100%;
-  border: none;
-  border-radius: 8px;
-  background: #2f43b3;
-  color: #fff;
-  font-weight: 700;
-  height: 36px;
+    margin-top: 16px;
+    width: 100%;
+    max-width: 320px;
+    margin-left: auto;
+    margin-right: auto;
+    display: block;
+    border: none;
+    border-radius: 12px;
+    background: #3041b3;
+    color: #fff;
+    font-weight: 700;
+    height: 42px;
+    font-size: 15px;
 }
 
-.submit-btn:disabled {
-  background: #b8c2ea;
-}
+.submit-btn:disabled { background: #bcc2e1; box-shadow: none; }
 
 .modal-backdrop {
   position: fixed;
   inset: 0;
-  background: rgba(17, 24, 39, 0.4);
+  background: rgba(0, 0, 0, 0.6);
   display: grid;
   place-items: center;
-  padding: 16px;
+  padding: 20px;
+  z-index: 100;
 }
 
 .modal-card {
   background: #fff;
-  border-radius: 10px;
+  border-radius: 16px;
   width: min(340px, 100%);
-  padding: 14px;
+  padding: 24px;
+  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
 }
 
 .modal-card h3 {
-  margin: 0 0 8px;
-  color: #1f2d78;
-  font-size: 16px;
-}
-
-.modal-card p {
-  margin: 0;
-  font-size: 13px;
-  color: #4e5680;
-}
-
-.modal-actions {
-  margin-top: 12px;
-  display: flex;
-  justify-content: flex-end;
-  gap: 8px;
-}
-
-.btn-secondary,
-.btn-primary {
-  border: none;
-  border-radius: 8px;
-  padding: 7px 12px;
+  margin: 0 0 12px;
+  color: #3041b3;
+  font-size: 18px;
   font-weight: 700;
 }
 
-.btn-secondary {
-  background: #e5e7eb;
-  color: #374151;
+.modal-card p {
+  margin: 0 0 24px;
+  font-size: 14px;
+  color: #4a4f62;
+  line-height: 1.5;
 }
 
-.btn-primary {
-  background: #2f43b3;
-  color: #fff;
+.modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
 }
 
-@media (min-width: 768px) {
-  .scoring-page {
-    padding: 28px;
-  }
-
-  .phone-shell {
-    max-width: 430px;
-  }
+.btn-secondary, .btn-primary {
+  border: none;
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-weight: 600;
+  font-size: 14px;
 }
+.btn-secondary { background: #f1f2f5; color: #4a4f62; }
+.btn-primary { background: #3041b3; color: #fff; }
+
 </style>
