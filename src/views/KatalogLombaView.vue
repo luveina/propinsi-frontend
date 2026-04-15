@@ -1,6 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import Sidebar from '@/components/Sidebar.vue'
 import { useAuthStore } from '@/stores/auth/auth.store'
@@ -35,6 +35,7 @@ const fetchLomba = async () => {
       status: filterStatus.value || undefined,
       sortBy: 'waktuTanggal',
       sortDir: sortDir.value,
+      nama: searchQuery.value || undefined,
     })
   } catch (e: any) {
     error.value = 'Gagal mengambil data lomba. Pastikan server berjalan.'
@@ -50,16 +51,14 @@ function onFilterChange() {
   fetchLomba()
 }
 
+// Watch for search query changes
+watch(searchQuery, () => {
+  fetchLomba()
+})
+
 // Client-side search filter
 const filteredLombaList = computed(() => {
-  if (!searchQuery.value.trim()) return lombaList.value
-  const q = searchQuery.value.toLowerCase()
-  return lombaList.value.filter(
-    (l) =>
-      l.namaLomba.toLowerCase().includes(q) ||
-      l.lokasi.toLowerCase().includes(q) ||
-      formatJenisBurung(l.jenisBurung).toLowerCase().includes(q),
-  )
+  return lombaList.value
 })
 
 // Helpers

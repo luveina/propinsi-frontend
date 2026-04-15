@@ -1,6 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth/auth.store'
 import { getAllLomba, deleteLomba } from '@/services/lomba.service'
@@ -36,6 +36,7 @@ const fetchLomba = async () => {
       status: filterStatus.value || undefined,
       sortBy: 'waktuTanggal',
       sortDir: sortDir.value,
+      nama: searchQuery.value || undefined,
     })
   } catch (e: any) {
     error.value = 'Gagal mengambil data lomba.'
@@ -69,20 +70,22 @@ const resetFilter = () => {
   tempSort.value = 'desc'
 }
 
+// Watch for search query changes
+watch(searchQuery, () => {
+  fetchLomba()
+})
+
 // Client-side search filter
 const filteredLombaList = computed(() => {
-  if (!searchQuery.value.trim()) return lombaList.value
-  const q = searchQuery.value.toLowerCase()
-  return lombaList.value.filter(
-    (l) =>
-      l.namaLomba.toLowerCase().includes(q) ||
-      l.lokasi.toLowerCase().includes(q)
-  )
+  return lombaList.value
 })
 
 // Helpers
 function formatJenisBurung(jenis: string): string {
-  return jenis.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+  return jenis
+    .split('_')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(' ')
 }
 
 function formatWaktu(waktuTanggal: string): string {
@@ -110,7 +113,10 @@ function getStatusBadge(status: string) {
 }
 
 function getStatusLabel(status: string) {
-  return status.replace(/_/g, ' ').replace(/\b\w/g, (c) => c.toUpperCase())
+  return status
+    .split('_')
+    .map((w) => w.charAt(0).toUpperCase() + w.slice(1).toLowerCase())
+    .join(' ')
 }
 
 function goToDetail(id: string) {
@@ -156,29 +162,38 @@ const toggleSidebar = () => isSidebarOpen.value = !isSidebarOpen.value
       </div>
 
       <!-- Lomba List -->
+      <div v-else-if="filteredLombaList.length === 0" class="flex flex-col items-center justify-center py-24 gap-4">
+        <svg class="w-28 h-28 text-gray-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="1" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+        </svg>
+        <p class="text-xl font-bold text-[#2e42b2] font-plus-jakarta text-center">
+          Belum ada lomba yang terdaftar
+        </p>
+      </div>
+
       <div v-else class="space-y-4">
         <div v-for="lomba in filteredLombaList" :key="lomba.id" class="bg-white border-2 border-[#2E42B2]/10 rounded-2xl overflow-hidden shadow-sm">
           <div class="p-4">
             <div class="flex justify-between items-start mb-1">
-              <h2 class="text-base font-bold text-[#2E42B2] leading-tight flex-1 pr-2">{{ lomba.namaLomba }}</h2>
+              <h2 class="text-lg font-extrabold text-[#2E42B2] leading-tight flex-1 pr-2">{{ lomba.namaLomba }}</h2>
               <span :class="getStatusBadge(lomba.status)" class="text-[10px] font-bold px-3 py-1 rounded-full whitespace-nowrap">
                 {{ getStatusLabel(lomba.status) }}
               </span>
             </div>
             
-            <p class="text-lg font-extrabold text-[#2E42B2] mb-3">{{ formatHarga(lomba.hargaTiket) }}</p>
+            <p class="text-base font-medium text-[#2E42B2] mb-3">{{ formatHarga(lomba.hargaTiket) }}</p>
 
-            <div class="space-y-2 text-[#2E42B2] mb-4">
-              <div class="flex items-center gap-2 text-xs">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
+            <div class="flex items-center gap-2 text-[#2E42B2] mb-4 text-[10px]">
+              <div class="flex items-center gap-1 whitespace-nowrap">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>
                 <span>{{ formatWaktu(lomba.waktuTanggal) }}</span>
               </div>
-              <div class="flex items-center gap-2 text-xs">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              <div class="flex items-center gap-1 truncate">
+                <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0118 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
                 <span class="truncate">{{ lomba.lokasi }}</span>
               </div>
-              <div class="flex items-center gap-2 text-xs font-semibold">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"></polyline></svg>
+              <div class="flex items-center gap-1 whitespace-nowrap font-semibold">
+                <img src="@/assets/lucide_bird.svg" class="w-3 h-3" alt="Jenis Burung" />
                 <span>{{ formatJenisBurung(lomba.jenisBurung) }}</span>
               </div>
             </div>
