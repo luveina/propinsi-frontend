@@ -1,5 +1,5 @@
 export interface Ticket {
-  id: number | string
+  id: string
   nama_lomba: string
   tanggal: string
   lokasi: string
@@ -9,4 +9,8 @@ export interface Ticket {
   keterangan_tolak: string | null
   can_reupload: boolean
   created_at: string
+
+  // Hanya ada jika status === 'Paid'
+  blok: number | null
+  nomor_gantangan: number | null
 }

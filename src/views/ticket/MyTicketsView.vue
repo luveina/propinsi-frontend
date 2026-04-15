@@ -1,68 +1,22 @@
 <script setup lang="ts">
-import { ref, computed } from 'vue'
+import { ref, computed, onMounted } from 'vue'
+import { Icon } from '@iconify/vue'
 import TicketCard from '@/components/ticket/TicketCard.vue'
 import FilterSheet from '@/components/ticket/FilterSheet.vue'
-import type { Ticket } from '@/interfaces/ticket.interface'
+import { useTicketStore } from '@/stores/ticket/ticket.store'
+import { storeToRefs } from 'pinia'
 
 const showFilter = ref(false)
 const searchQuery = ref('')
 const activeStatus = ref('all')
 const activeSort = ref('newest')
 
-// -------------------------------------------------------
-// TODO: ganti mock ini dengan data dari API
-// GET /api/profile/my-tickets
-// -------------------------------------------------------
-const tickets = ref<Ticket[]>([
-  {
-    id: 1,
-    nama_lomba: 'SILOBUR KM CUP 2026',
-    tanggal: 'Mar 28, 2026 - 11.00 WIB',
-    lokasi: 'Jl. Jatijajar, Depok',
-    jenis_burung: 'Murai Batu',
-    kelas: 'RADJA',
-    status: 'Paid',
-    keterangan_tolak: null,
-    can_reupload: true,
-    created_at: '2026-03-01T10:00:00Z',
-  },
-  {
-    id: 2,
-    nama_lomba: 'BERKICAU 2025',
-    tanggal: 'Mar 28, 2026 - 11.00 WIB',
-    lokasi: 'Jl. Jatijajar, Depok',
-    jenis_burung: 'Murai Batu',
-    kelas: 'UTAMA',
-    status: 'Unpaid',
-    keterangan_tolak: null,
-    can_reupload: true,
-    created_at: '2026-02-20T08:00:00Z',
-  },
-  {
-    id: 3,
-    nama_lomba: 'Piala Bupati Kebumen',
-    tanggal: 'Mar 20, 2026 - 11.00 WIB',
-    lokasi: 'Alun-Alun Pancasila',
-    jenis_burung: 'Cucak Ijo',
-    kelas: 'PRATAMA',
-    status: 'Menunggu Konfirmasi',
-    keterangan_tolak: null,
-    can_reupload: true,
-    created_at: '2026-02-15T09:00:00Z',
-  },
-  {
-    id: 4,
-    nama_lomba: 'Piala Walikota 2026',
-    tanggal: 'Feb 23, 2026 - 11.00 WIB',
-    lokasi: 'GOR Kota Bandung',
-    jenis_burung: 'Murai Batu',
-    kelas: 'RADJA',
-    status: 'Invalid',
-    keterangan_tolak: 'Foto bukti transfer buram dan kurang jelas',
-    can_reupload: true,
-    created_at: '2026-02-01T07:00:00Z',
-  },
-])
+const ticketStore = useTicketStore()
+const { tickets, loading, error } = storeToRefs(ticketStore)
+
+onMounted(() => {
+  ticketStore.fetchMyTickets()
+})
 
 const filteredTickets = computed(() => {
   let result = [...tickets.value]
@@ -87,26 +41,18 @@ const filteredTickets = computed(() => {
 </script>
 
 <template>
-  <!-- Header sudah dihandle AppLayout — AppHeader mobile + AppSidebar desktop -->
   <div class="flex flex-col gap-5 bg-[#f9fafb] min-h-full pb-5 font-plus-jakarta">
 
-    <!-- Search + Filter -->
+    <!-- Search + Filter row -->
     <div class="flex items-center gap-2 px-5 pt-5">
       <div class="flex flex-1 items-center gap-2 h-[38px] rounded-[6px] bg-[#dee8fb] border border-[#2e42b2] px-5 overflow-hidden">
-        <span class="flex-1 text-base font-medium text-[#2e42b2] opacity-70 leading-6 select-none">
-          Cari Tiket Saya
-        </span>
-        <!--
-          TODO: uncomment saat integrasi BE, hapus <span> di atas
-          <input
-            v-model="searchQuery"
-            class="flex-1 bg-transparent outline-none text-base font-medium text-[#2e42b2] placeholder-[#2e42b2]/70"
-            placeholder="Cari Tiket Saya"
-          />
-        -->
-        <img src="/icons/search.svg" alt="" class="w-5 h-5 flex-shrink-0" />
+        <input
+          v-model="searchQuery"
+          class="flex-1 bg-transparent outline-none text-base font-medium text-[#2e42b2] placeholder-[#2e42b2]/70"
+          placeholder="Cari Tiket Saya"
+        />
+        <Icon icon="mdi:magnify" class="w-5 h-5 flex-shrink-0 text-[#2e42b2]" />
       </div>
-
       <button
         class="flex-shrink-0 w-[38px] h-[38px] flex items-center justify-center rounded-lg bg-[#dee8fb] border border-[#2e42b2] cursor-pointer hover:bg-[#c7d7f5] transition-colors"
         @click="showFilter = true"
@@ -119,13 +65,30 @@ const filteredTickets = computed(() => {
       </button>
     </div>
 
+    <!-- Loading -->
+    <div v-if="loading" class="flex justify-center items-center py-24">
+      <Icon icon="mdi:loading" class="w-10 h-10 text-[#2e42b2] animate-spin" />
+    </div>
+
+    <!-- Error -->
+    <div v-else-if="error" class="flex flex-col items-center justify-center py-24 gap-3 px-5">
+      <Icon icon="mdi:alert-circle-outline" class="w-16 h-16 text-[#d93e39]" />
+      <p class="text-sm text-[#d93e39] text-center">{{ error }}</p>
+      <button
+        class="px-5 py-2 rounded-lg bg-[#2e42b2] text-white text-sm font-semibold"
+        @click="ticketStore.fetchMyTickets()"
+      >
+        Coba Lagi
+      </button>
+    </div>
+
     <!-- Ticket list / empty state -->
-    <div class="flex flex-col gap-[10px] px-5">
+    <div v-else class="flex flex-col gap-[10px] px-5">
       <div
         v-if="filteredTickets.length === 0"
         class="flex flex-col items-center justify-center py-24 gap-4"
       >
-        <img src="/illustrations/data-not-found.svg" alt="Tidak ada tiket" class="w-[150px] h-[150px]" />
+        <Icon icon="mdi:ticket-outline" class="text-[#9cbff4]" style="width:100px;height:100px;" />
         <b class="text-[28px] leading-[34px] text-[#2e42b2] text-center">Tiket tidak ditemukan</b>
       </div>
 
@@ -143,5 +106,6 @@ const filteredTickets = computed(() => {
       v-model:status="activeStatus"
       v-model:sort="activeSort"
     />
+
   </div>
 </template>

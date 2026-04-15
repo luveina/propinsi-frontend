@@ -69,6 +69,12 @@ export interface LombaItem {
   jumlahJuara: number
   hadiah: number[]
   deskripsi: string
+  listJuri?: Array<{
+    id: number
+    username: string
+    fullName: string
+    role: string
+  }>
 }
 
 export const getAllLomba = async (params?: LombaFilterParams) => {

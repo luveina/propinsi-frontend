@@ -1,44 +1,25 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { computed, onMounted } from 'vue'
+import { useRoute } from 'vue-router'
 import { Icon } from '@iconify/vue'
+import { useTicketStore } from '@/stores/ticket/ticket.store'
+import { storeToRefs } from 'pinia'
 
-const loading = ref(false)
-const error = ref<string | null>(null)
+const route = useRoute()
+const ticketStore = useTicketStore()
+const { tickets, loading, error } = storeToRefs(ticketStore)
 
-// -------------------------------------------------------
-// TODO: fetch dari API berdasarkan route.params.id
-// GET /api/profile/my-tickets (filter id) atau endpoint detail
-// blok & nomor_gantangan hanya ada jika status === 'Paid'
-// -------------------------------------------------------
-const ticket = ref({
-  id: 1,
-  nama_lomba: 'SILOBUR KM CUP 2026',
-  tanggal: 'Mar 28, 2026 - 11.00 WIB',
-  lokasi: 'Jl. Jatijajar, Depok',
-  jenis_burung: 'Murai Batu',
-  kelas: 'RADJA',
-  status: 'Paid',
-  blok: 2,
-  nomor_gantangan: 15,
+// Ambil tiket yang sesuai dari store berdasarkan id di route params
+const ticket = computed(() =>
+  tickets.value.find((t) => String(t.id) === String(route.params.id)) ?? null
+)
+
+onMounted(async () => {
+  // Fetch hanya jika store masih kosong (misalnya direct access URL)
+  if (tickets.value.length === 0) {
+    await ticketStore.fetchMyTickets()
+  }
 })
-
-// TODO: uncomment saat integrasi BE
-// import { useRoute } from 'vue-router'
-// const route = useRoute()
-// onMounted(async () => {
-//   loading.value = true
-//   try {
-//     const res = await fetch(`/api/profile/my-tickets`)
-//     const data = await res.json()
-//     const id = Number(route.params.id)
-//     ticket.value = data.find((t: any) => t.id === id) || null
-//     if (!ticket.value) error.value = 'Tiket tidak ditemukan.'
-//   } catch {
-//     error.value = 'Gagal memuat tiket. Coba lagi.'
-//   } finally {
-//     loading.value = false
-//   }
-// })
 
 function downloadTicket() {
   // TODO: implementasi unduh menggunakan html2canvas atau jspdf
@@ -46,7 +27,7 @@ function downloadTicket() {
   // const el = document.getElementById('ticket-printable')
   // html2canvas(el!).then(canvas => {
   //   const link = document.createElement('a')
-  //   link.download = `eticket-${ticket.value.nama_lomba}.png`
+  //   link.download = `eticket-${ticket.value?.nama_lomba}.png`
   //   link.href = canvas.toDataURL()
   //   link.click()
   // })
@@ -55,17 +36,24 @@ function downloadTicket() {
 </script>
 
 <template>
-  <!-- Header sudah dihandle AppLayout -->
   <div class="flex flex-col items-center gap-5 bg-[#f9fafb] min-h-full pb-5 px-5 pt-5 font-plus-jakarta">
 
     <!-- Loading -->
-    <div v-if="loading" class="text-sm text-gray-500 py-10">Memuat tiket...</div>
+    <div v-if="loading" class="flex justify-center items-center py-24">
+      <Icon icon="mdi:loading" class="w-10 h-10 text-[#2e42b2] animate-spin" />
+    </div>
 
     <!-- Error -->
     <div v-else-if="error" class="text-sm text-[#d93e39] py-10">{{ error }}</div>
 
+    <!-- Tiket tidak ditemukan -->
+    <div v-else-if="!ticket" class="flex flex-col items-center justify-center py-24 gap-4">
+      <Icon icon="mdi:ticket-off-outline" class="text-[#9cbff4]" style="width:80px;height:80px;" />
+      <p class="text-sm text-gray-500">Tiket tidak ditemukan.</p>
+    </div>
+
     <!-- Content -->
-    <template v-else-if="ticket">
+    <template v-else>
 
       <!-- Detail card (ini yang akan di-download) -->
       <div
@@ -125,10 +113,12 @@ function downloadTicket() {
 
         <!-- Blok + Nomor Gantangan -->
         <div class="rounded-[9px] bg-[#dee8fb] border border-[#2e42b2] w-full p-5 flex flex-col items-center gap-2">
-          <span class="w-full text-[18px] font-semibold text-[#2e42b2] leading-7">Blok dipilih: {{ ticket.blok }}</span>
+          <span class="w-full text-[18px] font-semibold text-[#2e42b2] leading-7">
+            Blok dipilih: {{ ticket.blok ?? '-' }}
+          </span>
           <span class="w-full text-[18px] font-semibold text-[#2e42b2] leading-7">Nomor Gantangan:</span>
           <div class="rounded-[8px] bg-[#265bda] w-[100px] h-[100px] flex items-center justify-center">
-            <b class="text-[32px] leading-[38px] text-[#f9fafb]">{{ ticket.nomor_gantangan }}</b>
+            <b class="text-[32px] leading-[38px] text-[#f9fafb]">{{ ticket.nomor_gantangan ?? '-' }}</b>
           </div>
         </div>
       </div>
