@@ -99,6 +99,12 @@ function canEdit(status: string): boolean {
   return status === 'BELUM_DIMULAI' && authStore.user?.role === 'KOORDINATOR_LOMBA'
 }
 
+function canScore(lomba: LombaItem): boolean {
+  if (!authStore.user?.role?.toUpperCase().includes('JURI')) return false
+  if (!lomba.listJuri || lomba.listJuri.length === 0) return false
+  return lomba.listJuri.some((juri) => juri.id === authStore.user?.id)
+}
+
 //actions
 function goToDetail(id: string) {
   router.push(`/katalog-lomba/${id}`)
@@ -438,6 +444,13 @@ async function confirmDelete() {
                 class="bg-[#2e42b2] hover:bg-blue-800 text-white text-sm font-bold px-6 py-3 rounded-lg transition-colors cursor-pointer w-full font-plus-jakarta"
               >
                 Detail
+              </button>
+              <button
+                v-if="canScore(lomba)"
+                @click="router.push({ path: '/penjurian', query: { lombaId: lomba.id } })"
+                class="bg-[#2e42b2] hover:bg-blue-800 text-white text-sm font-bold px-6 py-3 rounded-lg transition-colors cursor-pointer w-full font-plus-jakarta"
+              >
+                Penilaian
               </button>
               <button
                 v-if="canEdit(lomba.status)"

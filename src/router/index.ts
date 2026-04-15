@@ -57,6 +57,12 @@ const router = createRouter({
     meta: { requiresAuth: true },
   },
   {
+    path: '/penjurian',
+    name: 'penjurian',
+    component: () => import('@/views/ScoringView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
     path: '/',
     redirect: { name: 'katalog-lomba' },
   },
