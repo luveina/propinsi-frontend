@@ -35,3 +35,15 @@ export interface BaseResponse<T> {
   message: string;
   data: T;
 }
+
+export interface ReservasiResponse {
+  id: string;
+  namaPeserta: string;
+  username: string;
+  namaLomba: string;
+  nomorGantangan: number;
+  nominal: number;
+  urlBukti: string;
+  status: string;
+  waktuReservasi: string;
+}

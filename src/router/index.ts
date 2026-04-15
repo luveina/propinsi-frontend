@@ -4,6 +4,7 @@ import RegisterView from '@/views/RegisterView.vue'
 import ChangePasswordView from '@/views/ChangePasswordView.vue'
 import ManajemenAkunView from '@/views/ManajemenAkunView.vue'
 import ProfileView from '@/views/ProfileView.vue'
+import PembayaranPage from '@/views/pendaftaran/PembayaranPage.vue';
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -73,7 +74,7 @@ const router = createRouter({
     meta: { requiresAuth: true }
   },
   {
-    path: '/katalog-lomba/:id', 
+    path: '/katalog-lomba/:id',
     name: 'detail-lomba',
     component: () => import('@/views/lomba/DetailLombaView.vue'),
     meta: { requiresAuth: true },
@@ -81,6 +82,12 @@ const router = createRouter({
   {
     path: '/:pathMatch(.*)*',
     redirect: { name: 'katalog-lomba' },
+  },
+  {
+    path: '/pembayaran',
+    name: 'pembayaran',
+    component: PembayaranPage,
+    // Kita pancing parameter dari URL query
   },
   ],
 })

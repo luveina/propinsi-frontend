@@ -1,7 +1,7 @@
 <template>
   <!-- h-screen dan overflow-hidden supaya body utama tidak scroll -->
   <div class="h-screen flex flex-col bg-white font-plus-jakarta overflow-hidden">
-    
+
     <!-- Sidebar Teleport tetap sama -->
     <Teleport to="body">
       <Transition name="fade">
@@ -15,10 +15,10 @@
     </Teleport>
 
     <!-- Header tetap di atas -->
-    <header_mobile 
-      title="Reservasi Gantangan" 
-      @menu-click="isSidebarOpen = true" 
-      class="flex-none" 
+    <header_mobile
+      title="Reservasi Gantangan"
+      @menu-click="isSidebarOpen = true"
+      class="flex-none"
     />
 
     <!-- Main Content: flex-1 dan overflow-y-auto supaya hanya bagian ini yang bisa di-scroll -->
@@ -86,11 +86,11 @@
     <!-- Bottom Action Button: Fixed di bawah -->
     <div class="flex-none p-6 bg-white border-t border-gray-100 shadow-[0_-4px_10px_rgba(0,0,0,0.05)]">
       <div class="max-w-md mx-auto">
-        <button 
-          @click="handleBooking"
+        <button
+          @click="handleLanjutPembayaran"
           :disabled="!selectedSeat || loading"
-          class="w-full py-4 rounded-2xl text-white font-bold text-[16px] shadow-lg transition-all active:scale-95 
-                 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed 
+          class="w-full py-4 rounded-2xl text-white font-bold text-[16px] shadow-lg transition-all active:scale-95
+                 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed
                  enabled:bg-[#2E42B2] enabled:hover:bg-blue-800 cursor-pointer"
         >
           <span v-if="loading">Memproses...</span>
@@ -123,6 +123,7 @@ const lombaId = route.params.lombaId as string;
 
 const isSidebarOpen = ref(false);
 const lombaName = ref('');
+const hargaTiket = ref(0);
 const seats = ref<any[]>([]);
 const selectedSeat = ref<number | null>(null);
 const loading = ref(false);
@@ -133,6 +134,7 @@ const loadData = async () => {
     const cleanLombaId = lombaId.startsWith(':') ? lombaId.substring(1) : lombaId;
     const resLomba = await getLombaById(cleanLombaId);
     lombaName.value = resLomba.data ? resLomba.data.namaLomba : resLomba.namaLomba;
+    hargaTiket.value = Number(resLomba.data?.hargaTiket ?? resLomba.hargaTiket ?? 0);
     const resDenah = await getDenahGantangan(cleanLombaId);
     if (resDenah && resDenah.data) seats.value = resDenah.data;
   } catch (err) {
@@ -154,17 +156,36 @@ const handleSelect = (n: number) => {
   if (getSeatStatus(n) === 'AVAILABLE') selectedSeat.value = n;
 };
 
-const handleBooking = async () => {
+const handleLanjutPembayaran = async () => {
   if (!selectedSeat.value) return;
   loading.value = true;
   try {
     const cleanLombaId = lombaId.startsWith(':') ? lombaId.substring(1) : lombaId;
-    await postBookSeat({ lombaId: cleanLombaId, nomorGantangan: selectedSeat.value });
-    // Jika berhasil, arahkan ke halaman pembayaran atau refresh data
-    await loadData();
-    // router.push(`/pembayaran/${cleanLombaId}/${selectedSeat.value}`); // Contoh redirect
+    const response = await postBookSeat({ lombaId: cleanLombaId, nomorGantangan: selectedSeat.value });
+    const reservasiId = response?.data?.reservationId;
+
+    if (!reservasiId) {
+      throw new Error('Reservation ID tidak ditemukan dari response book-seat');
+    }
+
+    await router.push({
+      name: 'pembayaran',
+      query: {
+        reservasiId,
+        namaLomba: lombaName.value,
+        nomorGantangan: String(selectedSeat.value),
+        nominal: String(hargaTiket.value),
+        waktuReservasi: new Date().toISOString()
+      }
+    });
   } catch (err: any) {
-    if (err.response?.status === 409) showConflictModal.value = true;
+    if (err.response?.status === 409) {
+      showConflictModal.value = true;
+      return;
+    }
+
+    console.error('Gagal lanjut ke pembayaran:', err);
+    alert(err.response?.data?.message || 'Terjadi kesalahan saat lanjut ke pembayaran.');
   } finally {
     loading.value = false;
   }

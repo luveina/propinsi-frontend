@@ -24,3 +24,18 @@ export const postBookSeat = async (payload: BookingRequest): Promise<BaseRespons
   });
   return response.data;
 };
+
+export const postUploadBukti = async (reservasiId: string, file: File): Promise<BaseResponse<any>> => {
+  const formData = new FormData();
+  formData.append('reservasiId', reservasiId);
+  formData.append('file', file);
+
+  const token = localStorage.getItem('token');
+  const response = await axios.post(`${API_URL}/upload-bukti`, formData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+      ...(token && { Authorization: `Bearer ${token}` })
+    }
+  });
+  return response.data;
+};
