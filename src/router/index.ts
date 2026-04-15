@@ -4,6 +4,7 @@ import RegisterView from '@/views/RegisterView.vue'
 import ChangePasswordView from '@/views/ChangePasswordView.vue'
 import ManajemenAkunView from '@/views/ManajemenAkunView.vue'
 import ProfileView from '@/views/ProfileView.vue'
+import KatalogLombaMobileView from '@/views/KatalogLombaMobileView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -42,6 +43,12 @@ const router = createRouter({
     path: '/katalog-lomba',
     name: 'katalog-lomba',
     component: () => import('@/views/KatalogLombaView.vue'),
+    meta: { requiresAuth: true },
+  },
+  {
+    path: '/katalog-lomba-mobile',
+    name: 'katalog-lomba-mobile',
+    component: KatalogLombaMobileView,
     meta: { requiresAuth: true },
   },
   {
