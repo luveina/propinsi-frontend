@@ -1,7 +1,21 @@
 import axios from 'axios';
 import type { BaseResponse, GantanganItem, BookingRequest, BookingResponse } from '@/interfaces/reservasi.interface';
 
+// Gunakan API URL yang dinamis dari env (Cara yang benar)
 const API_URL = `${import.meta.env.VITE_API_URL}/reservasi`;
+
+// Interface dari hasil pull temenmu
+export interface ReservasiItem {
+  id: string;
+  namaPeserta: string;
+  username: string;
+  namaLomba: string;
+  nomorGantangan: number;
+  nominal: number;
+  urlBukti: string;
+  status: string;
+  waktuReservasi: string;
+}
 
 function getAuthHeaders() {
   const token = localStorage.getItem('token');
@@ -10,6 +24,10 @@ function getAuthHeaders() {
     ...(token && { Authorization: `Bearer ${token}` })
   };
 }
+
+// ==========================================
+// SCOPE: PESERTA (PBI KAMU)
+// ==========================================
 
 export const getDenahGantangan = async (lombaId: string): Promise<BaseResponse<GantanganItem[]>> => {
   const response = await axios.get(`${API_URL}/denah/${lombaId}`, {
@@ -38,4 +56,34 @@ export const postUploadBukti = async (reservasiId: string, file: File): Promise<
     }
   });
   return response.data;
+};
+
+// ==========================================
+// SCOPE: KOORDINATOR / ADMIN (HASIL PULL)
+// ==========================================
+
+export const getAllReservasi = async (): Promise<ReservasiItem[]> => {
+  try {
+    // Tambah AuthHeader agar request tidak ditolak (401/403) oleh Spring Security
+    const response = await axios.get(`${API_URL}/all`, {
+      headers: getAuthHeaders()
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error fetching reservasi:", error);
+    throw error;
+  }
+};
+
+export const verifyReservasi = async (id: string, status: 'PAID' | 'REJECTED') => {
+  try {
+    // Tambah AuthHeader karena ini aksi khusus Koordinator
+    const response = await axios.patch(`${API_URL}/verify/${id}`, { status }, {
+      headers: getAuthHeaders()
+    });
+    return response.data;
+  } catch (error) {
+    console.error("Error verifying reservasi:", error);
+    throw error;
+  }
 };

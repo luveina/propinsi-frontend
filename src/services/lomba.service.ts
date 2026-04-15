@@ -55,7 +55,6 @@ export interface LombaFilterParams {
   sortBy?: string
   sortDir?: string
 }
-
 export interface LombaItem {
   id: string
   namaLomba: string
@@ -75,6 +74,7 @@ export interface LombaItem {
     fullName: string
     role: string
   }>
+  deskripsi: string
 }
 
 export const getAllLomba = async (params?: LombaFilterParams) => {

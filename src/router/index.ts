@@ -89,6 +89,16 @@ const router = createRouter({
     component: PembayaranPage,
     // Kita pancing parameter dari URL query
   },
+  {
+      path: '/verifikasi-pembayaran',
+      name: 'verifikasi-pembayaran',
+      // Pastikan path import ini sesuai dengan letak file Vue kamu disimpan ya!
+      component: () => import('@/views/pendaftaran/VerifikasiPembayaranView.vue'),
+      meta: {
+        requiresAuth: true,
+        requiredRole: 'KOORDINATOR_PENDAFTARAN' // Proteksi role sesuai instruksi dosen
+      },
+    },
   ],
 })
 

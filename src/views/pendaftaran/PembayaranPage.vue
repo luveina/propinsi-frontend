@@ -1,156 +1,188 @@
 <template>
-  <div class="min-h-screen bg-gray-100 flex justify-center font-sans">
-    <main class="w-full max-w-md bg-white min-h-screen shadow-lg relative flex flex-col">
+  <div class="h-screen flex flex-col bg-white font-plus-jakarta overflow-hidden">
 
-      <header class="bg-[#2E42B2] text-white p-4 flex items-center justify-between">
-        <button @click="goBack" class="p-2 hover:bg-white/20 rounded-lg">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 19l-7-7 7-7"></path></svg>
-        </button>
-        <h1 class="text-xl font-bold">Reservasi</h1>
-        <div class="w-8 h-8 bg-gray-300 rounded-full flex items-center justify-center overflow-hidden">
-          <svg class="w-5 h-5 text-gray-500" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 9a3 3 0 100-6 3 3 0 000 6zm-7 9a7 7 0 1114 0H3z" clip-rule="evenodd"></path></svg>
+    <Teleport to="body">
+      <Transition name="fade">
+        <div v-if="isSidebarOpen" @click="isSidebarOpen = false" class="fixed inset-0 bg-black/50 z-[60] backdrop-blur-sm"></div>
+      </Transition>
+      <Transition name="slide">
+        <div v-if="isSidebarOpen" class="fixed inset-y-0 left-0 z-[70] w-64 shadow-2xl">
+          <Sidebar />
         </div>
-      </header>
+      </Transition>
+    </Teleport>
 
-      <div v-if="showSuccessView" class="flex-1 flex flex-col items-center justify-center p-6 text-center">
-        <div class="w-24 h-24 bg-green-500 rounded-full flex items-center justify-center mb-6 border-8 border-green-100">
-          <svg class="w-12 h-12 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
-        </div>
-        <h2 class="text-2xl font-bold text-[#2E42B2] mb-2">Pembayaran berhasil<br/>ter-upload!</h2>
-        <p class="text-gray-500 text-sm mb-10">Tim kami sedang memverifikasi pembayaran Anda.<br/>Mohon tunggu maksimal 1x24 jam.</p>
-        <button @click="goToMyTicket" class="w-full bg-[#2E42B2] text-white font-bold py-4 rounded-lg hover:bg-blue-800 transition">
-          Lihat Tiket Saya
-        </button>
-      </div>
+    <header_mobile
+      title="Upload Pembayaran"
+      @menu-click="isSidebarOpen = true"
+      class="flex-none"
+    />
 
-      <div v-else class="flex-1 flex flex-col pb-6">
+    <main class="flex-1 overflow-y-auto px-4 md:px-8 py-5 flex flex-col bg-[#F8FAFC]">
+      <div class="w-full max-w-md md:max-w-4xl mx-auto">
 
-        <div class="bg-[#2E42B2] text-white text-center py-6 px-4">
-          <p class="text-sm text-blue-100 mb-1">Waktu tersisa sebelum <span class="font-bold">{{ deadlineText }}</span></p>
-          <p class="text-4xl font-bold tracking-wider">{{ formattedTimeLeft }}</p>
+        <div class="w-full mb-4">
+          <button @click="goBack" class="text-[#2E42B2] font-semibold text-sm flex items-center gap-2 hover:opacity-70 cursor-pointer transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="3" d="M15 19l-7-7 7-7"/></svg>
+            Kembali
+          </button>
         </div>
 
-        <div class="px-5 pt-6 space-y-4">
-          <div class="bg-blue-50 p-4 rounded-xl flex items-center border border-blue-100">
-            <div class="w-10 h-10 bg-[#2E42B2] rounded-lg flex items-center justify-center mr-4">
-              <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20"><path d="M10 2a8 8 0 100 16 8 8 0 000-16zm0 14a6 6 0 110-12 6 6 0 010 12z"/></svg>
-            </div>
-            <div class="flex-1">
-              <h3 class="font-bold text-[#2E42B2]">{{ namaLomba }}</h3>
-              <p class="text-xs text-gray-500">Jl. Jatijajar, Depok</p>
-            </div>
-            <div class="bg-[#2E42B2] text-white text-center px-3 py-1 rounded-lg">
-              <p class="text-[10px] uppercase">Nomor</p>
-              <p class="font-bold text-lg leading-tight">{{ nomorGantangan }}</p>
-            </div>
+        <div v-if="showSuccessView" class="flex flex-col items-center justify-center p-6 md:p-10 text-center mt-6 bg-white rounded-2xl border border-[#D9E3FF] shadow-sm max-w-xl mx-auto">
+          <div class="w-20 h-20 bg-green-500 rounded-full flex items-center justify-center mb-5 border-8 border-green-100 shadow-sm">
+            <svg class="w-10 h-10 text-white success-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="4" d="M5 13l4 4L19 7"></path></svg>
           </div>
+          <h2 class="text-xl md:text-2xl font-black text-[#2E42B2] mb-2">Pembayaran berhasil<br/>ter-upload!</h2>
+          <p class="text-gray-500 text-xs md:text-sm mb-6">Tim kami sedang memverifikasi pembayaran Anda. Mohon tunggu maksimal 1x24 jam.</p>
 
-          <div class="border border-gray-200 rounded-xl p-4 shadow-sm">
-            <div class="flex items-center text-[#2E42B2] font-bold mb-4">
-              <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
-              TRANSFER KE
+          <button @click="goToMyTicket" class="btn-desktop w-full max-w-xs mx-auto rounded-xl bg-[#2E42B2] py-3 text-sm font-bold text-white shadow-md hover:bg-blue-800 transition cursor-pointer">
+            Lihat Tiket Saya
+          </button>
+        </div>
+
+        <div v-else class="flex flex-col md:flex-row gap-5 pb-24 md:pb-6">
+
+          <div class="w-full md:w-1/2 flex flex-col space-y-4">
+            <div class="bg-[#2E42B2] text-white text-center py-5 px-4 rounded-xl shadow-sm">
+              <p class="text-xs text-blue-100 mb-1">Waktu tersisa sebelum <span class="font-bold">{{ deadlineText }}</span></p>
+              <p class="text-3xl font-bold tracking-wider tabular-nums">{{ formattedTimeLeft }}</p>
             </div>
 
-            <div class="space-y-3 text-sm">
-              <div class="flex justify-between items-center">
-                <span class="text-gray-500">Bank</span>
-                <span class="font-bold">BCA</span>
+            <div class="bg-white p-3 rounded-xl flex items-center border border-gray-100 shadow-sm">
+              <div class="w-10 h-10 bg-[#eef2ff] text-[#2E42B2] rounded-lg flex items-center justify-center mr-3 shrink-0">
+                <svg class="w-6 h-6" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M16 7h.01"/><path d="M3.4 18H12a8 8 0 0 0 8-8V7a4 4 0 0 0-7.28-2.3L2 20"/><path d="m20 7 2 .5-2 .5"/><path d="M10 18v3"/><path d="M14 17.75V21"/><path d="M7 18a6 6 0 0 0 3.84-10.61"/>
+                </svg>
               </div>
-              <div class="flex justify-between items-center">
-                <span class="text-gray-500">No. Rekening</span>
-                <div class="flex items-center gap-2">
-                  <span class="font-bold">5405213556</span>
-                  <button @click="copyText('5405213556')" class="bg-gray-100 text-gray-600 px-2 py-1 rounded text-xs font-semibold hover:bg-gray-200">📋 Salin</button>
-                </div>
+              <div class="flex-1">
+                <h3 class="font-bold text-[#2E42B2] text-sm leading-tight">{{ namaLomba }}</h3>
+                <p class="text-[11px] text-gray-500 mt-0.5">Gantangan Tersedia</p>
               </div>
-              <div class="flex justify-between items-center">
-                <span class="text-gray-500">Nama Rekening</span>
-                <span class="font-bold">PT Silobur Indonesia</span>
+              <div class="bg-[#2E42B2] text-white text-center px-3 py-1.5 rounded-lg shadow-sm shrink-0">
+                <p class="text-[9px] uppercase font-semibold opacity-80">Nomor</p>
+                <p class="font-black text-lg leading-none">{{ nomorGantangan }}</p>
+              </div>
+            </div>
+
+            <div class="bg-white border border-gray-100 rounded-xl p-4 shadow-sm">
+              <div class="flex items-center text-[#2E42B2] font-bold mb-3 text-sm">
+                <svg class="w-4 h-4 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 10h18M7 15h1m4 0h1m-7 4h12a3 3 0 003-3V8a3 3 0 00-3-3H6a3 3 0 00-3 3v8a3 3 0 003 3z"></path></svg>
+                TRANSFER KE REKENING
               </div>
 
-              <div class="mt-4 p-4 border border-orange-200 bg-orange-50 rounded-lg">
-                <p class="text-xs text-gray-500 mb-1 font-semibold">TOTAL BAYAR</p>
+              <div class="space-y-2.5 text-xs">
                 <div class="flex justify-between items-center">
-                  <span class="text-2xl font-bold text-orange-500">{{ formatCurrency(nominal) }}</span>
-                  <button @click="copyText(nominal.toString())" class="bg-white border border-gray-200 text-gray-600 px-3 py-1.5 rounded-lg text-xs font-semibold hover:bg-gray-50 shadow-sm">📋 Salin</button>
+                  <span class="text-gray-500">Bank</span>
+                  <span class="font-bold text-gray-800">BCA</span>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-500">No. Rekening</span>
+                  <div class="flex items-center gap-2">
+                    <span class="font-bold text-gray-800">5405213556</span>
+                    <button @click="copyText('5405213556')" class="bg-gray-100 text-[#2E42B2] px-2 py-0.5 rounded text-[10px] font-bold hover:bg-gray-200 transition cursor-pointer">Salin</button>
+                  </div>
+                </div>
+                <div class="flex justify-between items-center">
+                  <span class="text-gray-500">Nama Rekening</span>
+                  <span class="font-bold text-gray-800">PT Silobur Indonesia</span>
+                </div>
+
+                <div class="mt-3 p-3 border border-orange-200 bg-orange-50 rounded-lg">
+                  <p class="text-[10px] text-gray-500 mb-1 font-bold uppercase">Total Bayar</p>
+                  <div class="flex justify-between items-center">
+                    <span class="text-xl font-black text-orange-600">{{ formatCurrency(nominal) }}</span>
+                    <button @click="copyText(nominal.toString())" class="bg-white border border-gray-200 text-gray-600 px-2 py-1 rounded text-[10px] font-bold hover:bg-gray-50 shadow-sm transition cursor-pointer">Salin</button>
+                  </div>
                 </div>
               </div>
             </div>
+
+            <div class="bg-blue-50 border border-blue-100 text-[#2E42B2] text-[11px] p-2.5 rounded-lg flex items-start">
+              <svg class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
+              <p class="font-medium leading-relaxed">Transfer tepat sesuai nominal. Nominal berbeda dapat memperlambat proses verifikasi.</p>
+            </div>
           </div>
 
-          <div class="bg-blue-50 border border-blue-100 text-blue-800 text-xs p-3 rounded-lg flex items-start">
-            <svg class="w-4 h-4 mr-2 mt-0.5 flex-shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd"></path></svg>
-            <p>Transfer tepat sesuai nominal. Nominal berbeda dapat memperlambat proses verifikasi.</p>
-          </div>
+          <div class="w-full md:w-1/2 flex flex-col space-y-4">
+            <div class="bg-white border border-gray-100 rounded-xl p-5 shadow-sm flex flex-col h-full">
+              <h3 class="text-sm font-bold text-[#2E42B2] mb-1">Unggah Bukti</h3>
+              <p class="text-[11px] text-gray-500 mb-4">Pastikan gambar jelas. (JPG, PNG, PDF Maks 2MB)</p>
 
-          <button @click="showUploadModal = true" class="w-full border-2 border-dashed border-[#2E42B2] bg-blue-50 text-[#2E42B2] rounded-xl py-6 flex flex-col items-center justify-center hover:bg-blue-100 transition mt-4">
-            <svg class="w-8 h-8 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
-            <span class="font-bold">Unggah Bukti Transfer</span>
-            <span class="text-xs mt-1">(JPG, PNG, PDF)</span>
-          </button>
-        </div>
-      </div>
+              <label class="flex-1 flex flex-col items-center justify-center min-h-[160px] border-2 border-dashed border-[#2E42B2] bg-[#f8faff] rounded-lg hover:bg-[#eef2ff] transition cursor-pointer relative p-4 text-center">
+                <svg class="w-8 h-8 mb-2 text-[#2E42B2]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-8l-4-4m0 0L8 8m4-4v12"></path></svg>
+                <span class="font-bold text-[#2E42B2] text-sm">Pilih File Bukti</span>
 
-      <div v-if="showUploadModal" class="absolute inset-0 z-50 flex items-center justify-center bg-black/60 px-4">
-        <div class="w-full max-w-sm bg-white rounded-xl shadow-2xl overflow-hidden relative">
-          <button @click="showUploadModal = false" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600">
-            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"></path></svg>
-          </button>
+                <span v-if="selectedFile" class="mt-2 bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-bold truncate max-w-[200px] block">
+                  ✓ {{ selectedFile.name }}
+                </span>
 
-          <div class="p-6 text-center">
-            <h3 class="text-lg font-bold text-[#2E42B2] mb-6">Upload Bukti Pembayaran</h3>
+                <input type="file" accept=".jpg,.jpeg,.png,.pdf" @change="handleFileUpload" class="hidden" />
+              </label>
 
-            <input
-              type="file"
-              accept=".jpg,.jpeg,.png,.pdf"
-              @change="handleFileUpload"
-              class="block w-full text-sm text-slate-500 file:mr-4 file:py-2 file:px-4 file:rounded file:border-0 file:text-sm file:font-semibold file:bg-gray-100 file:text-gray-700 hover:file:bg-gray-200 mb-6 mx-auto cursor-pointer"
-            />
+              <p v-if="errorMessage" class="text-[11px] font-bold text-red-500 bg-red-50 p-2 rounded-lg mt-3 text-center">{{ errorMessage }}</p>
+            </div>
 
-            <p v-if="errorMessage" class="text-xs text-red-500 mb-4">{{ errorMessage }}</p>
-
-            <button
-              @click="submitBukti"
-              :disabled="!selectedFile || isSubmitting"
-              class="bg-[#2E42B2] text-white font-bold py-2 px-8 rounded-lg hover:bg-blue-800 transition disabled:opacity-50 disabled:cursor-not-allowed">
-              {{ isSubmitting ? 'Submitting...' : 'Submit' }}
+            <button @click="submitBukti" :disabled="!selectedFile || isSubmitting" class="btn-desktop w-full py-3.5 rounded-xl text-white font-bold text-sm shadow-md transition-all active:scale-95 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed enabled:bg-[#2E42B2] enabled:hover:bg-blue-800 cursor-pointer">
+              {{ isSubmitting ? 'Memproses...' : 'Kirim Bukti Pembayaran' }}
             </button>
           </div>
+
         </div>
       </div>
-
     </main>
+
+    <div class="btn-mobile-wrapper flex-none p-4 bg-white border-t border-gray-100 shadow-[0_-4px_15px_rgba(0,0,0,0.05)] z-20">
+      <div class="w-full max-w-md mx-auto">
+        <button v-if="showSuccessView" @click="goToMyTicket" class="w-full py-3.5 rounded-xl bg-[#2E42B2] hover:bg-blue-800 text-white font-bold text-sm shadow-md transition-all active:scale-95 cursor-pointer">
+          Lihat Tiket Saya
+        </button>
+        <button v-else @click="submitBukti" :disabled="!selectedFile || isSubmitting" class="w-full py-3.5 rounded-xl text-white font-bold text-sm shadow-md transition-all active:scale-95 disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed enabled:bg-[#2E42B2] enabled:hover:bg-blue-800 cursor-pointer">
+          {{ isSubmitting ? 'Memproses...' : 'Kirim Bukti Pembayaran' }}
+        </button>
+      </div>
+    </div>
+
+    <ErrorModal
+      :show="showTimeoutModal"
+      type="info"
+      message="Waktu Habis! Silakan reservasi kembali"
+      confirm-label="Cari Nomor Lain"
+      :show-cancel="false"
+      @confirm="onTimeoutConfirm"
+      @close="onTimeoutConfirm"
+    />
   </div>
 </template>
 
 <script setup lang="ts">
 import { ref, onMounted, onUnmounted, computed } from 'vue';
 import { useRouter, useRoute } from 'vue-router';
-// Import API kamu (sesuaikan importnya)
+// Import komponen
+import Sidebar from '@/components/Sidebar.vue';
+import header_mobile from '@/components/HeaderMobile.vue';
+import ErrorModal from '@/components/modals/ErrorModal.vue';
 import { postUploadBukti } from '@/services/reservasi.service';
 
 const router = useRouter();
 const route = useRoute();
 
-// Mengambil data dari Query Parameter saat di-push dari halaman denah
+const isSidebarOpen = ref(false);
+
 const reservasiId = ref(route.query.reservasiId as string || '');
 const namaLomba = ref(route.query.namaLomba as string || 'SILOBUR CUP');
 const nomorGantangan = ref(Number(route.query.nomorGantangan) || 0);
 const nominal = ref(Number(route.query.nominal) || 0);
 const waktuReservasi = ref(route.query.waktuReservasi as string || new Date().toISOString());
 
-// State Halaman
-const showUploadModal = ref(false);
 const showSuccessView = ref(false);
+const showTimeoutModal = ref(false);
 const selectedFile = ref<File | null>(null);
 const errorMessage = ref('');
 const isSubmitting = ref(false);
 
-// Timer State
 const timeLeft = ref(0);
 let timerInterval: ReturnType<typeof setInterval>;
 
-// --- FUNGSI FORMATTING ---
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
 };
@@ -164,11 +196,9 @@ const copyText = async (text: string) => {
   }
 };
 
-// --- FUNGSI TIMER ---
 const deadlineText = computed(() => {
   const createdTime = new Date(waktuReservasi.value).getTime();
   const deadline = new Date(createdTime + (2 * 60 * 60 * 1000));
-  // Format contoh: "8 Januari 2025 21:30"
   const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' };
   return deadline.toLocaleDateString('id-ID', options).replace('.', ':');
 });
@@ -183,7 +213,7 @@ const formattedTimeLeft = computed(() => {
 
 const startTimer = () => {
   const createdTime = new Date(waktuReservasi.value).getTime();
-  const deadline = createdTime + (2 * 60 * 60 * 1000); // 2 Jam
+  const deadline = createdTime + (2 * 60 * 60 * 1000);
 
   timerInterval = setInterval(() => {
     const now = new Date().getTime();
@@ -192,15 +222,18 @@ const startTimer = () => {
     if (diff <= 0) {
       clearInterval(timerInterval);
       timeLeft.value = 0;
-      alert("Waktu pembayaran habis. Silakan reservasi kembali.");
-      router.push({ name: 'katalog-lomba' });
+      showTimeoutModal.value = true;
     } else {
       timeLeft.value = diff;
     }
   }, 1000);
 };
 
-// --- FUNGSI UPLOAD ---
+const onTimeoutConfirm = () => {
+  showTimeoutModal.value = false;
+  router.push({ name: 'katalog-lomba' });
+};
+
 const handleFileUpload = (event: Event) => {
   errorMessage.value = '';
   const target = event.target as HTMLInputElement;
@@ -215,8 +248,8 @@ const handleFileUpload = (event: Event) => {
     return;
   }
 
-  if (file.size > 2 * 1024 * 1024) { // 2MB
-    errorMessage.value = 'Ukuran maksimal 2MB.';
+  if (file.size > 2 * 1024 * 1024) {
+    errorMessage.value = 'Ukuran file maksimal 2MB.';
     selectedFile.value = null;
     return;
   }
@@ -229,16 +262,11 @@ const submitBukti = async () => {
 
   try {
     isSubmitting.value = true;
-    // Panggil Service API ke Spring Boot
     await postUploadBukti(reservasiId.value, selectedFile.value);
-
-    // Jika sukses, tutup modal dan ganti tampilan halaman ke mode Sukses
-    showUploadModal.value = false;
     showSuccessView.value = true;
   } catch (error: any) {
     if (error.response?.status === 410) {
-      alert("Waktu pembayaran telah habis.");
-      router.push({ name: 'katalog-lomba' });
+      showTimeoutModal.value = true;
     } else {
       errorMessage.value = error.response?.data?.message || 'Terjadi kesalahan saat mengunggah.';
     }
@@ -247,7 +275,6 @@ const submitBukti = async () => {
   }
 };
 
-// --- NAVIGASI ---
 const goBack = () => router.back();
 const goToMyTicket = () => router.push({ name: 'my-ticket' });
 
@@ -259,3 +286,32 @@ onUnmounted(() => {
   if (timerInterval) clearInterval(timerInterval);
 });
 </script>
+
+<style scoped>
+/* CSS Sakti untuk garansi tombol anti-gaib */
+@media (max-width: 767px) {
+  .btn-desktop {
+    display: none !important;
+  }
+}
+@media (min-width: 768px) {
+  .btn-mobile-wrapper {
+    display: none !important;
+  }
+}
+
+/* Transisi Sidebar */
+.slide-enter-active, .slide-leave-active { transition: transform 0.3s ease; }
+.slide-enter-from, .slide-leave-to { transform: translateX(-100%); }
+.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
+
+/* Menghilangkan scrollbar */
+main::-webkit-scrollbar {
+  display: none;
+}
+main {
+  -ms-overflow-style: none;
+  scrollbar-width: none;
+}
+</style>
