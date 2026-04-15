@@ -2,7 +2,7 @@
   <div class="min-h-screen bg-white flex flex-col font-plus-jakarta pb-10">
     <Teleport to="body">
       <Transition name="fade">
-        <div v-if="isSidebarOpen" 
+        <div v-if="isSidebarOpen"
              @click="isSidebarOpen = false"
              class="fixed inset-0 bg-black/50 z-[60] backdrop-blur-sm">
         </div>
@@ -16,9 +16,9 @@
       </Transition>
     </Teleport>
 
-    <header_mobile 
-      title="Reservasi Gantangan" 
-      @menu-click="isSidebarOpen = true" 
+    <header_mobile
+      title="Reservasi Gantangan"
+      @menu-click="isSidebarOpen = true"
     />
 
     <main class="flex-1 overflow-y-auto">
@@ -71,11 +71,11 @@
         </div>
 
         <div class="w-full mt-16 px-4">
-          <button 
+          <button
             @click="handleBooking"
             :disabled="!selectedSeat || loading"
-            class="w-full py-4 rounded-xl text-white font-bold text-[16px] shadow-lg transition-all active:scale-95 
-                   disabled:bg-[#C4D8F9] disabled:cursor-not-allowed 
+            class="w-full py-4 rounded-xl text-white font-bold text-[16px] shadow-lg transition-all active:scale-95
+                   disabled:bg-[#C4D8F9] disabled:cursor-not-allowed
                    enabled:bg-[#2E42B2] enabled:hover:bg-blue-800 cursor-pointer"
           >
             {{ loading ? 'Memproses...' : 'Lanjut Pembayaran' }}
@@ -105,6 +105,7 @@ const lombaId = route.params.lombaId as string;
 const isSidebarOpen = ref(false);
 
 const lombaName = ref('');
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 const seats = ref<any[]>([]);
 const selectedSeat = ref<number | null>(null);
 const loading = ref(false);
