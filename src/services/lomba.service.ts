@@ -55,6 +55,7 @@ export interface LombaFilterParams {
   sortBy?: string
   sortDir?: string
 }
+
 export interface LombaItem {
   id: string
   namaLomba: string
@@ -68,13 +69,6 @@ export interface LombaItem {
   jumlahJuri: number
   jumlahJuara: number
   hadiah: number[]
-  deskripsi: string
-  listJuri?: Array<{
-    id: number
-    username: string
-    fullName: string
-    role: string
-  }>
 }
 
 export const getAllLomba = async (params?: LombaFilterParams) => {
