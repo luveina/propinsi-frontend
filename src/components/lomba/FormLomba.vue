@@ -248,6 +248,10 @@ const parseRupiah = (value: string) => {
   return Number.isNaN(parsed) ? 0 : parsed;
 };
 
+const updateHadiahValue = (index: number, value: string) => {
+  form.hadiah[index] = parseRupiah(value);
+};
+
 const hargaTiketDisplay = computed({
   get: () => formatRupiah(form.hargaTiket),
   set: (input: string) => {

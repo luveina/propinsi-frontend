@@ -5,6 +5,10 @@ import ChangePasswordView from '@/views/ChangePasswordView.vue'
 import ManajemenAkunView from '@/views/ManajemenAkunView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import PembayaranPage from '@/views/pendaftaran/PembayaranPage.vue';
+import AppLayout from '@/layout/AppLayout.vue'
+import MyTicketsView from '@/views/ticket/MyTicketsView.vue'
+import TicketDetailView from '@/views/ticket/TicketDetailView.vue'
+import UploadBuktiView from '@/views/UploadBuktiView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -28,45 +32,45 @@ const router = createRouter({
       meta: { requiresAuth: true, requiresFirstLogin: true },
     },
     {
-      path: '/manajemen-akun',
-      name: 'manajemen-akun',
-      component: ManajemenAkunView,
-      meta: { requiresAuth: true, requiredRole: 'ADMIN' },
+      path: '/',
+      redirect: { name: 'katalog-lomba' },
     },
     {
-      path: '/profile',
-      name: 'profile',
-      component: ProfileView,
+      path: '/katalog-lomba',
+      name: 'katalog-lomba',
+      component: () => import('@/views/KatalogLombaView.vue'),
       meta: { requiresAuth: true },
     },
     {
-    path: '/katalog-lomba',
-    name: 'katalog-lomba',
-    component: () => import('@/views/KatalogLombaView.vue'),
-    meta: { requiresAuth: true },
-  },
-  {
-    path: '/buat-lomba',
-    name: 'BuatLomba',
-    component: () => import('@/views/lomba/BuatLombaView.vue'),
-    meta: { requiresAuth: true },
-  },
-  {
-    path: '/edit-lomba/:id',
-    name: 'EditLomba',
-    component: () => import('@/views/lomba/EditLombaView.vue'),
-    meta: { requiresAuth: true },
-  },
+      path: '/katalog-lomba/:id',
+      name: 'detail-lomba',
+      component: () => import('@/views/lomba/DetailLombaView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/buat-lomba',
+      name: 'BuatLomba',
+      component: () => import('@/views/lomba/BuatLombaView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/edit-lomba/:id',
+      name: 'EditLomba',
+      component: () => import('@/views/lomba/EditLombaView.vue'),
+      meta: { requiresAuth: true },
+    },
   {
     path: '/penjurian',
     name: 'penjurian',
     component: () => import('@/views/ScoringView.vue'),
     meta: { requiresAuth: true },
   },
-  {
-    path: '/',
-    redirect: { name: 'katalog-lomba' },
-  },
+    {
+      path: '/penjurian',
+      name: 'penjurian',
+      component: () => import('@/views/ScoringView.vue'),
+      meta: { requiresAuth: true },
+    },
   {
     path: '/reservasi/:lombaId',
     name: 'reservasi-gantangan',
@@ -79,28 +83,68 @@ const router = createRouter({
     component: () => import('@/views/lomba/DetailLombaView.vue'),
     meta: { requiresAuth: true },
   },
-  {
-    path: '/:pathMatch(.*)*',
-    redirect: { name: 'katalog-lomba' },
-  },
+    {
+      path: '/reservasi/:lombaId',
+      name: 'reservasi-gantangan',
+      component: () => import('@/views/pendaftaran/ReservasiGantanganView.vue'),
+      meta: { requiresAuth: true },
+    },
   {
     path: '/pembayaran',
     name: 'pembayaran',
     component: PembayaranPage,
     // Kita pancing parameter dari URL query
   },
-  {
+    {
       path: '/verifikasi-pembayaran',
       name: 'verifikasi-pembayaran',
-      // Pastikan path import ini sesuai dengan letak file Vue kamu disimpan ya!
       component: () => import('@/views/pendaftaran/VerifikasiPembayaranView.vue'),
-      meta: {
-        requiresAuth: true,
-        requiredRole: 'KOORDINATOR_PENDAFTARAN' // Proteksi role sesuai instruksi dosen
-      },
+      meta: { requiresAuth: true, requiredRole: 'KOORDINATOR_PENDAFTARAN' },
+    },
+    {
+      path: '/manajemen-akun',
+      name: 'manajemen-akun',
+      component: ManajemenAkunView,
+      meta: { requiresAuth: true, requiredRole: 'ADMIN' },
+    },
+    {
+      path: '/profile',
+      name: 'profile',
+      component: ProfileView,
+      meta: { requiresAuth: true },
+    },
+
+    // ─── PBI-20: Tiket Saya ───────────────────────────────────────────
+    {
+      path: '/tiket-saya',
+      name: 'MyTickets',
+      component: MyTicketsView,
+      meta: { requiresAuth: true, requiredRole: 'PESERTA' },
+    },
+    {
+      path: '/tiket-saya/:id',
+      name: 'TicketDetail',
+      component: TicketDetailView,
+      meta: { requiresAuth: true, requiredRole: 'PESERTA' },
+      props: true,
+    },
+    {
+      path: '/upload-bukti/:id',
+      name: 'UploadBukti',
+      component: UploadBuktiView,
+      meta: { requiresAuth: true, requiredRole: 'PESERTA' },
+      props: true,
+    },
+
+    // ─── Fallback ─────────────────────────────────────────────────────
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: { name: 'katalog-lomba' },
     },
   ],
 })
+
+// export default router
 
 router.beforeEach((to, _from, next) => {
   const token = localStorage.getItem('token')

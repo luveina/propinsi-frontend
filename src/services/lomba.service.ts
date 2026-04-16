@@ -75,6 +75,12 @@ export interface LombaItem {
     role: string
   }>
   deskripsi: string
+  listJuri?: Array<{
+    id: number
+    username: string
+    fullName: string
+    role: string
+  }>
 }
 
 export const getAllLomba = async (params?: LombaFilterParams) => {

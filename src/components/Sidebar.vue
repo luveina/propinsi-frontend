@@ -71,6 +71,18 @@ function handleLogout() {
       </RouterLink>
       <!-- END TAMBAHAN BARU -->
 
+            <RouterLink
+        v-if="authStore.user?.role === 'PESERTA'"
+        to="/tiket-saya"
+        class="flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-semibold transition-colors hover:bg-[#1E3A8A]"
+        active-class="bg-[#1E3A8A] shadow-inner"
+      >
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2"></path>
+        </svg>
+        My Tickets
+      </RouterLink>
+
       <RouterLink
         to="/profile"
         class="flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-semibold transition-colors hover:bg-[#1E3A8A]"
@@ -81,6 +93,7 @@ function handleLogout() {
         </svg>
         Profil Saya
       </RouterLink>
+
 
     </nav>
 

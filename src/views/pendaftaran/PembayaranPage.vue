@@ -183,6 +183,19 @@ const isSubmitting = ref(false);
 const timeLeft = ref(0);
 let timerInterval: ReturnType<typeof setInterval>;
 
+const uploadSuccessKey = computed(() => {
+  return reservasiId.value ? `payment_uploaded_${reservasiId.value}` : '';
+});
+
+interface ApiError {
+  response?: {
+    status?: number;
+    data?: {
+      message?: string;
+    };
+  };
+}
+
 const formatCurrency = (value: number) => {
   return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(value);
 };
@@ -237,9 +250,9 @@ const onTimeoutConfirm = () => {
 const handleFileUpload = (event: Event) => {
   errorMessage.value = '';
   const target = event.target as HTMLInputElement;
-  if (!target.files || target.files.length === 0) return;
+  const file = target.files?.item(0);
+  if (!file) return;
 
-  const file = target.files[0];
   const allowedTypes = ['image/jpeg', 'image/png', 'application/pdf'];
 
   if (!allowedTypes.includes(file.type)) {
@@ -264,21 +277,36 @@ const submitBukti = async () => {
     isSubmitting.value = true;
     await postUploadBukti(reservasiId.value, selectedFile.value);
     showSuccessView.value = true;
-  } catch (error: any) {
-    if (error.response?.status === 410) {
+    if (uploadSuccessKey.value) {
+      sessionStorage.setItem(uploadSuccessKey.value, '1');
+    }
+  } catch (error: unknown) {
+    const apiError = error as ApiError;
+
+    if (apiError.response?.status === 410) {
       showTimeoutModal.value = true;
     } else {
-      errorMessage.value = error.response?.data?.message || 'Terjadi kesalahan saat mengunggah.';
+      errorMessage.value = apiError.response?.data?.message || 'Terjadi kesalahan saat mengunggah.';
     }
   } finally {
     isSubmitting.value = false;
   }
 };
 
-const goBack = () => router.back();
-const goToMyTicket = () => router.push({ name: 'my-ticket' });
+const goBack = () => {
+  if (showSuccessView.value) {
+    goToMyTicket();
+    return;
+  }
+  router.back();
+};
+
+const goToMyTicket = () => router.replace({ name: 'MyTickets' });
 
 onMounted(() => {
+  if (uploadSuccessKey.value && sessionStorage.getItem(uploadSuccessKey.value) === '1') {
+    showSuccessView.value = true;
+  }
   startTimer();
 });
 

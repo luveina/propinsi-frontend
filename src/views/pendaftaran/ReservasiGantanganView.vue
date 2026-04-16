@@ -117,6 +117,20 @@ import { getDenahGantangan, postBookSeat } from '@/services/reservasi.service';
 import { getLombaById } from '@/services/lomba.service';
 import header_mobile from '@/components/HeaderMobile.vue';
 
+interface SeatDto {
+  nomorGantangan: number | string;
+  status: string;
+}
+
+interface ApiError {
+  response?: {
+    status?: number;
+    data?: {
+      message?: string;
+    };
+  };
+}
+
 const router = useRouter();
 const route = useRoute();
 const lombaId = route.params.lombaId as string;
@@ -124,7 +138,7 @@ const lombaId = route.params.lombaId as string;
 const isSidebarOpen = ref(false);
 const lombaName = ref('');
 const hargaTiket = ref(0);
-const seats = ref<any[]>([]);
+const seats = ref<SeatDto[]>([]);
 const selectedSeat = ref<number | null>(null);
 const loading = ref(false);
 const showConflictModal = ref(false);
@@ -178,14 +192,16 @@ const handleLanjutPembayaran = async () => {
         waktuReservasi: new Date().toISOString()
       }
     });
-  } catch (err: any) {
-    if (err.response?.status === 409) {
+  } catch (err: unknown) {
+    const error = err as ApiError;
+
+    if (error.response?.status === 409) {
       showConflictModal.value = true;
       return;
     }
 
     console.error('Gagal lanjut ke pembayaran:', err);
-    alert(err.response?.data?.message || 'Terjadi kesalahan saat lanjut ke pembayaran.');
+    alert(error.response?.data?.message || 'Terjadi kesalahan saat lanjut ke pembayaran.');
   } finally {
     loading.value = false;
   }

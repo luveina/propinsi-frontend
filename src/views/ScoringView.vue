@@ -332,7 +332,7 @@ onMounted(fetchBlocks)
               @click="onCardClick(item)"
             >
               <span class="number">{{ item.nomorGantangan }}</span>
-              
+
               <div v-if="item.warningCount > 0 && item.status !== 'DISQUALIFIED'" class="warning-indicator mt-1 text-xs font-bold text-yellow-700 flex items-center justify-center gap-1 z-10 w-full absolute bottom-3">
                 <span class="w-4 h-4 rounded-full bg-yellow-500 text-white flex items-center justify-center text-[10px]">!</span>
                 {{ item.warningCount }}/3
@@ -461,7 +461,7 @@ onMounted(fetchBlocks)
     transition: transform 0.1s;
   }
   .block-card:active { transform: scale(0.98); }
-  
+
   .block-card-label {
   font-weight: 700;
 }
@@ -489,20 +489,20 @@ onMounted(fetchBlocks)
     background: #f8f9fa;
     margin-bottom: 14px;
   }
-  
+
   .mode-label {
     margin: 0 0 8px;
     font-size: 13px;
     color: #3041b3;
     font-weight: 700;
   }
-  
+
   .mode-switcher {
     display: grid;
     grid-template-columns: repeat(3, minmax(0, 1fr));
     gap: 8px;
   }
-  
+
   .mode-btn {
     border-radius: 10px;
     border: 1px solid #c8ccd5;
@@ -516,7 +516,7 @@ onMounted(fetchBlocks)
     align-items: center;
     gap: 6px;
   }
-  
+
   .mode-btn.active {
     background: #3041b3;
     color: #fff;
@@ -560,14 +560,14 @@ onMounted(fetchBlocks)
     justify-content: space-between;
     align-items: center;
   }
-  
+
   .block-navigator h2 {
     margin: 0;
     color: #3041b3;
     font-size: 16px;
     font-weight: 700;
   }
-  
+
   .nav-btn {
     width: 32px;
     height: 32px;
@@ -577,9 +577,9 @@ onMounted(fetchBlocks)
     place-items: center;
     border-radius: 50%;
   }
-  
+
   .nav-btn:disabled { opacity: 0.45; }
-  
+
   .chevron {
     width: 10px;
     height: 10px;
@@ -589,7 +589,7 @@ onMounted(fetchBlocks)
   }
   .chevron-right { transform: rotate(45deg); }
   .chevron-left { transform: rotate(-135deg); }
-  
+
   .nav-triangle {
     width: 0;
     height: 0;
@@ -597,15 +597,15 @@ onMounted(fetchBlocks)
     border-bottom: 6px solid transparent;
     display: inline-block;
   }
-  .triangle-right { 
-    border-left: 8px solid #3041b3; 
+  .triangle-right {
+    border-left: 8px solid #3041b3;
     margin-left: 3px;
   }
-  .triangle-left { 
-    border-right: 8px solid #3041b3; 
+  .triangle-left {
+    border-right: 8px solid #3041b3;
     margin-right: 3px;
   }
-  
+
   .grid-wrap {
     display: grid;
     max-height: max-content;
@@ -615,7 +615,7 @@ onMounted(fetchBlocks)
     margin: 0 auto 16px auto;
     align-content: start;
   }
-  
+
   .gantangan-card {
     aspect-ratio: 1 / 1;
     height: auto;
@@ -629,11 +629,11 @@ onMounted(fetchBlocks)
     align-items: center;
     box-shadow: 0 2px 4px rgba(0,0,0,0.05);
   }
-  
+
   .gantangan-card .number {
     font-size: 32px;
   }
-  
+
   .gantangan-card.default { background: #8eb1e3; }
   .gantangan-card.selected { background: #3041b3; box-shadow: 0 4px 8px rgba(48,65,179,0.3); }
 .gantangan-card.warning { background: #fce598; color: #fff; }
