@@ -234,8 +234,8 @@ const filteredTickets = computed(() => {
   }
 
   result.sort((a, b) => {
-    const da = new Date(a.created_at).getTime()
-    const db = new Date(b.created_at).getTime()
+    const da = new Date(a.waktu_reservasi).getTime()
+    const db = new Date(b.waktu_reservasi).getTime()
     return activeSort.value === 'newest' ? db - da : da - db
   })
 

@@ -1,6 +1,6 @@
 <template>
   <div class="min-h-screen font-plus-jakarta flex flex-col">
-    
+
     <!-- ============================================================ -->
     <!-- 1. LAYOUT DESKTOP (Dashboard Admin & Koordinator) -->
     <!-- ============================================================ -->
@@ -15,7 +15,7 @@
             <Icon icon="ph:caret-left-bold" class="w-5 h-5" />
             <span>Kembali</span>
           </button>
-          
+
           <div class="flex items-center gap-4">
             <div class="text-right">
               <p class="text-sm font-extrabold text-gray-900">{{ profileName }}</p>
@@ -96,7 +96,7 @@
               <div>
                 <p class="text-sm font-bold text-[#2E42B2] mb-3 uppercase tracking-wider">Hadiah</p>
                 <div class="text-[13px] font-bold text-[#1C244F] space-y-2 italic">
-                  <p v-for="(h, i) in lomba.hadiah" :key="i">Juara {{i+1}}: {{ formatHarga(h) }}</p>
+                  <p v-for="(h, i) in lomba.hadiah" :key="i">Juara {{ Number(i) + 1 }}: {{ formatHarga(h) }}</p>
                 </div>
               </div>
               <div class="space-y-6">
@@ -147,7 +147,7 @@
         </div>
 
         <div v-else class="space-y-6">
-          
+
           <!-- SEKSI JURI MOBILE -->
           <div v-if="userRole === 'JURI'" class="border-2 border-[#DEE8FB] rounded-[32px] p-6 shadow-sm space-y-6">
             <div class="text-center space-y-2">
@@ -175,7 +175,7 @@
             <div class="bg-[#DEE8FB] border border-[#2E42B2] rounded-[24px] p-6 text-center shadow-inner">
                <p class="text-[14px] text-[#2E42B2] font-bold flex flex-col items-center">
                   <span class="tracking-wide">Tersisa</span>
-                  <span class="text-5xl font-extrabold my-1">{{ availableCount }}</span> 
+                  <span class="text-5xl font-extrabold my-1">{{ availableCount }}</span>
                   <span class="text-[13px] opacity-80">dari {{ lomba.jumlahGantangan || 24 }} nomor gantangan</span>
                </p>
             </div>
@@ -235,7 +235,7 @@
               <div><p class="text-[12px] font-bold text-[#2E42B2] mb-3 uppercase tracking-wider">Daftar Hadiah:</p>
                 <div class="text-[14px] text-blue-900 font-bold space-y-2 ml-2 italic">
                   <div v-for="(h, i) in lomba.hadiah" :key="i" class="flex justify-between border-b border-blue-50 pb-1">
-                    <span>Juara {{i+1}}</span> <span>{{ formatHarga(h) }}</span>
+                    <span>Juara {{ Number(i) + 1 }}</span> <span>{{ formatHarga(h) }}</span>
                   </div>
                 </div>
               </div>
@@ -287,7 +287,7 @@ import { ref, onMounted, computed } from 'vue';
 import { useRoute, useRouter } from 'vue-router';
 import { Icon } from '@iconify/vue';
 import Sidebar from '@/components/Sidebar.vue';
-import header_mobile from '@/components/HeaderMobile.vue'; 
+import header_mobile from '@/components/HeaderMobile.vue';
 import { useBreakpoint } from '@/composables/useBreakpoint';
 import { getLombaDetail, updateLombaStatus, deleteLomba } from '@/services/lomba.service';
 

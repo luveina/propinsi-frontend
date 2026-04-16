@@ -39,9 +39,10 @@ export const useTicketStore = defineStore('ticket', () => {
         status: item.status,
         keterangan_tolak: item.keteranganTolak ?? null,
         can_reupload: item.canReupload,
+        nominal: Number(item.nominal ?? 0),
         blok: item.blok ?? null,
         nomor_gantangan: item.nomorGantangan ?? null,
-        created_at: item.waktuReservasi ?? '',
+        waktu_reservasi: item.waktuReservasi ?? '',
       }))
     } catch (e: any) {
       error.value = e.message

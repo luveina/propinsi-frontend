@@ -8,9 +8,10 @@ export interface Ticket {
   status: 'Paid' | 'Unpaid' | 'Menunggu Konfirmasi' | 'Invalid'
   keterangan_tolak: string | null
   can_reupload: boolean
-  created_at: string
+  nominal: number
 
-  // Hanya ada jika status === 'Paid'
+  waktu_reservasi: string
+
   blok: number | null
   nomor_gantangan: number | null
 }

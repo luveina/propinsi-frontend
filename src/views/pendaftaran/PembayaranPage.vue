@@ -168,11 +168,23 @@ const route = useRoute();
 
 const isSidebarOpen = ref(false);
 
-const reservasiId = ref(route.query.reservasiId as string || '');
-const namaLomba = ref(route.query.namaLomba as string || 'SILOBUR CUP');
-const nomorGantangan = ref(Number(route.query.nomorGantangan) || 0);
-const nominal = ref(Number(route.query.nominal) || 0);
-const waktuReservasi = ref(route.query.waktuReservasi as string || new Date().toISOString());
+const readQueryString = (value: unknown): string => {
+  if (Array.isArray(value)) return String(value[0] ?? '');
+  return typeof value === 'string' ? value : '';
+};
+
+const readQueryNumber = (value: unknown, fallback = 0): number => {
+  const parsed = Number(readQueryString(value));
+  return Number.isFinite(parsed) ? parsed : fallback;
+};
+
+const reservasiId = ref(
+  readQueryString(route.query.reservasiId) || String(route.params.id ?? '')
+);
+const namaLomba = ref(readQueryString(route.query.namaLomba) || 'SILOBUR CUP');
+const nomorGantangan = ref(readQueryNumber(route.query.nomorGantangan, 0));
+const nominal = ref(readQueryNumber(route.query.nominal, 0));
+const waktuReservasi = ref(readQueryString(route.query.waktuReservasi) || new Date().toISOString());
 
 const showSuccessView = ref(false);
 const showTimeoutModal = ref(false);
@@ -210,7 +222,7 @@ const copyText = async (text: string) => {
 };
 
 const deadlineText = computed(() => {
-  const createdTime = new Date(waktuReservasi.value).getTime();
+  const createdTime = new Date(waktuReservasi.value).getTime() || Date.now();
   const deadline = new Date(createdTime + (2 * 60 * 60 * 1000));
   const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' };
   return deadline.toLocaleDateString('id-ID', options).replace('.', ':');
@@ -225,7 +237,7 @@ const formattedTimeLeft = computed(() => {
 });
 
 const startTimer = () => {
-  const createdTime = new Date(waktuReservasi.value).getTime();
+  const createdTime = new Date(waktuReservasi.value).getTime() || Date.now();
   const deadline = createdTime + (2 * 60 * 60 * 1000);
 
   timerInterval = setInterval(() => {
@@ -272,6 +284,10 @@ const handleFileUpload = (event: Event) => {
 
 const submitBukti = async () => {
   if (!selectedFile.value) return;
+  if (!reservasiId.value) {
+    errorMessage.value = 'Reservasi tidak valid. Silakan ulangi dari Tiket Saya.';
+    return;
+  }
 
   try {
     isSubmitting.value = true;
@@ -304,6 +320,9 @@ const goBack = () => {
 const goToMyTicket = () => router.replace({ name: 'MyTickets' });
 
 onMounted(() => {
+  if (!reservasiId.value) {
+    errorMessage.value = 'ID reservasi tidak ditemukan. Silakan buka dari Tiket Saya atau Reservasi Gantangan.';
+  }
   if (uploadSuccessKey.value && sessionStorage.getItem(uploadSuccessKey.value) === '1') {
     showSuccessView.value = true;
   }

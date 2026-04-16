@@ -159,7 +159,7 @@
               <div v-for="(prize, index) in form.hadiah" :key="index" class="flex items-center gap-2">
               <span class="text-xs font-semibold text-[#1E3A8A] w-14 shrink-0">Juara {{ index + 1 }} <span class="text-red-500">*</span></span>
               <input
-                :value="formatRupiah(form.hadiah[index])"
+                :value="formatRupiah(prize ?? 0)"
                 @input="(e) => updateHadiahValue(index, (e.target as HTMLInputElement).value)"
                 type="text"
                 inputmode="numeric"
@@ -235,8 +235,9 @@ const form = reactive({
   contactPerson: '',
 });
 
-const formatRupiah = (value: number) => {
-  const safeValue = Number.isFinite(value) ? Math.max(0, Math.floor(value)) : 0;
+const formatRupiah = (value?: number) => {
+  const numericValue = typeof value === 'number' ? value : 0;
+  const safeValue = Number.isFinite(numericValue) ? Math.max(0, Math.floor(numericValue)) : 0;
   return `Rp ${new Intl.NumberFormat('id-ID').format(safeValue)}`;
 };
 

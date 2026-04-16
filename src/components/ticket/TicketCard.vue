@@ -42,28 +42,48 @@ function goToDetail() {
 }
 
 function goToUpload() {
-  // TODO: arahkan ke halaman Upload Bukti Pembayaran (PBI-17)
-  // router.push({ name: 'UploadBukti', params: { id: props.ticket.id } })
+  const ticketId = props.ticket.id
+
+  router.push({
+    name: 'UploadBukti',
+    params: { id: String(ticketId) },
+    query: {
+      reservasiId: String(ticketId),
+      namaLomba: props.ticket.nama_lomba,
+      nomorGantangan: props.ticket.nomor_gantangan || 0,
+      nominal: props.ticket.nominal,
+      waktuReservasi: props.ticket.waktu_reservasi
+    }
+  })
 }
 
 function goToUploadUlang() {
   if (!props.ticket.can_reupload) {
-    // Reservasi expired (2x ditolak) — arahkan ke reservasi ulang
-    // TODO: router.push({ name: 'ReservasiUlang' })
+    router.push({ name: 'katalog-lomba' })
     return
   }
-  // TODO: arahkan ke halaman Upload Bukti Pembayaran (PBI-17)
-  // router.push({ name: 'UploadBukti', params: { id: props.ticket.id } })
+
+  const ticketId = props.ticket.id
+
+  router.push({
+    name: 'UploadBukti',
+    params: { id: String(ticketId) },
+    query: {
+      reservasiId: String(ticketId),
+      namaLomba: props.ticket.nama_lomba,
+      nomorGantangan: props.ticket.nomor_gantangan || 0,
+      nominal: props.ticket.nominal,
+      waktuReservasi: props.ticket.waktu_reservasi
+    }
+  })
 }
 </script>
-
 <template>
   <div
     class="self-stretch rounded-[6.85px] bg-[#f9fafb] border-[0.8px] border-[#2e42b2] overflow-hidden flex flex-col items-start py-[10px] gap-[7.5px] font-plus-jakarta"
     :class="ticket.status === 'Paid' ? 'cursor-pointer hover:shadow-md hover:shadow-[#2e42b2]/10 transition-shadow' : ''"
     @click="ticket.status === 'Paid' ? goToDetail() : undefined"
   >
-    <!-- Header: nama lomba + badge -->
     <div class="self-stretch flex items-center justify-between px-[10px] gap-5">
       <b class="text-base leading-6 text-[#2e42b2]">{{ ticket.nama_lomba }}</b>
       <div :class="['rounded-[11.14px] flex items-center justify-center py-[5.9px] px-[11.1px] flex-shrink-0', badgeClass]">
@@ -71,7 +91,6 @@ function goToUploadUlang() {
       </div>
     </div>
 
-    <!-- Pesan kontekstual -->
     <div class="self-stretch bg-[#f9fafb] overflow-hidden flex flex-col items-start px-[10px]">
       <p
         class="self-stretch text-sm font-medium leading-5"
@@ -81,7 +100,6 @@ function goToUploadUlang() {
       </p>
     </div>
 
-    <!-- Meta info: tanggal, lokasi, jenis burung -->
     <div class="self-stretch flex items-start px-[10px] gap-[10px] flex-wrap">
       <div class="flex items-center gap-[5px]">
         <Icon icon="mdi:calendar-outline" class="text-[#2e42b2]" style="width:13.5px;height:13.5px;" />

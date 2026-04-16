@@ -8,7 +8,6 @@ import PembayaranPage from '@/views/pendaftaran/PembayaranPage.vue';
 import AppLayout from '@/layout/AppLayout.vue'
 import MyTicketsView from '@/views/ticket/MyTicketsView.vue'
 import TicketDetailView from '@/views/ticket/TicketDetailView.vue'
-import UploadBuktiView from '@/views/UploadBuktiView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -131,7 +130,7 @@ const router = createRouter({
     {
       path: '/upload-bukti/:id',
       name: 'UploadBukti',
-      component: UploadBuktiView,
+      component: PembayaranPage,
       meta: { requiresAuth: true, requiredRole: 'PESERTA' },
       props: true,
     },
