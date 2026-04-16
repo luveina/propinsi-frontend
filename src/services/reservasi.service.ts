@@ -15,6 +15,7 @@ export interface ReservasiItem {
   urlBukti: string;
   status: string;
   waktuReservasi: string;
+  rejectionCount: number;
 }
 
 function getAuthHeaders() {
