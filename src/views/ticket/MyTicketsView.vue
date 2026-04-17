@@ -73,10 +73,11 @@
                   class="appearance-none bg-[#E8EDF5] border border-[#2e42b2] text-[#2e42b2] text-sm rounded-lg pl-4 pr-9 py-2 focus:outline-none focus:ring-2 focus:ring-[#2e42b2] w-[180px] font-medium cursor-pointer"
                 >
                   <option value="all">Semua Status</option>
-                  <option value="Paid">Paid</option>
-                  <option value="Unpaid">Unpaid</option>
+                  <option value="Paid">Dibayar</option>
+                  <option value="Unpaid">Belum Dibayar</option>
                   <option value="Menunggu Konfirmasi">Menunggu Konfirmasi</option>
                   <option value="Invalid">Invalid</option>
+                  <option value="Expired">Expired</option>
                 </select>
                 <svg class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-[#2e42b2] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />

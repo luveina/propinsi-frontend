@@ -55,6 +55,7 @@ export interface LombaFilterParams {
   sortBy?: string
   sortDir?: string
 }
+
 export interface LombaItem {
   id: string
   namaLomba: string
