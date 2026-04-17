@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { computed } from 'vue'
 import { useRouter } from 'vue-router'
-import { Icon } from '@iconify/vue'
 import type { Ticket } from '@/interfaces/ticket.interface'
+import calendarIcon from '@/assets/calendar-outline.svg'
+import locationIcon from '@/assets/location-sharp.svg'
+import birdIcon from '@/assets/lucide_bird.svg'
 
 const props = defineProps<{ ticket: Ticket }>()
 const router = useRouter()
@@ -13,6 +15,7 @@ const badgeClass = computed(() => {
     Unpaid: 'bg-[#6d717f] text-[#e2e4e8]',
     'Menunggu Konfirmasi': 'bg-[#ffaa00] text-[#fff1d6]',
     Invalid: 'bg-[#d93e39] text-[#fac5c3]',
+    Expired: 'bg-[#d93e39] text-[#fac5c3]',  // sama styling dengan Invalid
   }
   return map[props.ticket.status] ?? ''
 })
@@ -20,20 +23,28 @@ const badgeClass = computed(() => {
 const badgeLabel = computed(() => {
   const map: Record<string, string> = {
     Paid: 'Dibayar',
-    Unpaid: 'Unpaid',
+    Unpaid: 'Belum dibayar',
     'Menunggu Konfirmasi': 'Menunggu Konfirmasi',
     Invalid: 'Invalid',
+    Expired: 'Expired',
   }
   return map[props.ticket.status] ?? props.ticket.status
 })
 
 const messageText = computed(() => {
   switch (props.ticket.status) {
-    case 'Paid': return 'Pembayaran terkonfirmasi. Harap unduh E-Ticket!'
-    case 'Unpaid': return 'Pembayaran belum dilakukan. Harap lakukan pembayaran.'
-    case 'Menunggu Konfirmasi': return 'Mohon tunggu, bukti pembayaran sedang diverifikasi oleh admin.'
-    case 'Invalid': return `Alasan ditolak: ${props.ticket.keterangan_tolak ?? '-'}`
-    default: return ''
+    case 'Paid':
+      return 'Pembayaran terkonfirmasi. Harap unduh E-Ticket!'
+    case 'Unpaid':
+      return 'Pembayaran belum dilakukan. Harap lakukan pembayaran.'
+    case 'Menunggu Konfirmasi':
+      return 'Mohon tunggu, bukti pembayaran sedang diverifikasi oleh admin.'
+    case 'Invalid':
+      return `Alasan ditolak: ${props.ticket.keterangan_tolak ?? '-'}`
+    case 'Expired':
+      return 'E-Ticket sudah expired karena tiket tidak dibayar dalam kurun waktu 2 jam.'
+    default:
+      return ''
   }
 })
 
@@ -48,7 +59,7 @@ function goToUpload() {
 
 function goToUploadUlang() {
   if (!props.ticket.can_reupload) {
-    // Reservasi expired (2x ditolak) — arahkan ke reservasi ulang
+    // Reservasi expired — arahkan ke reservasi ulang
     // TODO: router.push({ name: 'ReservasiUlang' })
     return
   }
@@ -75,7 +86,7 @@ function goToUploadUlang() {
     <div class="self-stretch bg-[#f9fafb] overflow-hidden flex flex-col items-start px-[10px]">
       <p
         class="self-stretch text-sm font-medium leading-5"
-        :class="ticket.status === 'Invalid' ? 'text-[#a9302d]' : 'text-[#374151]'"
+        :class="ticket.status === 'Invalid' || ticket.status === 'Expired' ? 'text-[#a9302d]' : 'text-[#374151]'"
       >
         {{ messageText }}
       </p>
@@ -84,15 +95,15 @@ function goToUploadUlang() {
     <!-- Meta info: tanggal, lokasi, jenis burung -->
     <div class="self-stretch flex items-start px-[10px] gap-[10px] flex-wrap">
       <div class="flex items-center gap-[5px]">
-        <Icon icon="mdi:calendar-outline" class="text-[#2e42b2]" style="width:13.5px;height:13.5px;" />
+        <img :src="calendarIcon" style="width:13.5px;height:13.5px;" />
         <span class="text-[9.01px] leading-[140%] font-inter text-[#374151]">{{ ticket.tanggal }}</span>
       </div>
       <div class="flex items-center gap-[5px]">
-        <Icon icon="mdi:map-marker-outline" class="text-[#2e42b2]" style="width:13.5px;height:13.5px;" />
+        <img :src="locationIcon" style="width:13.5px;height:13.5px;" />
         <span class="text-[9.01px] leading-[140%] font-inter text-[#374151]">{{ ticket.lokasi }}</span>
       </div>
       <div class="flex items-center gap-[5px]">
-        <Icon icon="mdi:bird" class="text-[#2e42b2]" style="width:13.5px;height:13.5px;" />
+        <img :src="birdIcon" style="width:13.5px;height:13.5px;" />
         <span class="text-[9.01px] leading-[140%] font-inter text-[#374151]">{{ ticket.jenis_burung }}</span>
       </div>
     </div>
@@ -134,6 +145,15 @@ function goToUploadUlang() {
         @click.stop="goToUploadUlang"
       >
         <b class="text-sm leading-5 text-[#f9fafb]">Upload Ulang Bukti Pembayaran</b>
+      </div>
+
+      <!-- EXPIRED — tidak bisa upload ulang, harus reservasi baru -->
+      <div
+        v-else-if="ticket.status === 'Expired'"
+        class="self-stretch rounded-[5.76px] bg-[#6d717f] overflow-hidden flex items-center justify-center py-[5px] px-[28.2px] cursor-not-allowed opacity-75"
+        title="Tiket sudah expired. Silakan lakukan reservasi ulang."
+      >
+        <span class="text-sm font-medium leading-5 text-[#f9fafb]">Reservasi Ulang</span>
       </div>
 
     </div>

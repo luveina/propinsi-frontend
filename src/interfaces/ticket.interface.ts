@@ -5,7 +5,7 @@ export interface Ticket {
   lokasi: string
   jenis_burung: string
   kelas: string
-  status: 'Paid' | 'Unpaid' | 'Menunggu Konfirmasi' | 'Invalid'
+  status: 'Paid' | 'Unpaid' | 'Menunggu Konfirmasi' | 'Invalid' | 'Expired'
   keterangan_tolak: string | null
   can_reupload: boolean
   created_at: string
