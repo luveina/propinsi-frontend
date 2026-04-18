@@ -72,14 +72,14 @@
                 <span class="text-[13px] font-bold text-[#2E42B2] ml-1">Tanggal - Waktu:</span>
                 <div class="border border-[#2E42B2] rounded-xl px-4 py-3 flex items-center gap-3 bg-[#DEE8FB] min-w-[260px]">
                   <Icon icon="ph:calendar-blank-fill" class="w-5 h-5 text-[#2E42B2]" />
-                  <span class="text-[13px] font-bold text-[#1C244F]">{{ formatWaktu(lomba.waktuTanggal) }}</span>
+                  <span class="text-[13px] font-bold text-[#2D48C8]">{{ formatWaktu(lomba.waktuTanggal) }}</span>
                 </div>
               </div>
               <div class="flex flex-col gap-1.5">
                 <span class="text-[13px] font-bold text-[#2E42B2] ml-1">Alamat:</span>
                 <div class="border border-[#2E42B2] rounded-xl px-4 py-3 flex items-center gap-3 bg-[#DEE8FB] min-w-[260px]">
                   <Icon icon="ph:map-pin-fill" class="w-5 h-5 text-[#2E42B2]" />
-                  <span class="text-[13px] font-bold text-[#1C244F]">{{ lomba.lokasi }}</span>
+                  <span class="text-[13px] font-bold text-[#2D48C8]">{{ lomba.lokasi }}</span>
                 </div>
               </div>
 
@@ -96,39 +96,39 @@
             <!-- GRID INFO 4 KOLOM -->
             <div class="bg-[#DEE8FB] border border-[#2E42B2]/20 rounded-[16px] p-8 grid grid-cols-4 gap-10">
               <div>
-                <p class="text-sm font-bold text-[#2E42B2] mb-3 uppercase tracking-wider">Hadiah</p>
-                <div class="text-[13px] font-bold text-[#1C244F] space-y-2 italic">
+                <p class="text-sm font-extrabold text-[#2E42B2] mb-3 uppercase tracking-wider">Hadiah</p>
+                <div class="text-[13px] font-bold text-[#2D48C8] space-y-2 italic">
                   <p v-for="(h, i) in lomba.hadiah" :key="i">Juara {{ i + 1 }}: {{ formatHarga(h) }}</p>
                 </div>
               </div>
               <div class="space-y-6">
                 <div>
-                  <p class="text-sm font-bold text-[#2E42B2] mb-1">Jumlah Juri:</p>
-                  <p class="text-[15px] font-extrabold text-[#1C244F]">{{ lomba.jumlahJuri }} orang</p>
+                  <p class="text-sm font-extrabold text-[#2E42B2] mb-1">Jumlah Juri:</p>
+                  <p class="text-[15px] font-semibold text-[#2D48C8]">{{ lomba.jumlahJuri }} orang</p>
                 </div>
                 <div>
-                  <p class="text-sm font-bold text-[#2E42B2] mb-1">Contact Person:</p>
-                  <p class="text-[15px] font-extrabold text-[#1C244F]">{{ lomba.contactPerson }}</p>
+                  <p class="text-sm font-extrabold text-[#2E42B2] mb-1">Contact Person:</p>
+                  <p class="text-[15px] font-semibold text-[#2D48C8]">{{ lomba.contactPerson }}</p>
                 </div>
               </div>
               <div class="space-y-6">
                 <div>
-                  <p class="text-sm font-bold text-[#2E42B2] mb-1">Harga:</p>
-                  <p class="text-[15px] font-extrabold text-[#1C244F]">{{ formatHarga(lomba.hargaTiket) }}</p>
+                  <p class="text-sm font-extrabold text-[#2E42B2] mb-1">Harga:</p>
+                  <p class="text-[15px] font-semibold text-[#2D48C8]">{{ formatHarga(lomba.hargaTiket) }}</p>
                 </div>
                 <div>
-                  <p class="text-sm font-bold text-[#2E42B2] mb-1">Kelas:</p>
-                  <p class="text-[15px] font-extrabold text-[#1C244F] uppercase">{{ lomba.kelas }}</p>
+                  <p class="text-sm font-extrabold text-[#2E42B2] mb-1">Kelas:</p>
+                  <p class="text-[15px] font-semibold text-[#2D48C8]">{{ lomba.kelas }}</p>
                 </div>
               </div>
               <div class="space-y-6">
                 <div>
                   <p class="text-sm font-bold text-[#2E42B2] mb-1">Jumlah Gantangan:</p>
-                  <p class="text-[15px] font-extrabold text-[#1C244F]">{{ lomba.jumlahGantangan || 24 }}</p>
+                  <p class="text-[15px] font-semibold text-[#2D48C8]">{{ lomba.jumlahGantangan || 24 }}</p>
                 </div>
                 <div>
                   <p class="text-sm font-bold text-[#2E42B2] mb-1">Jenis Burung:</p>
-                  <p class="text-[15px] font-extrabold text-[#1C244F] uppercase">{{ lomba.jenisBurung?.replace(/_/g, ' ') }}</p>
+                  <p class="text-[15px] font-semibold text-[#2D48C8]">{{ lomba.jenisBurung?.replace(/_/g, ' ') }}</p>
                 </div>
               </div>
             </div>
