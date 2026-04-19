@@ -1,3 +1,71 @@
+<script setup lang="ts">
+import { ref, computed, onMounted, onUnmounted } from 'vue' 
+import { RouterLink } from 'vue-router'
+import { Icon } from '@iconify/vue'
+import Sidebar from '@/components/Sidebar.vue'
+import HeaderMobile from '@/components/HeaderMobile.vue'
+import TicketCard from '@/components/ticket/TicketCard.vue'
+import FilterSheet from '@/components/ticket/FilterSheet.vue'
+import { useBreakpoint } from '@/composables/useBreakpoint'
+import { useAuthStore } from '@/stores/auth/auth.store'
+import { useTicketStore } from '@/stores/ticket/ticket.store'
+import { storeToRefs } from 'pinia'
+
+const { isDesktop } = useBreakpoint()
+const authStore = useAuthStore()
+const isSidebarOpen = ref(false)
+const showFilter = ref(false)
+const searchQuery = ref('')
+const activeStatus = ref('all')
+const activeSort = ref('newest')
+
+const ticketStore = useTicketStore()
+const { tickets, loading, error } = storeToRefs(ticketStore)
+
+const now = ref(Date.now())
+let interval: any
+
+onMounted(() => {
+  ticketStore.fetchMyTickets()
+  interval = setInterval(() => {
+    now.value = Date.now()
+  }, 10000)
+})
+
+onUnmounted(() => {
+  if (interval) clearInterval(interval)
+})
+// ---------------------------------------
+
+const filteredTickets = computed(() => {
+  let result = [...tickets.value]
+
+  // Mapping status berdasarkan waktu secara real-time
+  const getEffectiveStatus = (t: any) => {
+    if (t.status !== 'Unpaid') return t.status
+    const reservasiTime = new Date(t.waktu_reservasi).getTime()
+    return (now.value - reservasiTime > 2 * 60 * 60 * 1000) ? 'Expired' : 'Unpaid'
+  }
+
+  if (searchQuery.value.trim()) {
+    const q = searchQuery.value.toLowerCase()
+    result = result.filter((t) => t.nama_lomba.toLowerCase().includes(q))
+  }
+
+  if (activeStatus.value !== 'all') {
+    result = result.filter((t) => getEffectiveStatus(t) === activeStatus.value) 
+  }
+
+  result.sort((a, b) => {
+    const da = new Date(a.waktu_reservasi).getTime()
+    const db = new Date(b.waktu_reservasi).getTime()
+    return activeSort.value === 'newest' ? db - da : da - db
+  })
+
+  return result
+})
+</script>
+
 <template>
   <div class="min-h-screen bg-[#F4F7FE] font-plus-jakarta flex flex-col">
 
@@ -73,8 +141,8 @@
                   class="appearance-none bg-[#E8EDF5] border border-[#2e42b2] text-[#2e42b2] text-sm rounded-lg pl-4 pr-9 py-2 focus:outline-none focus:ring-2 focus:ring-[#2e42b2] w-[180px] font-medium cursor-pointer"
                 >
                   <option value="all">Semua Status</option>
-                  <option value="Paid">Paid</option>
-                  <option value="Unpaid">Unpaid</option>
+                  <option value="Paid">Dibayar</option>
+                  <option value="Unpaid">Belum Dibayar</option>
                   <option value="Menunggu Konfirmasi">Menunggu Konfirmasi</option>
                   <option value="Invalid">Invalid</option>
                   <option value="Expired">Expired</option>
@@ -193,56 +261,6 @@
 
   </div>
 </template>
-
-<script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
-import { RouterLink } from 'vue-router'
-import { Icon } from '@iconify/vue'
-import Sidebar from '@/components/Sidebar.vue'
-import HeaderMobile from '@/components/HeaderMobile.vue'
-import TicketCard from '@/components/ticket/TicketCard.vue'
-import FilterSheet from '@/components/ticket/FilterSheet.vue'
-import { useBreakpoint } from '@/composables/useBreakpoint'
-import { useAuthStore } from '@/stores/auth/auth.store'
-import { useTicketStore } from '@/stores/ticket/ticket.store'
-import { storeToRefs } from 'pinia'
-
-const { isDesktop } = useBreakpoint()
-const authStore = useAuthStore()
-const isSidebarOpen = ref(false)
-const showFilter = ref(false)
-const searchQuery = ref('')
-const activeStatus = ref('all')
-const activeSort = ref('newest')
-
-const ticketStore = useTicketStore()
-const { tickets, loading, error } = storeToRefs(ticketStore)
-
-onMounted(() => {
-  ticketStore.fetchMyTickets()
-})
-
-const filteredTickets = computed(() => {
-  let result = [...tickets.value]
-
-  if (searchQuery.value.trim()) {
-    const q = searchQuery.value.toLowerCase()
-    result = result.filter((t) => t.nama_lomba.toLowerCase().includes(q))
-  }
-
-  if (activeStatus.value !== 'all') {
-    result = result.filter((t) => t.status === activeStatus.value)
-  }
-
-  result.sort((a, b) => {
-    const da = new Date(a.waktu_reservasi).getTime()
-    const db = new Date(b.waktu_reservasi).getTime()
-    return activeSort.value === 'newest' ? db - da : da - db
-  })
-
-  return result
-})
-</script>
 
 <style scoped>
 .slide-enter-active, .slide-leave-active { transition: transform 0.3s ease; }

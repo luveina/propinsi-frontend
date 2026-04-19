@@ -21,8 +21,8 @@ watch(() => props.sort, (val) => { localSort.value = val })
 
 const statusOptions = [
   { value: 'all', label: 'Semua Status' },
-  { value: 'Paid', label: 'Paid' },
-  { value: 'Unpaid', label: 'Unpaid' },
+  { value: 'Paid', label: 'Dibayar' },
+  { value: 'Unpaid', label: 'Belum Dibayar' },
   { value: 'Menunggu Konfirmasi', label: 'Menunggu Konfirmasi' },
   { value: 'Invalid', label: 'Invalid' },
   { value: 'Expired', label: 'Expired' },
