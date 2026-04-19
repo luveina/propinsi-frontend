@@ -60,7 +60,9 @@ const messageText = computed(() => {
     case 'Paid': return 'Pembayaran terkonfirmasi. Harap unduh E-Ticket!'
     case 'Unpaid': return 'Pembayaran belum dilakukan. Harap lakukan pembayaran.'
     case 'Menunggu Konfirmasi': return 'Mohon tunggu, bukti pembayaran sedang diverifikasi oleh admin.'
-    case 'Invalid': return `Alasan ditolak: ${props.ticket.keterangan_tolak ?? '-'}`
+    case 'Invalid': 
+      return `Alasan ditolak: ${props.ticket.keterangan_tolak ?? '-'}` + 
+             (props.ticket.can_reupload ? ' (Batas maksimal upload ulang 1 Hari)' : '')
     case 'Expired': return 'Waktu pembayaran telah habis. Tiket expired.'
     default: return ''
   }
@@ -87,10 +89,13 @@ function goToUpload() {
 
 function goToUploadUlang() {
   if (!props.ticket.can_reupload) {
-    router.push({ name: 'katalog-lomba' })
     return
   }
   const ticketId = props.ticket.id
+
+  // Hapus state success lama agar form upload kembali muncul
+  sessionStorage.removeItem(`payment_uploaded_${ticketId}`)
+
   router.push({
     name: 'UploadBukti',
     params: { id: String(ticketId) },
@@ -99,7 +104,8 @@ function goToUploadUlang() {
       namaLomba: props.ticket.nama_lomba,
       nomorGantangan: props.ticket.nomor_gantangan || 0,
       nominal: props.ticket.nominal,
-      waktuReservasi: props.ticket.waktu_reservasi
+      waktuReservasi: props.ticket.waktu_reservasi,
+      status: props.ticket.status
     }
   })
 }
@@ -174,11 +180,14 @@ function goToUploadUlang() {
 
       <!-- INVALID -->
       <div
-        v-else-if="effectiveStatus === 'Invalid'"
-        class="self-stretch rounded-[5.76px] bg-[#a9302d] overflow-hidden flex items-center justify-center py-[5px] px-[28.2px] cursor-pointer active:opacity-85 transition-opacity"
-        @click.stop="goToUploadUlang"
+        v-else-if="ticket.status === 'Invalid'"
+        class="self-stretch rounded-[5.76px] bg-[#a9302d] overflow-hidden flex items-center justify-center py-[5px] px-[28.2px] transition-opacity"
+        :class="ticket.can_reupload ? 'cursor-pointer active:opacity-85' : 'cursor-not-allowed opacity-50'"
+        @click.stop="ticket.can_reupload ? goToUploadUlang() : undefined"
       >
-        <b class="text-sm leading-5 text-[#f9fafb]">Upload Ulang Bukti Pembayaran</b>
+        <b class="text-sm leading-5 text-[#f9fafb]">
+          {{ ticket.can_reupload ? 'Upload Ulang Bukti Pembayaran' : 'Upload Ulang Dinonaktifkan' }}
+        </b>
       </div>
 
       <!-- EXPIRED — disabled -->

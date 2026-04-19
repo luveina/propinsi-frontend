@@ -15,6 +15,7 @@ export interface ReservasiItem {
   urlBukti: string;
   status: string;
   waktuReservasi: string;
+  keteranganTolak?: string;
   rejectionCount: number;
 }
 
@@ -76,10 +77,10 @@ export const getAllReservasi = async (): Promise<ReservasiItem[]> => {
   }
 };
 
-export const verifyReservasi = async (id: string, status: 'PAID' | 'REJECTED') => {
+export const verifyReservasi = async (id: string, status: 'PAID' | 'Invalid' | 'REJECTED', komentar?: string) => {
   try {
     // Tambah AuthHeader karena ini aksi khusus Koordinator
-    const response = await axios.patch(`${API_URL}/verify/${id}`, { status }, {
+    const response = await axios.patch(`${API_URL}/verify/${id}`, { status, komentar }, {
       headers: getAuthHeaders()
     });
     return response.data;

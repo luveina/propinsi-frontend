@@ -44,7 +44,7 @@
 
           <div class="w-full md:w-1/2 flex flex-col space-y-4">
             <div class="bg-[#2E42B2] text-white text-center py-5 px-4 rounded-xl shadow-sm">
-              <p class="text-xs text-blue-100 mb-1">Waktu tersisa sebelum <span class="font-bold">{{ deadlineText }}</span></p>
+                <p class="text-xs text-blue-100 mb-1">Waktu tersisa sebelum <span class="font-bold">{{ deadlineText }}</span></p>
               <p class="text-3xl font-bold tracking-wider tabular-nums">{{ formattedTimeLeft }}</p>
             </div>
 
@@ -221,9 +221,12 @@ const copyText = async (text: string) => {
   }
 };
 
+const statusFromQuery = ref(readQueryString(route.query.status) || 'Unpaid');
+
 const deadlineText = computed(() => {
   const createdTime = new Date(waktuReservasi.value).getTime() || Date.now();
-  const deadline = new Date(createdTime + (2 * 60 * 1000));
+  const duration = statusFromQuery.value === 'Invalid' ? (24 * 60 * 60 * 1000) : (2 * 60 * 60 * 1000);
+  const deadline = new Date(createdTime + duration);
   const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' };
   return deadline.toLocaleDateString('id-ID', options).replace('.', ':');
 });
@@ -238,7 +241,8 @@ const formattedTimeLeft = computed(() => {
 
 const startTimer = () => {
   const createdTime = new Date(waktuReservasi.value).getTime() || Date.now();
-  const deadline = createdTime + (2 * 60 * 60 * 1000);
+  const duration = statusFromQuery.value === 'Invalid' ? (24 * 60 * 60 * 1000) : (2 * 60 * 60 * 1000);
+  const deadline = createdTime + duration;
 
   timerInterval = setInterval(() => {
     const now = new Date().getTime();

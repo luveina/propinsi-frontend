@@ -92,7 +92,7 @@ function getStatusStyle(status: string) {
   switch (status) {
     case 'PAID': return 'bg-green-100 text-green-800 border-green-800'
     case 'REJECTED': return 'bg-red-100 text-red-800 border-red-800'
-    case 'EXPIRED': return 'bg-gray-200 text-gray-600 border-gray-400'
+    case 'EXPIRED': return 'bg-red-100 text-red-800 border-red-800'
     case 'BOOKED': return 'bg-blue-100 text-blue-800 border-blue-800'
     case 'MENUNGGU_KONFIRMASI': return 'bg-orange-100 text-orange-800 border-orange-800'
     default: return 'bg-gray-50 text-gray-500 border-gray-300'
@@ -105,7 +105,7 @@ function getStatusLabel(status: string) {
     'MENUNGGU_KONFIRMASI': 'Perlu Verifikasi',
     'PAID': 'Diterima',
     'REJECTED': 'Ditolak',
-    'EXPIRED': 'Kedaluwarsa'
+    'EXPIRED': 'Ditolak'
   }
   return labels[status] || status
 }
@@ -132,8 +132,47 @@ const closeConfirmModal = () => {
   isConfirmModalOpen.value = false
 }
 
-const prosesTolakDummy = () => {
-  alert('Fitur Tolak sedang dalam tahap pengembangan (Sesuai PBI).')
+// State untuk Modal Tolak
+const isTolakModalOpen = ref(false)
+const itemToTolak = ref<ReservasiItem | null>(null)
+const alasanTolak = ref('')
+const isSubmittingTolak = ref(false)
+
+const openTolakModal = (item: ReservasiItem) => {
+  itemToTolak.value = item
+  alasanTolak.value = ''
+  isTolakModalOpen.value = true
+}
+
+const closeTolakModal = () => {
+  itemToTolak.value = null
+  isTolakModalOpen.value = false
+  alasanTolak.value = ''
+}
+
+const executeTolak = async () => {
+  if (!itemToTolak.value) return
+  if (!alasanTolak.value.trim()) {
+    notification.value = 'Alasan penolakan wajib diisi!'
+    notificationType.value = 'error'
+    setTimeout(() => notification.value = '', 3000)
+    return
+  }
+  isSubmittingTolak.value = true
+  try {
+    await verifyReservasi(itemToTolak.value.id, 'Invalid', alasanTolak.value)
+    notification.value = 'Pembayaran berhasil ditolak.'
+    notificationType.value = 'success'
+    fetchData() // Refresh data dr backend
+    closeTolakModal()
+    if (isModalOpen.value) closeModal()
+  } catch (error) {
+    notification.value = 'Gagal memproses penolakan.'
+    notificationType.value = 'error'
+  } finally {
+    isSubmittingTolak.value = false
+    setTimeout(() => notification.value = '', 3000)
+  }
 }
 
 // Eksekusi API
@@ -204,7 +243,7 @@ const executeTerima = async () => {
               <option value="MENUNGGU_KONFIRMASI">Perlu Verifikasi</option>
               <option value="PAID">Diterima</option>
               <option value="REJECTED">Ditolak</option>
-              <option value="EXPIRED">Kedaluwarsa</option>
+              <option value="EXPIRED">Ditolak (Batas Upload Habis)</option>
             </select>
 
             <select v-model="sortBy" class="bg-gray-50 border border-gray-300 text-gray-700 text-sm rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-400">
@@ -254,7 +293,7 @@ const executeTerima = async () => {
                 <td class="py-4 px-6 text-sm text-center">
                   <div v-if="item.status === 'MENUNGGU_KONFIRMASI'" class="flex justify-center gap-2">
                     <button @click="openConfirmModal(item)" class="bg-[#4ade80] hover:bg-[#22c55e] text-white px-3 py-1.5 rounded-md text-xs font-bold transition-colors">Terima</button>
-                    <button @click="prosesTolakDummy" class="bg-[#f87171] hover:bg-[#ef4444] text-white px-3 py-1.5 rounded-md text-xs font-bold transition-colors">Tolak</button>
+                    <button @click="openTolakModal(item)" class="bg-[#ef4444] hover:bg-[#dc2626] text-white px-3 py-1.5 rounded-md text-xs font-bold transition-colors">Tolak</button>
                   </div>
                   <div v-else>
                     <span :class="['py-1 px-3 rounded-full text-[10px] font-bold border uppercase', getStatusStyle(item.status)]">
@@ -279,6 +318,7 @@ const executeTerima = async () => {
           <div class="bg-[#d0d7f5] inline-block px-4 py-2 rounded-lg text-sm text-[#2E42B2] font-semibold text-left">
             <p>Nama &nbsp;&nbsp;&nbsp;: {{ selectedData?.namaPeserta }}</p>
             <p>Nominal : {{ formatRupiah(selectedData?.nominal || 0) }}</p>
+            <p v-if="selectedData?.keteranganTolak" class="text-red-700 mt-2 font-bold">Alasan Penolakan: {{ selectedData.keteranganTolak }}</p>
           </div>
         </div>
 
@@ -289,6 +329,12 @@ const executeTerima = async () => {
         <div class="p-5 border-t border-gray-200 flex justify-between items-center bg-white gap-4">
           <button @click="closeModal" class="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-600 font-semibold hover:bg-gray-100 transition-colors w-full">
             Tutup
+          </button>
+          <button v-if="selectedData?.status === 'MENUNGGU_KONFIRMASI'"
+            @click="openTolakModal(selectedData!)"
+            :disabled="isSubmitting"
+            class="px-6 py-2.5 rounded-lg bg-[#ef4444] hover:bg-[#dc2626] text-white font-bold transition-colors w-full disabled:opacity-50">
+            Tolak
           </button>
           <button v-if="selectedData?.status === 'MENUNGGU_KONFIRMASI'"
             @click="openConfirmModal(selectedData!)"
@@ -324,6 +370,42 @@ const executeTerima = async () => {
             :disabled="isSubmitting"
             class="px-8 py-2.5 rounded-lg bg-[#2E42B2] text-white font-bold hover:bg-blue-800 transition-colors w-full disabled:opacity-50 disabled:cursor-not-allowed">
             {{ isSubmitting ? 'Loading...' : 'Ya, Terima' }}
+          </button>
+        </div>
+
+      </div>
+    </div>
+  </Teleport>
+
+  <!-- Modal Tolak (Sesuai Desain Foto) -->
+  <Teleport to="body">
+    <div v-if="isTolakModalOpen" class="fixed inset-0 bg-black/50 flex items-center justify-center z-[110] font-plus-jakarta" @click.self="closeTolakModal">
+      <div class="bg-white rounded-xl shadow-xl w-[450px] p-8 text-center mx-4">
+
+        <h2 class="text-2xl font-bold text-[#2E42B2] mb-6">
+          Beri Alasan Penolakan
+        </h2>
+
+        <div class="mb-6 text-left">
+          <textarea
+            v-model="alasanTolak"
+            rows="3"
+            placeholder="Input Text"
+            class="w-full p-4 bg-[#f8fafc] border border-transparent rounded-lg text-sm focus:outline-none focus:ring-2 focus:ring-[#2e42b2] resize-none"
+          ></textarea>
+        </div>
+
+        <div class="flex gap-4 justify-center">
+          <button
+            @click="closeTolakModal"
+            class="px-8 py-2.5 rounded-lg bg-[#cbd5e1] text-gray-700 font-bold hover:bg-gray-400 transition-colors w-full">
+            Kembali
+          </button>
+          <button
+            @click="executeTolak"
+            :disabled="isSubmittingTolak || !alasanTolak.trim()"
+            class="px-8 py-2.5 rounded-lg bg-[#2E42B2] text-white font-bold hover:bg-blue-800 transition-colors w-full disabled:opacity-50 disabled:cursor-not-allowed">
+            {{ isSubmittingTolak ? 'Loading...' : 'Tolak' }}
           </button>
         </div>
 
