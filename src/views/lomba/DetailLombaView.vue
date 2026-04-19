@@ -38,7 +38,7 @@
           <!-- CARD HI-FI DESKTOP -->
           <div v-else class="border border-[#2E42B2] rounded-[24px] bg-white p-10 shadow-sm relative">
             <div class="flex justify-between items-start mb-6">
-              <div class="flex-1 pr-10">
+              <div class="flex-1 pr-10 min-w-0">
                 <div class="flex items-center gap-4 mb-3">
                   <h2 class="text-[32px] font-extrabold text-[#2E42B2] uppercase">{{ lomba.namaLomba }}</h2>
                   <span class="px-5 py-1 rounded-full text-[12px] font-bold uppercase" 
@@ -46,7 +46,7 @@
                     {{ lomba.status?.replace(/_/g, ' ') }}
                   </span>
                 </div>
-                <p class="text-[#2E42B2] text-[15px] leading-relaxed max-w-3xl font-medium opacity-90 whitespace-pre-line">
+                <p class="text-[#2E42B2] text-[15px] leading-relaxed max-w-3xl font-medium opacity-90 whitespace-pre-line break-words">
                   {{ lomba.deskripsi }}
                 </p>
               </div>
@@ -207,7 +207,7 @@
                   {{ lomba.status?.replace(/_/g, ' ') }}
                 </span>
               </div>
-              <p v-if="lomba.deskripsi" class="text-[14px] text-[#2E42B2] font-normal leading-snug mb-5 whitespace-pre-line">{{ lomba.deskripsi }}</p>
+              <p v-if="lomba.deskripsi" class="text-[14px] text-[#2E42B2] font-normal leading-snug mb-5 whitespace-pre-line break-words">{{ lomba.deskripsi }}</p>
 
               <div class="space-y-4">
                 <div class="flex flex-col gap-1"><span class="text-[12px] font-bold text-[#2E42B2]">Alamat:</span>
@@ -264,14 +264,28 @@
               buttonStatus.theme === 'success' ? 'bg-[#AFF4C6] text-[#02542D] border border-[#02542D]' : '',
               buttonStatus.theme === 'warning' ? 'bg-[#FFD88A] text-[#BF6A02] border border-[#BF6A02] active:scale-95' : '',
               buttonStatus.theme === 'blue' && !buttonStatus.disabled ? 'bg-[#2E42B2] text-white active:scale-95 hover:bg-blue-800' : '',
-              buttonStatus.disabled && buttonStatus.theme !== 'success' ? 'bg-gray-200 text-gray-400 shadow-none' : ''
+              buttonStatus.disabled && buttonStatus.theme !== 'success' ? 'bg-[#DEE8FB] text-[#2E42B2] shadow-none opacity-60' : ''
             ]"
           >
             {{ buttonStatus.text }}
           </button>
-          <p v-if="lomba.userBookingStatus === 'PAID'" class="text-[13px] text-[#02542D] font-medium mt-3 italic">
-            Anda sudah terdaftar secara resmi di lomba ini.
-          </p>
+          
+          <div class="mt-3">
+            <!-- Pesan jika Sudah Terdaftar -->
+            <p v-if="lomba.userBookingStatus === 'PAID'" class="text-[13px] text-[#02542D] font-medium italic">
+              Anda sudah terdaftar secara resmi di lomba ini.
+            </p>
+            
+            <!-- Pesan jika Kuota Penuh -->
+            <p v-else-if="buttonStatus.text === 'KUOTA PENUH'" class="text-[13px] text-[#6D9BED] font-medium">
+              Maaf, seluruh gantangan sudah terisi.
+            </p>
+            
+            <!-- Pesan jika Reservasi Ditutup (Status Berlangsung / H-1) -->
+            <p v-else-if="buttonStatus.text === 'RESERVASI DITUTUP'" class="text-[13px] text-[#6D9BED] font-medium">
+              Batas waktu reservasi telah berakhir.
+            </p>
+          </div>
         </div>
       </div>
     </div>
@@ -371,6 +385,7 @@ const getStatusStyle = (s: string) => {
 };
 
 const buttonStatus = computed(() => {
+  // Logic untuk Juri
   if (userRole.value === 'JURI') {
     return { 
       text: lomba.value.canStartJudging ? 'MULAI PENILAIAN' : 'PENILAIAN BELUM DIBUKA', 
@@ -379,14 +394,28 @@ const buttonStatus = computed(() => {
     };
   }
   
+  // Jika Selesai
   if (lomba.value.status === 'SELESAI') return { text: 'LIHAT PEMENANG', disabled: false, theme: 'blue' };
 
+  // Status Booking User
   const resStatus = lomba.value.userBookingStatus;
   if (resStatus === 'PAID') return { text: 'SUDAH TERDAFTAR', disabled: true, theme: 'success' };
   if (resStatus === 'BOOKED' || resStatus === 'MENUNGGU_KONFIRMASI') return { text: 'LANJUTKAN PEMBAYARAN', disabled: false, theme: 'warning' };
 
-  if (!lomba.value.isReservable) return { text: 'RESERVASI DITUTUP', disabled: true, theme: 'disabled' };
-  if (availableCount.value === 0) return { text: 'KUOTA PENUH', disabled: true, theme: 'disabled' };
+  // 1. Jika status lomba sudah bukan "BELUM_DIMULAI" (misal: BERLANGSUNG), tutup reservasi
+  if (lomba.value.status !== 'BELUM_DIMULAI') {
+    return { text: 'RESERVASI DITUTUP', disabled: true, theme: 'disabled' };
+  }
+
+  // 2. Jika Kuota Habis
+  if (availableCount.value === 0) {
+    return { text: 'KUOTA PENUH', disabled: true, theme: 'disabled' };
+  }
+
+  // 3. Jika H-1 atau waktu habis (dari isReservable backend)
+  if (!lomba.value.isReservable) {
+    return { text: 'RESERVASI DITUTUP', disabled: true, theme: 'disabled' };
+  }
 
   return { text: 'RESERVASI LOMBA', disabled: false, theme: 'blue' };
 });

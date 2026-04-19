@@ -1,11 +1,37 @@
 <script setup lang="ts">
-import { computed } from 'vue'
+import { computed, ref, onMounted, onUnmounted } from 'vue' 
 import { useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
 import type { Ticket } from '@/interfaces/ticket.interface'
 
 const props = defineProps<{ ticket: Ticket }>()
 const router = useRouter()
+
+const now = ref(Date.now())
+let timer: any
+
+onMounted(() => {
+  timer = setInterval(() => {
+    now.value = Date.now()
+  }, 10000) 
+})
+
+onUnmounted(() => {
+  if (timer) clearInterval(timer)
+})
+
+const effectiveStatus = computed(() => {
+  if (props.ticket.status !== 'Unpaid') return props.ticket.status
+
+  const reservasiTime = new Date(props.ticket.waktu_reservasi).getTime()
+  const limit = 2 * 60 * 60 * 1000 
+  
+  if (now.value - reservasiTime > limit) {
+    return 'Expired'
+  }
+  return 'Unpaid'
+})
+// ----------------------------------
 
 const badgeClass = computed(() => {
   const map: Record<string, string> = {
@@ -15,7 +41,7 @@ const badgeClass = computed(() => {
     Invalid: 'bg-[#d93e39] text-[#fac5c3]',
     Expired: 'bg-[#d93e39] text-[#fac5c3]',
   }
-  return map[props.ticket.status] ?? ''
+  return map[effectiveStatus.value] ?? '' 
 })
 
 const badgeLabel = computed(() => {
@@ -26,11 +52,11 @@ const badgeLabel = computed(() => {
     Invalid: 'Invalid',
     Expired: 'Expired',
   }
-  return map[props.ticket.status] ?? props.ticket.status
+  return map[effectiveStatus.value] ?? effectiveStatus.value 
 })
 
 const messageText = computed(() => {
-  switch (props.ticket.status) {
+  switch (effectiveStatus.value) {
     case 'Paid': return 'Pembayaran terkonfirmasi. Harap unduh E-Ticket!'
     case 'Unpaid': return 'Pembayaran belum dilakukan. Harap lakukan pembayaran.'
     case 'Menunggu Konfirmasi': return 'Mohon tunggu, bukti pembayaran sedang diverifikasi oleh admin.'
@@ -46,7 +72,6 @@ function goToDetail() {
 
 function goToUpload() {
   const ticketId = props.ticket.id
-
   router.push({
     name: 'UploadBukti',
     params: { id: String(ticketId) },
@@ -65,9 +90,7 @@ function goToUploadUlang() {
     router.push({ name: 'katalog-lomba' })
     return
   }
-
   const ticketId = props.ticket.id
-
   router.push({
     name: 'UploadBukti',
     params: { id: String(ticketId) },
@@ -81,11 +104,12 @@ function goToUploadUlang() {
   })
 }
 </script>
+
 <template>
   <div
     class="self-stretch rounded-[6.85px] bg-[#f9fafb] border-[0.8px] border-[#2e42b2] overflow-hidden flex flex-col items-start py-[10px] gap-[7.5px] font-plus-jakarta"
-    :class="ticket.status === 'Paid' ? 'cursor-pointer hover:shadow-md hover:shadow-[#2e42b2]/10 transition-shadow' : ''"
-    @click="ticket.status === 'Paid' ? goToDetail() : undefined"
+    :class="effectiveStatus === 'Paid' ? 'cursor-pointer hover:shadow-md hover:shadow-[#2e42b2]/10 transition-shadow' : ''"
+    @click="effectiveStatus === 'Paid' ? goToDetail() : undefined"
   >
     <div class="self-stretch flex items-center justify-between px-[10px] gap-5">
       <b class="text-base leading-6 text-[#2e42b2]">{{ ticket.nama_lomba }}</b>
@@ -97,7 +121,7 @@ function goToUploadUlang() {
     <div class="self-stretch bg-[#f9fafb] overflow-hidden flex flex-col items-start px-[10px]">
       <p
         class="self-stretch text-sm font-medium leading-5"
-        :class="ticket.status === 'Invalid' ? 'text-[#a9302d]' : 'text-[#374151]'"
+        :class="effectiveStatus === 'Invalid' || effectiveStatus === 'Expired' ? 'text-[#a9302d]' : 'text-[#374151]'"
       >
         {{ messageText }}
       </p>
@@ -123,7 +147,7 @@ function goToUploadUlang() {
 
       <!-- PAID -->
       <div
-        v-if="ticket.status === 'Paid'"
+        v-if="effectiveStatus === 'Paid'"
         class="self-stretch rounded-[5.76px] bg-[#2e42b2] overflow-hidden flex items-center justify-center py-[5px] px-[28.2px] cursor-pointer active:opacity-85 transition-opacity"
         @click.stop="goToDetail"
       >
@@ -132,7 +156,7 @@ function goToUploadUlang() {
 
       <!-- UNPAID -->
       <div
-        v-else-if="ticket.status === 'Unpaid'"
+        v-else-if="effectiveStatus === 'Unpaid'"
         class="self-stretch rounded-[5.76px] bg-[#6d717f] overflow-hidden flex items-center justify-center py-[5px] px-[28.2px] cursor-pointer active:opacity-85 transition-opacity"
         @click.stop="goToUpload"
       >
@@ -141,7 +165,7 @@ function goToUploadUlang() {
 
       <!-- MENUNGGU KONFIRMASI — disabled -->
       <div
-        v-else-if="ticket.status === 'Menunggu Konfirmasi'"
+        v-else-if="effectiveStatus === 'Menunggu Konfirmasi'"
         class="self-stretch rounded-[5.76px] bg-[#9cbff4] overflow-hidden flex items-center justify-center py-[5px] px-[28.2px] cursor-not-allowed opacity-75"
         title="Mohon tunggu, bukti pembayaran sedang diverifikasi oleh admin."
       >
@@ -150,7 +174,7 @@ function goToUploadUlang() {
 
       <!-- INVALID -->
       <div
-        v-else-if="ticket.status === 'Invalid'"
+        v-else-if="effectiveStatus === 'Invalid'"
         class="self-stretch rounded-[5.76px] bg-[#a9302d] overflow-hidden flex items-center justify-center py-[5px] px-[28.2px] cursor-pointer active:opacity-85 transition-opacity"
         @click.stop="goToUploadUlang"
       >
@@ -159,7 +183,7 @@ function goToUploadUlang() {
 
       <!-- EXPIRED — disabled -->
       <div
-        v-else-if="ticket.status === 'Expired'"
+        v-else-if="effectiveStatus === 'Expired'"
         class="self-stretch rounded-[5.76px] bg-[#a9302d]/50 overflow-hidden flex items-center justify-center py-[5px] px-[28.2px] cursor-not-allowed opacity-75"
         title="Waktu pembayaran telah habis. Silakan pesan ulang tiket."
       >
