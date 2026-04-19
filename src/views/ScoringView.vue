@@ -109,7 +109,7 @@ const navigateBlock = async (direction: -1 | 1) => {
 }
 
 const isGantanganBooked = (item: ScoringGantangan) => {
-  return item.isBooked || (item.status as any) === 'BOOKED' || item.status === 'ACTIVE'
+  return item.isBooked || item.status === 'ACTIVE'
 }
 
 const isClickable = (item: ScoringGantangan) => isGantanganBooked(item) && item.status !== 'DISQUALIFIED'

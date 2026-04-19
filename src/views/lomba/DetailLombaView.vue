@@ -349,7 +349,7 @@ const loadData = async () => {
 onMounted(loadData);
 
 // HANDLERS
-const startJudging = () => router.push(`/judging/select-gantangan/${lombaId}`);
+const startJudging = () => router.push({ path: '/penjurian', query: { lombaId } });
 const goToReservasi = () => router.push(`/reservasi/${lombaId}`);
 const viewWinners = () => router.push(`/winner/${lombaId}`);
 const goToEdit = () => router.push(`/lomba/edit/${lombaId}`);
@@ -387,9 +387,11 @@ const getStatusStyle = (s: string) => {
 const buttonStatus = computed(() => {
   // Logic untuk Juri
   if (userRole.value === 'JURI') {
+    const isAssigned = lomba.value.listJuri?.some((j: any) => j.id === userStore.id) || false;
+    const canScore = lomba.value.canStartJudging && isAssigned;
     return { 
-      text: lomba.value.canStartJudging ? 'MULAI PENILAIAN' : 'PENILAIAN BELUM DIBUKA', 
-      disabled: !lomba.value.canStartJudging, 
+      text: canScore ? 'MULAI PENILAIAN' : 'PENILAIAN BELUM DIBUKA', 
+      disabled: !canScore, 
       theme: 'blue' 
     };
   }
