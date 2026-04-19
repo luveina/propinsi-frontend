@@ -13,6 +13,7 @@ const badgeClass = computed(() => {
     Unpaid: 'bg-[#6d717f] text-[#e2e4e8]',
     'Menunggu Konfirmasi': 'bg-[#ffaa00] text-[#fff1d6]',
     Invalid: 'bg-[#d93e39] text-[#fac5c3]',
+    Expired: 'bg-[#d93e39] text-[#fac5c3]',
   }
   return map[props.ticket.status] ?? ''
 })
@@ -23,6 +24,7 @@ const badgeLabel = computed(() => {
     Unpaid: 'Unpaid',
     'Menunggu Konfirmasi': 'Menunggu Konfirmasi',
     Invalid: 'Invalid',
+    Expired: 'Expired',
   }
   return map[props.ticket.status] ?? props.ticket.status
 })
@@ -33,6 +35,7 @@ const messageText = computed(() => {
     case 'Unpaid': return 'Pembayaran belum dilakukan. Harap lakukan pembayaran.'
     case 'Menunggu Konfirmasi': return 'Mohon tunggu, bukti pembayaran sedang diverifikasi oleh admin.'
     case 'Invalid': return `Alasan ditolak: ${props.ticket.keterangan_tolak ?? '-'}`
+    case 'Expired': return 'Waktu pembayaran telah habis. Tiket expired.'
     default: return ''
   }
 })
@@ -152,6 +155,15 @@ function goToUploadUlang() {
         @click.stop="goToUploadUlang"
       >
         <b class="text-sm leading-5 text-[#f9fafb]">Upload Ulang Bukti Pembayaran</b>
+      </div>
+
+      <!-- EXPIRED — disabled -->
+      <div
+        v-else-if="ticket.status === 'Expired'"
+        class="self-stretch rounded-[5.76px] bg-[#a9302d]/50 overflow-hidden flex items-center justify-center py-[5px] px-[28.2px] cursor-not-allowed opacity-75"
+        title="Waktu pembayaran telah habis. Silakan pesan ulang tiket."
+      >
+        <span class="text-sm font-bold leading-5 text-white">Tiket Kadaluwarsa</span>
       </div>
 
     </div>
