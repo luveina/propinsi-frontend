@@ -388,7 +388,7 @@ const buttonStatus = computed(() => {
   // Logic untuk Juri
   if (userRole.value === 'JURI') {
     const isAssigned = lomba.value.listJuri?.some((j: any) => j.id === userStore.id) || false;
-    const canScore = lomba.value.canStartJudging && isAssigned;
+    const canScore = lomba.value.status === 'BERLANGSUNG' && isAssigned;
     return { 
       text: canScore ? 'MULAI PENILAIAN' : 'PENILAIAN BELUM DIBUKA', 
       disabled: !canScore, 

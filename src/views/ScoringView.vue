@@ -10,6 +10,7 @@ import {
   postScoringVote,
   postScoringWarning,
 } from '@/services/scoring.service'
+import { getLombaDetail } from '@/services/lomba.service'
 
 type Mode = 'AJUAN' | 'PERINGATAN' | 'DISKUALIFIKASI'
 
@@ -49,14 +50,25 @@ const sortedBlocks = computed(() => {
   })
 })
 
+const logicalBlocks = computed(() => {
+  const desiredOrder = ['BLOK I', 'BLOK II', 'BLOK III', 'BLOK IV']
+  return [...blocks.value].sort((a, b) => {
+    const aLabel = a.blokLabel.toUpperCase().trim()
+    const bLabel = b.blokLabel.toUpperCase().trim()
+    const aIdx = desiredOrder.indexOf(aLabel)
+    const bIdx = desiredOrder.indexOf(bLabel)
+    const aVal = aIdx !== -1 ? aIdx : 99
+    const bVal = bIdx !== -1 ? bIdx : 99
+    return aVal - bVal
+  })
+})
+
 const selectedBlockIndex = computed(() => {
   if (!selectedBlock.value) return -1
   return sortedBlocks.value.findIndex((item) => item.blokId === selectedBlock.value?.blokId)
 })
-const canGoPrev = computed(() => selectedBlockIndex.value > 0)
-const canGoNext = computed(
-  () => selectedBlockIndex.value >= 0 && selectedBlockIndex.value < sortedBlocks.value.length - 1,
-)
+const canGoPrev = computed(() => logicalBlocks.value.length > 1)
+const canGoNext = computed(() => logicalBlocks.value.length > 1)
 
 const orderedGantangans = computed(() => selectedBlock.value?.gantangan || [])
 
@@ -69,9 +81,24 @@ const fetchBlocks = async () => {
   loading.value = true
   error.value = ''
   try {
+    const lombaDetail: any = await getLombaDetail(lombaId.value)
+    
+    if (lombaDetail.status !== 'BERLANGSUNG') {
+      error.value = 'Penilaian belum bisa dimulai, status lomba bukan BERLANGSUNG.'
+      return
+    }
+
+    const { id: currentUserId } = JSON.parse(localStorage.getItem('user') || '{}');
+    const isAssigned = lombaDetail.listJuri?.some((j: any) => j.id === currentUserId) || false;
+
+    if (!isAssigned) {
+      error.value = 'Anda tidak memiliki akses penilaian pada lomba ini karena tidak ditugaskan sebagai Juri untuk lomba ini.'
+      return
+    }
+
     blocks.value = await getScoringBlocks(lombaId.value)
   } catch (err: any) {
-    error.value = err?.response?.data?.message || 'Gagal mengambil data blok.'
+    error.value = err?.response?.data?.message || 'Gagal mengambil data atau Anda tidak memiliki akses.'
   } finally {
     loading.value = false
   }
@@ -101,9 +128,19 @@ const backToBlocks = async () => {
 }
 
 const navigateBlock = async (direction: -1 | 1) => {
-  const nextIndex = selectedBlockIndex.value + direction
-  if (nextIndex < 0 || nextIndex >= sortedBlocks.value.length) return
-  const nextBlock = sortedBlocks.value[nextIndex]
+  if (logicalBlocks.value.length === 0) return
+  const currentIndex = logicalBlocks.value.findIndex((item) => item.blokId === selectedBlock.value?.blokId)
+  if (currentIndex < 0) return
+
+  // Infinite looping (neverending) based on logical order (1,2,3,4)
+  let nextIndex = currentIndex + direction
+  if (nextIndex < 0) {
+    nextIndex = logicalBlocks.value.length - 1
+  } else if (nextIndex >= logicalBlocks.value.length) {
+    nextIndex = 0
+  }
+
+  const nextBlock = logicalBlocks.value[nextIndex]
   if (!nextBlock) return
   await openBlock(nextBlock.blokId)
 }
@@ -248,7 +285,8 @@ onMounted(fetchBlocks)
     <!-- Main Content -->
     <main class="flex-1 flex flex-col min-w-0 bg-white overflow-y-auto">
       <header class="topbar sticky top-0 z-30 flex-shrink-0">
-        <button class="chevron chevron-left" aria-label="Kembali" @click="router.push('/katalog-lomba')">
+        <button class="p-2 -ml-2 text-white flex items-center justify-center cursor-pointer" aria-label="Kembali" @click="router.push('/katalog-lomba')">
+          <span class="chevron chevron-left"></span>
         </button>
         <h1>Penilaian</h1>
         <div class="w-[36px]"></div>
@@ -276,13 +314,18 @@ onMounted(fetchBlocks)
               <button
                 v-for="block in sortedBlocks"
                 :key="block.blokId"
-              class="block-card"
-              :class="{ locked: block.locked }"
-              :disabled="block.locked"
-              @click="openBlock(block.blokId)"
-            >
-              <span class="block-card-label">{{ formatBlockLabel(block.blokLabel) }}</span>
-            </button>
+                class="block-card"
+                :class="{ locked: block.locked }"
+                @click="openBlock(block.blokId)"
+              >
+                <div class="flex flex-col items-center justify-center gap-1">
+                  <!-- Check/Tanda Udah Di-vote -->
+                  <svg v-if="block.locked" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 mb-2 opacity-90">
+                    <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53-1.648-1.528a.75.75 0 1 0-1.032 1.086l2.25 2.083a.75.75 0 0 0 1.13-.092l3.75-5.207Z" clip-rule="evenodd" />
+                  </svg>
+                  <span class="block-card-label" :class="{ 'whitespace-pre-line': true, 'text-center': true }">{{ formatBlockLabel(block.blokLabel) }}</span>
+                </div>
+              </button>
             </div>
           </div>
         </template>
@@ -307,7 +350,11 @@ onMounted(fetchBlocks)
                 Peringatan
               </button>
               <button class="mode-btn disqualified-mode" :class="{ active: mode === 'DISKUALIFIKASI' }" @click="mode = 'DISKUALIFIKASI'">
-                <span class="mode-icon icon-ban">×</span>
+                <span class="mode-icon icon-ban">
+                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 mt-[1px]">
+                    <path fill-rule="evenodd" d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                  </svg>
+                </span>
                 Diskualifikasi
               </button>
             </div>
@@ -401,6 +448,7 @@ onMounted(fetchBlocks)
   color: #fff;
   padding: 16px 20px;
   display: flex;
+  gap: 12px;
   justify-content: space-between;
   align-items: center;
   box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
@@ -466,7 +514,7 @@ onMounted(fetchBlocks)
   font-weight: 700;
 }
 
-.block-card.locked { background: #c0c2ca; color: #e8e9ed; box-shadow: none; }
+.block-card.locked { background: #64748b; color: #ffffff; box-shadow: none; }
 
 .block-head { margin-bottom: 16px; }
 
@@ -548,11 +596,17 @@ onMounted(fetchBlocks)
   font-weight: 800;
 }
 
-.icon-check { border: 2px solid rgba(255, 255, 255, 0.75); }
-.mode-btn:not(.active) .icon-check { border-color: #8f9bc9; color: #4f5ca7; }
-.icon-warning { background: #ffb400; color: #fff; }
-.icon-ban { background: #000; color: #fff; border: 1px solid #000; }
-.mode-btn.disqualified-mode:not(.active) .icon-ban { background: transparent; color: #000; }
+/* Check (Ajuan) */
+.mode-btn:not(.active) .icon-check { background: #3041b3; color: #fff; }
+.mode-btn.active .icon-check { background: #fff; color: #3041b3; }
+
+/* Warning (Peringatan) */
+.mode-btn.warning-mode:not(.active) .icon-warning { background: #ffb400; color: #fff; }
+.mode-btn.warning-mode.active .icon-warning { background: #fff; color: #ffb400; }
+
+/* Ban (Diskualifikasi) */
+.mode-btn.disqualified-mode:not(.active) .icon-ban { background: #000; color: #fff; }
+.mode-btn.disqualified-mode.active .icon-ban { background: #fff; color: #000; }
 
 .block-navigator {
     margin: 14px 0 10px;
