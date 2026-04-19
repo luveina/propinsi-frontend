@@ -20,7 +20,7 @@ const notificationType = ref<'success' | 'error'>('success')
 const searchQuery = ref('')
 const filterJenisBurung = ref('')
 const filterStatus = ref('')
-const sortDir = ref('desc') // 'desc' = Newest, 'asc' = Oldest
+const sortDir = ref('asc')
 
 const isDeleteModalOpen = ref(false)
 const lombaToDelete = ref<LombaItem | null>(null)
@@ -280,15 +280,15 @@ async function confirmDelete() {
 
             <!-- Sort By -->
             <div class="flex flex-col gap-1">
-              <label class="text-[10px] text-[#2e42b2] font-bold font-plus-jakarta pl-0.5 uppercase tracking-wider">Sort By</label>
+              <label class="text-[10px] text-[#2e42b2] font-bold font-plus-jakarta pl-0.5 uppercase tracking-wider">Tanggal</label>
               <div class="relative">
                 <select
                   v-model="sortDir"
                   @change="onFilterChange"
                   class="appearance-none bg-[#E8EDF5] border border-[#2e42b2] text-[#2e42b2] text-sm rounded-lg pl-4 pr-9 py-2 focus:outline-none focus:ring-2 focus:ring-[#2e42b2] w-[160px] font-medium cursor-pointer"
                 >
-                  <option value="desc">Newest</option>
-                  <option value="asc">Oldest</option>
+                  <option value="desc">Terjauh</option>
+                  <option value="asc">Terdekat</option>
                 </select>
                 <svg class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-[#2e42b2] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -354,12 +354,10 @@ async function confirmDelete() {
               <button
                 v-if="canEdit(lomba.status)"
                 @click.stop="goToEdit(lomba.id)"
-                class="ml-1 text-blue-200 hover:text-white transition-colors cursor-pointer"
+                class="ml-1 text-white hover:text-white transition-colors cursor-pointer"
                 title="Edit Lomba"
               >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.415.586H8v-2.414a2 2 0 01.586-1.414z" />
-                </svg>
+                <img src="@/assets/pencil.svg" alt="Edit" class="w-6 h-6" />
               </button>
             </div>
 
