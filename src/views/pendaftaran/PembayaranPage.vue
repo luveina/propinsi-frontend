@@ -145,8 +145,8 @@
     <ErrorModal
       :show="showTimeoutModal"
       type="info"
-      message="Waktu Habis! Silakan reservasi kembali"
-      confirm-label="Cari Nomor Lain"
+      message="Tiket expired dan tidak dapat diupload lagi. Silakan mulai ulang dari awal."
+      confirm-label="Mulai Ulang"
       :show-cancel="false"
       @confirm="onTimeoutConfirm"
       @close="onTimeoutConfirm"
@@ -223,7 +223,7 @@ const copyText = async (text: string) => {
 
 const deadlineText = computed(() => {
   const createdTime = new Date(waktuReservasi.value).getTime() || Date.now();
-  const deadline = new Date(createdTime + (2 * 60 * 60 * 1000));
+  const deadline = new Date(createdTime + (2 * 60 * 1000));
   const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' };
   return deadline.toLocaleDateString('id-ID', options).replace('.', ':');
 });

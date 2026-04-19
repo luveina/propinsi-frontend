@@ -25,6 +25,7 @@ const statusOptions = [
   { value: 'Unpaid', label: 'Unpaid' },
   { value: 'Menunggu Konfirmasi', label: 'Menunggu Konfirmasi' },
   { value: 'Invalid', label: 'Invalid' },
+  { value: 'Expired', label: 'Expired' },
 ]
 
 const sortOptions = [
