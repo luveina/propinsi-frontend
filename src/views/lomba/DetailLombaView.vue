@@ -98,7 +98,7 @@
               <div>
                 <p class="text-sm font-extrabold text-[#2E42B2] mb-3 uppercase tracking-wider">Hadiah</p>
                 <div class="text-[13px] font-bold text-[#2D48C8] space-y-2 italic">
-                  <p v-for="(h, i) in lomba.hadiah" :key="i">Juara {{ i + 1 }}: {{ formatHarga(h) }}</p>
+                  <p v-for="(h, i) in lomba.hadiah" :key="i">Juara {{ Number(i) + 1 }}: {{ formatHarga(h) }}</p>
                 </div>
               </div>
               <div class="space-y-6">
@@ -239,7 +239,7 @@
               <div><p class="text-[12px] font-bold text-[#2E42B2] mb-3 uppercase tracking-wider">Daftar Hadiah:</p>
                 <div class="text-[14px] text-blue-900 font-bold space-y-2 ml-2 italic">
                   <div v-for="(h, i) in lomba.hadiah" :key="i" class="flex justify-between border-b border-blue-50 pb-1">
-                    <span>Juara {{ i + 1 }}</span> <span>{{ formatHarga(h) }}</span>
+                    <span>Juara {{ Number(i) + 1 }}</span> <span>{{ formatHarga(h) }}</span>
                   </div>
                 </div>
               </div>

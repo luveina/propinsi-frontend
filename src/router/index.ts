@@ -5,7 +5,7 @@ import ChangePasswordView from '@/views/ChangePasswordView.vue'
 import ManajemenAkunView from '@/views/ManajemenAkunView.vue'
 import ProfileView from '@/views/ProfileView.vue'
 import PembayaranPage from '@/views/pendaftaran/PembayaranPage.vue';
-import AppLayout from '@/layout/AppLayout.vue'
+// import AppLayout from '@/layout/AppLayout.vue'
 import MyTicketsView from '@/views/ticket/MyTicketsView.vue'
 import TicketDetailView from '@/views/ticket/TicketDetailView.vue'
 
