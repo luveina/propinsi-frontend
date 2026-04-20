@@ -4,11 +4,11 @@ import RegisterView from '@/views/RegisterView.vue'
 import ChangePasswordView from '@/views/ChangePasswordView.vue'
 import ManajemenAkunView from '@/views/ManajemenAkunView.vue'
 import ProfileView from '@/views/ProfileView.vue'
-import KatalogLombaMobileView from '@/views/KatalogLombaMobileView.vue'
 import PembayaranPage from '@/views/pendaftaran/PembayaranPage.vue';
 // import AppLayout from '@/layout/AppLayout.vue'
 import MyTicketsView from '@/views/ticket/MyTicketsView.vue'
 import TicketDetailView from '@/views/ticket/TicketDetailView.vue'
+import KatalogLombaMobileView from '@/views/KatalogLombaMobileView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -116,23 +116,36 @@ const router = createRouter({
 
     // ─── PBI-20: Tiket Saya ───────────────────────────────────────────
     {
-    path: '/katalog-lomba',
-    name: 'katalog-lomba',
-    component: () => import('@/views/KatalogLombaView.vue'),
-    meta: { requiresAuth: true },
-  },
-  {
-    path: '/buat-lomba',
-    name: 'BuatLomba',
-    component: () => import('@/views/lomba/BuatLombaView.vue'),
-    meta: { requiresAuth: true },
-  },
-  {
-    path: '/edit-lomba/:id',
-    name: 'EditLomba',
-    component: () => import('@/views/lomba/EditLombaView.vue'),
-    meta: { requiresAuth: true },
-  },
+      path: '/tiket-saya',
+      name: 'MyTickets',
+      component: MyTicketsView,
+      meta: { requiresAuth: true, requiredRole: 'PESERTA' },
+    },
+    {
+      path: '/tiket-saya/:id',
+      name: 'TicketDetail',
+      component: TicketDetailView,
+      meta: { requiresAuth: true, requiredRole: 'PESERTA' },
+      props: true,
+    },
+    {
+      path: '/upload-bukti/:id',
+      name: 'UploadBukti',
+      component: PembayaranPage,
+      meta: { requiresAuth: true, requiredRole: 'PESERTA' },
+      props: true,
+    },
+    {
+      path: '/katalog-lomba-mobile',
+      name: 'katalog-lomba-mobile',
+      component: KatalogLombaMobileView,
+      meta: { requiresAuth: true },
+    },
+    // ─── Fallback ─────────────────────────────────────────────────────
+    {
+      path: '/:pathMatch(.*)*',
+      redirect: { name: 'katalog-lomba' },
+    },
   ],
 })
 
