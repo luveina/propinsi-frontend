@@ -80,6 +80,14 @@ export const getAllLomba = async (params?: LombaFilterParams) => {
   return response.data;
 };
 
+export const getLombaByJuri = async (params?: LombaFilterParams) => {
+  const response = await axios.get(`${API_URL}/by-juri`, {
+    headers: getAuthHeaders(),
+    params,
+  });
+  return response.data;
+};
+
 export const deleteLomba = async (id: string) => {
   const response = await axios.delete(`${API_URL}/${id}`, {
     headers: getAuthHeaders()

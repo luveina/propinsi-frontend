@@ -4,7 +4,7 @@ import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import Sidebar from '@/components/Sidebar.vue'
 import { useAuthStore } from '@/stores/auth/auth.store'
-import { getAllLomba, deleteLomba } from '@/services/lomba.service'
+import { getAllLomba, getLombaByJuri, deleteLomba } from '@/services/lomba.service'
 import type { LombaItem } from '@/services/lomba.service'
 
 const router = useRouter()
@@ -30,7 +30,10 @@ const fetchLomba = async () => {
   loading.value = true
   error.value = null
   try {
-    lombaList.value = await getAllLomba({
+    // If user is a JURI, fetch only lombas where they are assigned as a judge
+    const fetchFunction = authStore.user?.role === 'JURI' ? getLombaByJuri : getAllLomba
+    
+    lombaList.value = await fetchFunction({
       jenisBurung: filterJenisBurung.value || undefined,
       status: filterStatus.value || undefined,
       sortBy: 'waktuTanggal',
