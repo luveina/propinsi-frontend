@@ -1,6 +1,6 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, computed, onMounted, watch } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import Sidebar from '@/components/Sidebar.vue'
 import { useAuthStore } from '@/stores/auth/auth.store'
@@ -33,8 +33,8 @@ const fetchLomba = async () => {
     lombaList.value = await getAllLomba({
       jenisBurung: filterJenisBurung.value || undefined,
       status: filterStatus.value || undefined,
-      sortBy: 'waktuTanggal',
-      sortDir: sortDir.value,
+      sortBy: sortBy.value || undefined,
+      sortDir: sortDir.value || undefined,
     })
   } catch (e: any) {
     error.value = 'Gagal mengambil data lomba. Pastikan server berjalan.'
@@ -50,19 +50,7 @@ function onFilterChange() {
   fetchLomba()
 }
 
-// Client-side search filter
-const filteredLombaList = computed(() => {
-  if (!searchQuery.value.trim()) return lombaList.value
-  const q = searchQuery.value.toLowerCase()
-  return lombaList.value.filter(
-    (l) =>
-      l.namaLomba.toLowerCase().includes(q) ||
-      l.lokasi.toLowerCase().includes(q) ||
-      formatJenisBurung(l.jenisBurung).toLowerCase().includes(q),
-  )
-})
-
-// Helpers
+// helper
 function formatJenisBurung(jenis: string): string {
   return jenis
     .split('_')
@@ -120,7 +108,7 @@ function canScore(lomba: LombaItem): boolean {
   return lomba.listJuri.some((juri) => juri.id === authStore.user?.id)
 }
 
-//actions
+// Actions
 function goToDetail(id: string) {
   router.push(`/katalog-lomba/${id}`)
 }
@@ -342,47 +330,43 @@ async function confirmDelete() {
             :key="lomba.id"
             class="rounded-xl overflow-hidden border border-[#2e42b2] shadow-sm"
           >
-            <!-- Card Header — dark navy blue, same shade as sidebar -->
-            <div class="bg-[#2e42b2] px-6 py-4 flex items-center gap-3">
-              <h2 class="text-base font-bold text-white font-plus-jakarta tracking-tight">
-                {{ lomba.namaLomba }}
-              </h2>
-              <!-- Status Badge -->
-              <span
-                class="px-3 py-0.5 rounded-full text-xs font-semibold font-plus-jakarta shrink-0"
-                :style="{
-                  backgroundColor: getStatusStyle(lomba.status).bg,
-                  color: getStatusStyle(lomba.status).text,
-                }"
-              >
-                {{ getStatusStyle(lomba.status).label }}
-              </span>
-              <!-- Edit icon -->
-              <button
-                v-if="canScore(lomba)"
-                @click="router.push({ path: '/penjurian', query: { lombaId: lomba.id } })"
-                class="bg-[#2e42b2] hover:bg-blue-800 text-white text-sm font-bold px-6 py-3 rounded-lg transition-colors cursor-pointer w-full font-plus-jakarta"
-              >
-                Penilaian
-              </button>
-              <button
-                v-if="canScore(lomba)"
-                @click="router.push({ path: '/penjurian', query: { lombaId: lomba.id } })"
-                class="bg-[#2e42b2] hover:bg-blue-800 text-white text-sm font-bold px-6 py-3 rounded-lg transition-colors cursor-pointer w-full font-plus-jakarta"
-              >
-                Penilaian
-              </button>
-              <button
-                v-if="canEdit(lomba.status)"
-                @click.stop="goToEdit(lomba.id)"
-                class="ml-1 text-blue-200 hover:text-white transition-colors cursor-pointer"
-                title="Edit Lomba"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.415.586H8v-2.414a2 2 0 01.586-1.414z" />
-                </svg>
-              </button>
-            </div>
+            <!-- Left: Info -->
+            <div class="flex-1 min-w-0">
+              <!-- Top row: nama, badge status, edit -->
+              <div class="flex items-center gap-3 flex-wrap mb-2">
+                <h2 class="text-xl font-semibold tracking-tight text-gray-900 font-plus-jakarta">
+                  {{ lomba.namaLomba }}
+                </h2>
+
+                <!-- Status Badge -->
+                <span
+                  class="px-4 py-1 rounded-full text-xs font-semibold border font-plus-jakarta shrink-0"
+                  :style="{
+                    backgroundColor: getStatusStyle(lomba.status).bg,
+                    color: getStatusStyle(lomba.status).text,
+                    borderColor: getStatusStyle(lomba.status).border,
+                  }"
+                >
+                  {{ getStatusStyle(lomba.status).label }}
+                </span>
+
+                <!-- Edit Icon (only for BELUM_DIMULAI) -->
+                <button
+                  v-if="canEdit(lomba.status)"
+                  @click="goToEdit(lomba.id)"
+                  class="text-gray-400 hover:text-[#2e42b2] transition-colors cursor-pointer"
+                  title="Edit Lomba"
+                >
+                  <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path
+                      stroke-linecap="round"
+                      stroke-linejoin="round"
+                      stroke-width="2"
+                      d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.415.586H8v-2.414a2 2 0 01.586-1.414z"
+                    />
+                  </svg>
+                </button>
+              </div>
 
             <!-- Card Body — white -->
             <div class="bg-white px-6 py-5 flex items-center gap-6">
