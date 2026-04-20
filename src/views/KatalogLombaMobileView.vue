@@ -3,7 +3,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth/auth.store'
-import { getAllLomba, deleteLomba } from '@/services/lomba.service'
+import { getAllLomba, getLombaByJuri, deleteLomba } from '@/services/lomba.service'
 import type { LombaItem } from '@/services/lomba.service'
 
 const router = useRouter()
@@ -16,13 +16,13 @@ const error = ref<string | null>(null)
 const searchQuery = ref('')
 const filterJenisBurung = ref('')
 const filterStatus = ref('')
-const sortDir = ref('desc')
+const sortDir = ref('asc')
 
 // Filter Modal States (Temp variables to hold selection before "Simpan")
 const isFilterOpen = ref(false)
 const tempJenisBurung = ref('')
 const tempStatus = ref('')
-const tempSort = ref('desc')
+const tempSort = ref('asc')
 
 const isSidebarOpen = ref(false)
 
@@ -31,7 +31,10 @@ const fetchLomba = async () => {
   loading.value = true
   error.value = null
   try {
-    lombaList.value = await getAllLomba({
+    // If user is a JURI, fetch only lombas where they are assigned as a judge
+    const fetchFunction = authStore.user?.role === 'JURI' ? getLombaByJuri : getAllLomba
+    
+    lombaList.value = await fetchFunction({
       jenisBurung: filterJenisBurung.value || undefined,
       status: filterStatus.value || undefined,
       sortBy: 'waktuTanggal',
@@ -67,7 +70,7 @@ const applyFilter = () => {
 const resetFilter = () => {
   tempJenisBurung.value = ''
   tempStatus.value = ''
-  tempSort.value = 'desc'
+  tempSort.value = 'asc'
 }
 
 // Watch for search query changes
@@ -222,7 +225,7 @@ const toggleSidebar = () => isSidebarOpen.value = !isSidebarOpen.value
           <h3 class="text-base font-bold text-[#2E42B2] mb-3">Jenis Burung</h3>
           <div class="flex flex-wrap gap-2">
             <button 
-              v-for="item in ['', 'MURAI_BATU', 'KACER', 'CUCAK_IJO', 'KENARI', 'ANIS_KEMBANG', 'LOVEBIRD']" 
+              v-for="item in ['', 'MURAI_BATU', 'KACER', 'CUCAK_IJO', 'KENARI', 'ANIS_KEMBANG', 'LOVE_BIRD']" 
               :key="item"
               @click="tempJenisBurung = item"
               :class="tempJenisBurung === item ? 'bg-[#2E42B2] text-white border-[#2E42B2]' : 'bg-[#E8EDF5] text-[#2E42B2] border-transparent'"
@@ -251,10 +254,10 @@ const toggleSidebar = () => isSidebarOpen.value = !isSidebarOpen.value
 
         <!-- Sort By -->
         <div class="mb-10">
-          <h3 class="text-base font-bold text-[#2E42B2] mb-3">Sort By</h3>
+          <h3 class="text-base font-bold text-[#2E42B2] mb-3">Tanggal</h3>
           <div class="flex gap-2">
-            <button @click="tempSort = 'asc'" :class="tempSort === 'asc' ? 'bg-[#2E42B2] text-white' : 'bg-[#E8EDF5] text-[#2E42B2]'" class="px-6 py-2 rounded-xl text-xs font-semibold">Oldest</button>
-            <button @click="tempSort = 'desc'" :class="tempSort === 'desc' ? 'bg-[#2E42B2] text-white' : 'bg-[#E8EDF5] text-[#2E42B2]'" class="px-6 py-2 rounded-xl text-xs font-semibold">Newest</button>
+            <button @click="tempSort = 'asc'" :class="tempSort === 'asc' ? 'bg-[#2E42B2] text-white' : 'bg-[#E8EDF5] text-[#2E42B2]'" class="px-6 py-2 rounded-xl text-xs font-semibold">Terdekat</button>
+            <button @click="tempSort = 'desc'" :class="tempSort === 'desc' ? 'bg-[#2E42B2] text-white' : 'bg-[#E8EDF5] text-[#2E42B2]'" class="px-6 py-2 rounded-xl text-xs font-semibold">Terjauh</button>
           </div>
         </div>
 

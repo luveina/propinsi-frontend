@@ -82,10 +82,10 @@
   />
 
   <ErrorModal 
-    :show="showErrorModal" 
+    :show="isErrorModalOpen" 
     type="error"
     :message="errorMessage" 
-    @close="showErrorModal = false" 
+    @close="isErrorModalOpen = false" 
   />
 </template>
 
@@ -107,7 +107,9 @@ const emit = defineEmits(['close', 'success']);
 // States untuk Reset Password
 const showResetConfirm = ref(false);
 const showResetSuccess = ref(false);
-const showErrorModal = ref(false);
+
+// Error modal state
+const isErrorModalOpen = ref(false);
 const errorMessage = ref('');
 
 const title = computed(() => (props.isEdit ? 'Edit Akun' : 'Tambah Akun'));
@@ -146,7 +148,8 @@ const handleExecuteReset = async () => {
       showResetSuccess.value = true;
     }
   } catch (error) {
-    alert("Gagal mereset password: " + error);
+    errorMessage.value = "Gagal mereset password: " + error;
+    isErrorModalOpen.value = true;
   }
 };
 
@@ -164,7 +167,7 @@ const submitForm = async () => {
   // Validasi phoneNumber sebelum submit
   if (phoneNumberError.value) {
     errorMessage.value = phoneNumberError.value;
-    showErrorModal.value = true;
+    isErrorModalOpen.value = true;
     return;
   }
 
@@ -202,7 +205,7 @@ const submitForm = async () => {
     }
     
     errorMessage.value = message;
-    showErrorModal.value = true;
+    isErrorModalOpen.value = true;
   }
 };
 </script>
