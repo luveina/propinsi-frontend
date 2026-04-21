@@ -199,6 +199,14 @@
     @close="showConfirmModal = false"
     @confirm="executeSubmit"
   />
+
+  <ErrorModal
+    :show="isErrorModalOpen"
+    :type="errorType"
+    :message="errorMessage"
+    confirm-label="OK"
+    @close="isErrorModalOpen = false"
+  />
 </template>
 
 <script setup lang="ts">
@@ -207,6 +215,7 @@ import { useRouter } from 'vue-router';
 import { postCreateLomba, putUpdateLomba, getAvailableJuri, postAssignJuri } from '@/services/lomba.service';
 import type { UserSummary } from '@/interfaces/lomba.interface';
 import ConfirmLombaModal from '@/components/modals/ConfirmLombaModal.vue';
+import ErrorModal from '@/components/modals/ErrorModal.vue';
 
 const props = defineProps<{
   isEdit?: boolean;
@@ -221,6 +230,11 @@ const availableJuriList = ref<UserSummary[]>([]);
 const selectedJuriIds = ref<(number | null)[]>([null, null, null, null]);
 const jumlahJuara = ref(1);
 const showConfirmModal = ref(false);
+
+// Error modal state
+const isErrorModalOpen = ref(false);
+const errorMessage = ref('');
+const errorType = ref<'error' | 'success' | 'info'>('error');
 
 const form = reactive({
   namaLomba: '',
@@ -260,7 +274,10 @@ const hargaTiketDisplay = computed({
   }
 });
 
+const hasFetchedJuri = ref(false);
+
 const sanitizeSelectedJuri = () => {
+  if (!hasFetchedJuri.value) return; // tunggu sampai list juri di-fetch
   const availableIds = new Set(availableJuriList.value.map((juri) => juri.id));
   selectedJuriIds.value = selectedJuriIds.value.map((id) => {
     if (id === null) {
@@ -290,10 +307,11 @@ const updateHadiahArray = () => {
 onMounted(async () => {
   try {
     availableJuriList.value = await getAvailableJuri();
+    hasFetchedJuri.value = true;
     sanitizeSelectedJuri();
   } catch (error) {
     console.error("Gagal mengambil data juri", error);
-    alert("Gagal mengambil data juri. Pastikan Anda sudah login sebagai Koordinator Lomba.");
+    showError("Gagal mengambil data juri. Pastikan Anda sudah login sebagai Koordinator Lomba.");
   }
 });
 
@@ -329,18 +347,24 @@ const submitForm = async () => {
   // Validasi 4 juri harus dipilih semua
   const validJuriIds = selectedJuriIds.value.filter(id => id !== null) as number[];
   if (validJuriIds.length !== 4) {
-    alert("Harus memilih 4 juri!");
+    showError("Harus memilih 4 juri!");
     return;
   }
 
   // Validasi hadiah tidak boleh kosong atau 0
   if (form.hadiah.length === 0 || form.hadiah.some(h => h <= 0)) {
-    alert("Semua hadiah harus diisi dengan nominal yang valid!");
+    showError("Semua hadiah harus diisi dengan nominal yang valid!");
     return;
   }
 
   // Buka modal konfirmasi
   showConfirmModal.value = true;
+};
+
+const showError = (message: string) => {
+  errorMessage.value = message;
+  errorType.value = 'error';
+  isErrorModalOpen.value = true;
 };
 
 const executeSubmit = async () => {
@@ -374,7 +398,7 @@ const executeSubmit = async () => {
   } catch (error: any) {
     showConfirmModal.value = false;
     const errorMsg = error.response?.data?.message || error.message || "Terjadi kesalahan";
-    alert("Gagal menyimpan lomba: " + errorMsg);
+    showError("Gagal menyimpan lomba: " + errorMsg);
   } finally {
     isLoading.value = false;
   }

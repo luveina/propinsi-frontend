@@ -1,10 +1,10 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue'
+import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import Sidebar from '@/components/Sidebar.vue'
 import { useAuthStore } from '@/stores/auth/auth.store'
-import { getAllLomba, deleteLomba } from '@/services/lomba.service'
+import { getAllLomba, getLombaByJuri, deleteLomba } from '@/services/lomba.service'
 import type { LombaItem } from '@/services/lomba.service'
 
 const router = useRouter()
@@ -20,7 +20,7 @@ const notificationType = ref<'success' | 'error'>('success')
 const searchQuery = ref('')
 const filterJenisBurung = ref('')
 const filterStatus = ref('')
-const sortDir = ref('desc') // 'desc' = Newest, 'asc' = Oldest
+const sortDir = ref('asc')
 
 const isDeleteModalOpen = ref(false)
 const lombaToDelete = ref<LombaItem | null>(null)
@@ -30,11 +30,15 @@ const fetchLomba = async () => {
   loading.value = true
   error.value = null
   try {
-    lombaList.value = await getAllLomba({
+    // If user is a JURI, fetch only lombas where they are assigned as a judge
+    const fetchFunction = authStore.user?.role === 'JURI' ? getLombaByJuri : getAllLomba
+    
+    lombaList.value = await fetchFunction({
       jenisBurung: filterJenisBurung.value || undefined,
       status: filterStatus.value || undefined,
       sortBy: 'waktuTanggal',
       sortDir: sortDir.value,
+      nama: searchQuery.value || undefined,
     })
   } catch (e: any) {
     error.value = 'Gagal mengambil data lomba. Pastikan server berjalan.'
@@ -50,16 +54,14 @@ function onFilterChange() {
   fetchLomba()
 }
 
+// Watch for search query changes
+watch(searchQuery, () => {
+  fetchLomba()
+})
+
 // Client-side search filter
 const filteredLombaList = computed(() => {
-  if (!searchQuery.value.trim()) return lombaList.value
-  const q = searchQuery.value.toLowerCase()
-  return lombaList.value.filter(
-    (l) =>
-      l.namaLomba.toLowerCase().includes(q) ||
-      l.lokasi.toLowerCase().includes(q) ||
-      formatJenisBurung(l.jenisBurung).toLowerCase().includes(q),
-  )
+  return lombaList.value
 })
 
 // Helpers
@@ -114,7 +116,7 @@ function canEdit(status: string): boolean {
   return status === 'BELUM_DIMULAI' && authStore.user?.role === 'KOORDINATOR_LOMBA'
 }
 
-//actions
+// Actions
 function goToDetail(id: string) {
   router.push(`/katalog-lomba/${id}`)
 }
@@ -128,8 +130,7 @@ function goToEdit(id: string) {
 }
 
 function openDeleteModal(lomba: LombaItem) {
-  lombaToDelete.value = lomba
-  isDeleteModalOpen.value = true
+  // Lomba deletion is now handled in DetailLombaView
 }
 
 function closeDeleteModal() {
@@ -138,19 +139,7 @@ function closeDeleteModal() {
 }
 
 async function confirmDelete() {
-  if (!lombaToDelete.value) return
-  try {
-    await deleteLomba(lombaToDelete.value.id)
-    notification.value = `Lomba "${lombaToDelete.value.namaLomba}" berhasil dihapus`
-    notificationType.value = 'success'
-    await fetchLomba()
-  } catch {
-    notification.value = 'Gagal menghapus lomba. Coba lagi.'
-    notificationType.value = 'error'
-  } finally {
-    closeDeleteModal()
-    setTimeout(() => (notification.value = ''), 3000)
-  }
+  // Lomba deletion is now handled in DetailLombaView
 }
 </script>
 
@@ -281,15 +270,15 @@ async function confirmDelete() {
 
             <!-- Sort By -->
             <div class="flex flex-col gap-1">
-              <label class="text-[10px] text-[#2e42b2] font-bold font-plus-jakarta pl-0.5 uppercase tracking-wider">Sort By</label>
+              <label class="text-[10px] text-[#2e42b2] font-bold font-plus-jakarta pl-0.5 uppercase tracking-wider">Tanggal</label>
               <div class="relative">
                 <select
                   v-model="sortDir"
                   @change="onFilterChange"
                   class="appearance-none bg-[#E8EDF5] border border-[#2e42b2] text-[#2e42b2] text-sm rounded-lg pl-4 pr-9 py-2 focus:outline-none focus:ring-2 focus:ring-[#2e42b2] w-[160px] font-medium cursor-pointer"
                 >
-                  <option value="desc">Newest</option>
-                  <option value="asc">Oldest</option>
+                  <option value="desc">Terjauh</option>
+                  <option value="asc">Terdekat</option>
                 </select>
                 <svg class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-[#2e42b2] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                   <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
@@ -351,17 +340,6 @@ async function confirmDelete() {
               >
                 {{ getStatusStyle(lomba.status).label }}
               </span>
-              <!-- Edit icon -->
-              <button
-                v-if="canEdit(lomba.status)"
-                @click.stop="goToEdit(lomba.id)"
-                class="ml-1 text-blue-200 hover:text-white transition-colors cursor-pointer"
-                title="Edit Lomba"
-              >
-                <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15.232 5.232l3.536 3.536M9 13l6.586-6.586a2 2 0 112.828 2.828L11.828 15.828a2 2 0 01-1.415.586H8v-2.414a2 2 0 01.586-1.414z" />
-                </svg>
-              </button>
             </div>
 
             <!-- Card Body — white -->
@@ -405,16 +383,6 @@ async function confirmDelete() {
                 >
                   Detail
                 </button>
-                <button
-                  v-if="canEdit(lomba.status)"
-                  @click="openDeleteModal(lomba)"
-                  class="bg-[#ec221f] hover:bg-red-700 text-white text-sm font-bold px-6 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors cursor-pointer w-full font-plus-jakarta"
-                >
-                  <svg class="w-4 h-4 shrink-0" fill="currentColor" viewBox="0 0 24 24">
-                    <path d="M6 19c0 1.1.9 2 2 2h8c1.1 0 2-.9 2-2V7H6v12zM19 4h-3.5l-1-1h-5l-1 1H5v2h14V4z" />
-                  </svg>
-                  Hapus
-                </button>
               </div>
             </div>
           </div>
@@ -424,35 +392,6 @@ async function confirmDelete() {
     </div>
   </div>
 
-  <!-- Delete Confirmation Modal -->
-  <Teleport to="body">
-    <div
-      v-if="isDeleteModalOpen"
-      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-      @click.self="closeDeleteModal"
-    >
-      <div class="bg-white rounded-2xl p-8 w-[360px] mx-4 shadow-lg border border-gray-200 font-plus-jakarta text-center">
-        <h3 class="text-xl font-bold text-[#2E42B2] mb-3">Hapus Lomba</h3>
-        <p class="text-sm text-gray-600 mb-8 leading-relaxed">
-          Apakah Anda yakin ingin menghapus <strong>{{ lombaToDelete?.namaLomba }}</strong>?
-        </p>
-        <div class="flex gap-3">
-          <button
-            @click="closeDeleteModal"
-            class="flex-1 py-2.5 rounded-xl border border-gray-300 text-gray-600 text-sm font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
-          >
-            Kembali
-          </button>
-          <button
-            @click="confirmDelete"
-            class="flex-1 py-2.5 rounded-xl bg-[#2E42B2] text-white text-sm font-semibold hover:bg-[#1c2d8f] transition-colors cursor-pointer"
-          >
-            Hapus
-          </button>
-        </div>
-      </div>
-    </div>
-  </Teleport>
 </template>
 
 <style scoped>

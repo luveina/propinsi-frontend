@@ -54,6 +54,7 @@ export interface LombaFilterParams {
   status?: string
   sortBy?: string
   sortDir?: string
+  nama?: string
 }
 
 export interface LombaItem {
@@ -80,6 +81,14 @@ export interface LombaItem {
 
 export const getAllLomba = async (params?: LombaFilterParams) => {
   const response = await axios.get(API_URL, {
+    headers: getAuthHeaders(),
+    params,
+  });
+  return response.data;
+};
+
+export const getLombaByJuri = async (params?: LombaFilterParams) => {
+  const response = await axios.get(`${API_URL}/by-juri`, {
     headers: getAuthHeaders(),
     params,
   });
