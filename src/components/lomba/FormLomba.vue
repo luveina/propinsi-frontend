@@ -79,14 +79,26 @@
         <div>
           <label class="block text-sm font-semibold mb-2 text-[#1E3A8A]">Harga Tiket <span class="text-red-500">*</span></label>
           <input
-            v-model.number="form.hargaTiket"
-            type="number"
-            min="0"
+            v-model="hargaTiketDisplay"
+            type="text"
+            inputmode="numeric"
             class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400"
-            placeholder="Rp -"
+            placeholder="Rp 0"
             required
           />
         </div>
+      </div>
+
+      <!-- Row 4: Deskripsi Lomba -->
+      <div>
+        <label class="block text-sm font-semibold mb-2 text-[#1E3A8A]">Deskripsi Lomba <span class="text-red-500">*</span></label>
+        <textarea
+          v-model="form.deskripsi"
+          rows="4"
+          class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 resize-y"
+          placeholder="Tulis deskripsi lomba"
+          required
+        ></textarea>
       </div>
 
       <!-- Juri Section: 4 dropdown -->
@@ -145,16 +157,17 @@
             <label class="block text-sm font-semibold mb-2 text-[#1E3A8A]">Hadiah per Juara</label>
             <div class="space-y-2">
               <div v-for="(prize, index) in form.hadiah" :key="index" class="flex items-center gap-2">
-                <span class="text-xs font-semibold text-[#1E3A8A] w-14 shrink-0">Juara {{ index + 1 }} <span class="text-red-500">*</span></span>
-                <input
-                  v-model.number="form.hadiah[index]"
-                  type="number"
-                  min="0"
-                  class="flex-1 border border-[#2D48C8] rounded-lg px-3 py-2 bg-[#DEE8FB] text-[#1C244F] font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
-                  placeholder="Rp -"
-                  required
-                />
-              </div>
+              <span class="text-xs font-semibold text-[#1E3A8A] w-14 shrink-0">Juara {{ index + 1 }} <span class="text-red-500">*</span></span>
+              <input
+                :value="formatRupiah(prize ?? 0)"
+                @input="(e) => updateHadiahValue(index, (e.target as HTMLInputElement).value)"
+                type="text"
+                inputmode="numeric"
+                class="flex-1 border border-[#2D48C8] rounded-lg px-3 py-2 bg-[#DEE8FB] text-[#1C244F] font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                placeholder="Rp 0"
+                required
+              />
+            </div>
             </div>
           </div>
         </div>
@@ -186,14 +199,23 @@
     @close="showConfirmModal = false"
     @confirm="executeSubmit"
   />
+
+  <ErrorModal
+    :show="isErrorModalOpen"
+    :type="errorType"
+    :message="errorMessage"
+    confirm-label="OK"
+    @close="isErrorModalOpen = false"
+  />
 </template>
 
 <script setup lang="ts">
-import { reactive, ref, onMounted, watch } from 'vue';
+import { computed, reactive, ref, onMounted, watch } from 'vue';
 import { useRouter } from 'vue-router';
 import { postCreateLomba, putUpdateLomba, getAvailableJuri, postAssignJuri } from '@/services/lomba.service';
 import type { UserSummary } from '@/interfaces/lomba.interface';
 import ConfirmLombaModal from '@/components/modals/ConfirmLombaModal.vue';
+import ErrorModal from '@/components/modals/ErrorModal.vue';
 
 const props = defineProps<{
   isEdit?: boolean;
@@ -209,6 +231,11 @@ const selectedJuriIds = ref<(number | null)[]>([null, null, null, null]);
 const jumlahJuara = ref(1);
 const showConfirmModal = ref(false);
 
+// Error modal state
+const isErrorModalOpen = ref(false);
+const errorMessage = ref('');
+const errorType = ref<'error' | 'success' | 'info'>('error');
+
 const form = reactive({
   namaLomba: '',
   lokasi: '',
@@ -216,10 +243,49 @@ const form = reactive({
   jenisBurung: '',
   kelas: '',
   hargaTiket: 0,
+  deskripsi: '',
   hadiah: [0] as number[],
   jumlahJuri: 4, // Fixed 4 juri sesuai Figma
-  contactPerson: ''
+  contactPerson: '',
 });
+
+const formatRupiah = (value?: number) => {
+  const numericValue = typeof value === 'number' ? value : 0;
+  const safeValue = Number.isFinite(numericValue) ? Math.max(0, Math.floor(numericValue)) : 0;
+  return `Rp ${new Intl.NumberFormat('id-ID').format(safeValue)}`;
+};
+
+const parseRupiah = (value: string) => {
+  const digitsOnly = value.replace(/\D/g, '');
+  if (!digitsOnly) return 0;
+
+  const parsed = Number.parseInt(digitsOnly, 10);
+  return Number.isNaN(parsed) ? 0 : parsed;
+};
+
+const updateHadiahValue = (index: number, value: string) => {
+  form.hadiah[index] = parseRupiah(value);
+};
+
+const hargaTiketDisplay = computed({
+  get: () => formatRupiah(form.hargaTiket),
+  set: (input: string) => {
+    form.hargaTiket = parseRupiah(input);
+  }
+});
+
+const hasFetchedJuri = ref(false);
+
+const sanitizeSelectedJuri = () => {
+  if (!hasFetchedJuri.value) return; // tunggu sampai list juri di-fetch
+  const availableIds = new Set(availableJuriList.value.map((juri) => juri.id));
+  selectedJuriIds.value = selectedJuriIds.value.map((id) => {
+    if (id === null) {
+      return null;
+    }
+    return availableIds.has(id) ? id : null;
+  });
+};
 
 // Update hadiah array based on jumlahJuara
 const updateHadiahArray = () => {
@@ -241,9 +307,11 @@ const updateHadiahArray = () => {
 onMounted(async () => {
   try {
     availableJuriList.value = await getAvailableJuri();
+    hasFetchedJuri.value = true;
+    sanitizeSelectedJuri();
   } catch (error) {
     console.error("Gagal mengambil data juri", error);
-    alert("Gagal mengambil data juri. Pastikan Anda sudah login sebagai Koordinator Lomba.");
+    showError("Gagal mengambil data juri. Pastikan Anda sudah login sebagai Koordinator Lomba.");
   }
 });
 
@@ -256,6 +324,7 @@ watch(() => props.editData, (newData) => {
     form.jenisBurung = newData.jenisBurung;
     form.kelas = newData.kelas;
     form.hargaTiket = newData.hargaTiket;
+    form.deskripsi = newData.deskripsi ?? '';
     form.hadiah = newData.hadiah && Array.isArray(newData.hadiah) ? [...newData.hadiah] : [0];
     jumlahJuara.value = form.hadiah.length;
     form.jumlahJuri = 4; // Always 4 juri
@@ -269,6 +338,7 @@ watch(() => props.editData, (newData) => {
           selectedJuriIds.value[index] = juri.id;
         }
       });
+      sanitizeSelectedJuri();
     }
   }
 }, { immediate: true });
@@ -277,18 +347,24 @@ const submitForm = async () => {
   // Validasi 4 juri harus dipilih semua
   const validJuriIds = selectedJuriIds.value.filter(id => id !== null) as number[];
   if (validJuriIds.length !== 4) {
-    alert("Harus memilih 4 juri!");
+    showError("Harus memilih 4 juri!");
     return;
   }
 
   // Validasi hadiah tidak boleh kosong atau 0
   if (form.hadiah.length === 0 || form.hadiah.some(h => h <= 0)) {
-    alert("Semua hadiah harus diisi dengan nominal yang valid!");
+    showError("Semua hadiah harus diisi dengan nominal yang valid!");
     return;
   }
 
   // Buka modal konfirmasi
   showConfirmModal.value = true;
+};
+
+const showError = (message: string) => {
+  errorMessage.value = message;
+  errorType.value = 'error';
+  isErrorModalOpen.value = true;
 };
 
 const executeSubmit = async () => {
@@ -322,7 +398,7 @@ const executeSubmit = async () => {
   } catch (error: any) {
     showConfirmModal.value = false;
     const errorMsg = error.response?.data?.message || error.message || "Terjadi kesalahan";
-    alert("Gagal menyimpan lomba: " + errorMsg);
+    showError("Gagal menyimpan lomba: " + errorMsg);
   } finally {
     isLoading.value = false;
   }

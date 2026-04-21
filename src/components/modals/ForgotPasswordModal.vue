@@ -12,7 +12,7 @@
           </button>
         </div>
         <p class="modal-body">
-          Hubungi Admin melalui nomor<br />WhatsApp <b>+62-xxx-xxxx-xxxx</b> untuk melakukan reset password!
+          Hubungi Admin melalui nomor<br />WhatsApp <b>081234567890</b> untuk melakukan reset password!
         </p>
       </div>
     </div>
