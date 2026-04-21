@@ -1,13 +1,28 @@
 <template>
   <div class="min-h-screen bg-[#F4F7FE] font-plus-jakarta flex flex-col">
-    <!-- ============================== -->
+    <Teleport to="body">
+      <Transition name="fade">
+        <div v-if="!isDesktop && isSidebarOpen" 
+             @click="isSidebarOpen = false"
+             class="fixed inset-0 bg-black/50 z-[60] backdrop-blur-sm">
+        </div>
+      </Transition>
+
+      <Transition name="slide">
+        <div v-if="!isDesktop && isSidebarOpen" class="fixed inset-y-0 left-0 z-[70] w-64 shadow-2xl">
+          <Sidebar />
+        </div>
+      </Transition>
+    </Teleport>
+
+    <!-- ============================================================ -->
     <!-- LAYOUT DESKTOP (Admin & Koordinator) -->
-    <!-- ============================== -->
+    <!-- ============================================================ -->
     <div v-if="isDesktop" class="flex flex-1">
       <Sidebar />
 
       <div class="flex-1 flex flex-col min-w-0">
-        <Header />
+        <Header /> 
 
         <main class="p-8 pb-20 flex-1">
           <h1 class="text-2xl font-bold text-[#2E42B2] mb-6 text-left">Profil Akun</h1>
@@ -25,7 +40,6 @@
                 <div class="w-full bg-[#6D9BED] border border-[#2D48C8] rounded-lg px-4 py-2.5 shadow-sm">
                   <span class="font-bold text-[#1E3A8A] text-base">{{ profile.username }}</span>
                 </div>
-                <p class="text-[10px] text-[#4B79E6] font-medium">Username tidak bisa diubah</p>
               </div>
 
               <div class="flex flex-col gap-1">
@@ -44,21 +58,14 @@
 
               <div class="flex flex-col gap-1">
                 <label class="text-sm font-bold text-[#1E3A8A]">Role</label>
-                <div class="w-full bg-[#DEE8FB] border border-[#2D48C8] rounded-lg px-4 py-2.5 text-[#1C244F] font-semibold text-base">
-                  {{ profile.role }}
+                <div class="w-full bg-[#DEE8FB] border border-[#2D48C8] rounded-lg px-4 py-2.5 text-[#1C244F] font-semibold text-base uppercase">
+                  {{ formatRole(profile.role) }}
                 </div>
               </div>
 
-              <button
-                @click="showChangePasswordModal = true"
-                class="w-full bg-[#2E42B2] text-white font-bold py-2.5 rounded-lg hover:bg-blue-800 transition-all shadow-md mt-4 cursor-pointer text-sm"
-              >
+              <button @click="showChangePasswordModal = true" class="w-full bg-[#2E42B2] text-white font-bold py-2.5 rounded-lg hover:bg-blue-800 transition-all shadow-md mt-4 cursor-pointer text-sm">
                 Ganti Password
               </button>
-
-              <p class="text-center text-[#4B79E6] font-medium text-xs mt-4">
-                Harap Hubungi Admin (0812-3456-7890) untuk Pengubahan Detail Akun Lainnya.
-              </p>
             </div>
           </div>
         </main>
@@ -69,15 +76,11 @@
     <!-- LAYOUT MOBILE (Juri & Peserta) -->
     <!-- ============================================================ -->
     <div v-else class="flex flex-col min-h-screen bg-white">
-      <header class="bg-[#314EAE] py-4 px-5 flex items-center justify-between text-white shadow-md">
-        <button class="p-1 cursor-pointer">
-          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"></path></svg>
-        </button>
-        <h1 class="text-xl font-bold">Profil Akun</h1>
-        <div class="w-9 h-9 rounded-full bg-white/20 border border-white/40 overflow-hidden flex items-center justify-center">
-            <img :src="`https://ui-avatars.com/api/?name=${profile.fullName || 'User'}`" alt="avatar" />
-        </div>
-      </header>
+      
+      <HeaderMobile 
+        title="Profil Akun" 
+        @menu-click="isSidebarOpen = true" 
+      />
 
       <main class="p-8 pb-12 flex-1">
         <h2 class="text-2xl font-bold text-[#2E42B2] mb-8 text-left">Informasi Akun</h2>
@@ -92,7 +95,6 @@
                 <div class="w-full bg-[#6D9BED] border border-[#2D48C8] rounded-lg px-4 py-2">
                   <span class="font-bold text-[#1E3A8A] text-sm">{{ profile.username }}</span>
                 </div>
-                <p class="text-[9px] text-[#4B79E6] font-bold">Username tidak bisa diubah</p>
               </div>
 
               <div class="flex flex-col gap-1">
@@ -140,21 +142,8 @@
     </div>
 
     <!-- MODALS -->
-    <ModalGantiPassword
-      :show="showChangePasswordModal"
-      @close="showChangePasswordModal = false"
-      @success="handlePasswordSuccess"
-      @error="handlePasswordError"
-    />
-
-    <ErrorModal
-      :show="statusModal.show"
-      :type="statusModal.type"
-      :message="statusModal.message"
-      confirm-label="Kembali"
-      @confirm="statusModal.show = false"
-      @close="statusModal.show = false"
-    />
+    <ModalGantiPassword :show="showChangePasswordModal" @close="showChangePasswordModal = false" @success="handlePasswordSuccess" @error="handlePasswordError" />
+    <ErrorModal :show="statusModal.show" :type="statusModal.type" :message="statusModal.message" @confirm="statusModal.show = false" @close="statusModal.show = false" />
   </div>
 </template>
 
@@ -162,6 +151,8 @@
 import { ref, onMounted, reactive } from 'vue';
 import Sidebar from '@/components/Sidebar.vue';
 import Header from '@/components/Header.vue';
+import HeaderMobile from '@/components/HeaderMobile.vue';
+
 import ModalGantiPassword from '@/components/modals/ModalGantiPassword.vue';
 import ErrorModal from '@/components/modals/ErrorModal.vue';
 import { useBreakpoint } from '@/composables/useBreakpoint';
@@ -172,13 +163,13 @@ import { useRouter } from 'vue-router'
 const { isDesktop } = useBreakpoint();
 const authStore = useAuthStore();
 const router = useRouter();
+const isSidebarOpen = ref(false);
 
 const profile = ref({ username: '', fullName: '', phoneNumber: '', role: '' });
 const showChangePasswordModal = ref(false);
 const statusModal = reactive({ show: false, type: 'success' as 'success' | 'error', message: '' });
 const loading = ref(true);
 
-// Helper untuk membersihkan tampilan role
 const roleLabels: Record<string, string> = {
   ADMIN: 'ADMIN',
   JURI: 'JURI',
@@ -187,9 +178,7 @@ const roleLabels: Record<string, string> = {
   PESERTA: 'PESERTA'
 };
 
-const formatRole = (role: string) => {
-  return roleLabels[role] || role.replace(/_/g, ' ');
-};
+const formatRole = (role: string) => roleLabels[role] || role.replace(/_/g, ' ');
 
 const loadProfile = async () => {
   loading.value = true;
@@ -200,8 +189,6 @@ const loadProfile = async () => {
     if (error.response?.status === 401) {
       authStore.logout();
       router.push({ name: 'login', query: { alert: 'session_expired' } });
-    } else {
-      console.error("Gagal memuat profil", error);
     }
   } finally {
     loading.value = false;
@@ -227,6 +214,9 @@ function handleLogout() { authStore.logout(); }
 </script>
 
 <style scoped>
-@import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
 .font-plus-jakarta { font-family: 'Plus Jakarta Sans', sans-serif; }
+.slide-enter-active, .slide-leave-active { transition: transform 0.3s ease; }
+.slide-enter-from, .slide-leave-to { transform: translateX(-100%); }
+.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
+.fade-enter-from, .fade-leave-to { opacity: 0; }
 </style>
