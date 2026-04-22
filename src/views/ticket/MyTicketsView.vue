@@ -25,6 +25,11 @@ const { tickets, loading, error } = storeToRefs(ticketStore)
 const now = ref(Date.now())
 let interval: any
 
+const parseUtcMillis = (rawDate: string) => {
+  const hasTimezone = /([zZ]|[+\-]\d{2}:\d{2})$/.test(rawDate)
+  return new Date(hasTimezone ? rawDate : `${rawDate}Z`).getTime()
+}
+
 onMounted(() => {
   ticketStore.fetchMyTickets()
   interval = setInterval(() => {
@@ -44,7 +49,7 @@ const filteredTickets = computed(() => {
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getEffectiveStatus = (t: any) => {
     if (t.status !== 'Unpaid') return t.status
-    const reservasiTime = new Date(t.waktu_reservasi + 'Z').getTime() // ← tambah 'Z'
+    const reservasiTime = parseUtcMillis(t.waktu_reservasi)
     return (now.value - reservasiTime > 2 * 60 * 60 * 1000) ? 'Expired' : 'Unpaid'
   }
 
@@ -58,8 +63,8 @@ const filteredTickets = computed(() => {
   }
 
   result.sort((a, b) => {
-    const da = new Date(a.waktu_reservasi).getTime()
-    const db = new Date(b.waktu_reservasi).getTime()
+    const da = parseUtcMillis(a.waktu_reservasi)
+    const db = parseUtcMillis(b.waktu_reservasi)
     return activeSort.value === 'newest' ? db - da : da - db
   })
 
