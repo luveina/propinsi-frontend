@@ -35,7 +35,7 @@ import { useRouter, useRoute } from 'vue-router';
 import Sidebar from '@/components/Sidebar.vue';
 import Header from '@/components/Header.vue';
 import FormLomba from '@/components/lomba/FormLomba.vue';
-import { getLombaById } from '@/services/lomba.service';
+import { getLombaDetail } from '@/services/lomba.service';
 
 const router = useRouter();
 const route = useRoute();
@@ -46,7 +46,7 @@ const errorLoad = ref('');
 onMounted(async () => {
   try {
     const id = route.params.id as string;
-    lombaData.value = await getLombaById(id);
+    lombaData.value = await getLombaDetail(id);
   } catch (error: any) {
     errorLoad.value = error.response?.data?.message || 'Gagal memuat data lomba.';
   } finally {

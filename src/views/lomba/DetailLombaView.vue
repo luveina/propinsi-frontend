@@ -49,7 +49,7 @@
                 <div class="flex items-center gap-4 mb-3">
                   <h2 class="text-[32px] font-extrabold text-[#2E42B2] uppercase">{{ lomba.namaLomba }}</h2>
                   <!-- Status tidak capslock -->
-                  <span class="px-5 py-1 rounded-full text-[12px] font-bold text-white shadow-sm" 
+                  <span class="px-5 py-1 rounded-full text-[12px] font-bold text-white shadow-sm"
                     :style="{ backgroundColor: getStatusStyle(lomba.status).bg }">
                     {{ getStatusLabel(lomba.status) }}
                   </span>
@@ -67,15 +67,15 @@
                     :class="lomba.isEditable ? 'bg-[#2E42B2] text-white hover:bg-blue-800 active:scale-95 cursor-pointer' : 'bg-gray-200 text-gray-400 cursor-not-allowed'">
                     Edit Lomba
                   </button>
-                  <button @click="openDeleteModal" :disabled="!lomba.isEditable"
+                  <button @click="openDeleteModal" :disabled="!lomba.canDeleteLomba"
                     class="w-48 py-3 rounded-xl font-bold text-sm transition shadow-md"
-                    :class="lomba.isEditable ? 'bg-[#2E42B2] text-white hover:bg-blue-800 active:scale-95 cursor-pointer' : 'bg-gray-200 text-gray-400 cursor-not-allowed'">
+                    :class="lomba.canDeleteLomba ? 'bg-[#2E42B2] text-white hover:bg-blue-800 active:scale-95 cursor-pointer' : 'bg-gray-200 text-gray-400 cursor-not-allowed'">
                     Hapus Lomba
                   </button>
                 </template>
 
                 <template v-else-if="userRole === 'PESERTA' || userRole === 'JURI'">
-                  <button 
+                  <button
                     :disabled="buttonStatus.disabled"
                     @click="handleButtonClick"
                     class="w-48 py-4 rounded-xl font-bold text-sm transition-all shadow-lg"
@@ -184,14 +184,14 @@
         </div>
 
         <div v-else class="space-y-6">
-          
+
           <!-- SEKSI JURI MOBILE -->
           <div v-if="userRole === 'JURI'" class="border-2 border-[#DEE8FB] rounded-[32px] p-6 shadow-sm space-y-6">
             <div class="text-center space-y-2">
               <h2 class="text-[24px] font-extrabold text-[#2E42B2] uppercase leading-tight">{{ lomba.namaLomba }}</h2>
               <div class="flex justify-center">
                 <!-- Status tidak capslock -->
-                <span class="inline-block px-5 py-1 rounded-full text-[10px] font-bold text-white shadow-sm" 
+                <span class="inline-block px-5 py-1 rounded-full text-[10px] font-bold text-white shadow-sm"
                   :style="{ backgroundColor: getStatusStyle(lomba.status).bg }">
                   {{ getStatusLabel(lomba.status) }}
                 </span>
@@ -224,7 +224,7 @@
             <div class="bg-[#DEE8FB] border border-[#2E42B2] rounded-[24px] p-6 text-center shadow-inner">
                <p class="text-[14px] text-[#2E42B2] font-bold flex flex-col items-center">
                   <span class="tracking-wide">Tersisa</span>
-                  <span class="text-5xl font-extrabold my-1">{{ availableCount }}</span> 
+                  <span class="text-5xl font-extrabold my-1">{{ availableCount }}</span>
                   <span class="text-[13px] opacity-80">dari {{ lomba.jumlahGantangan || 24 }} nomor gantangan</span>
                </p>
             </div>
@@ -248,7 +248,7 @@
             <div class="border-2 border-[#DEE8FB] rounded-[24px] p-6 shadow-sm flex flex-col">
               <h2 class="text-[20px] font-bold text-[#2E42B2] mb-1">{{ lomba.namaLomba }}</h2>
               <div class="mb-3">
-                <span class="inline-block px-5 py-1 rounded-full text-[10px] font-bold text-white shadow-sm" 
+                <span class="inline-block px-5 py-1 rounded-full text-[10px] font-bold text-white shadow-sm"
                   :style="{ backgroundColor: getStatusStyle(lomba.status).bg }">
                   {{ getStatusLabel(lomba.status) }}
                 </span>
@@ -402,7 +402,7 @@ const loadData = async () => {
   loading.value = true;
   try {
     const data = await getLombaDetail(lombaId);
-    
+
     // VALIDASI JURI
     if (userRole.value === 'JURI') {
       const isAssigned = data.listJuri?.some((j: any) => String(j.id) === String(userStore.id));
@@ -412,7 +412,7 @@ const loadData = async () => {
         return;
       }
     }
-    
+
     lomba.value = data;
   } catch (e: any) {
     if (e.response?.status === 403) {
@@ -447,7 +447,7 @@ const confirmDelete = async () => {
     await deleteLomba(lombaId);
     closeDeleteModal();
     router.push('/katalog-lomba');
-  } catch (e: any) { 
+  } catch (e: any) {
     closeDeleteModal();
     if (e.response?.status === 400) {
       notification.value = e.response.data?.message || 'Lomba tidak dapat dihapus karena sudah ada peserta mendaftar.';
@@ -493,10 +493,10 @@ const buttonStatus = computed(() => {
   if (userRole.value === 'JURI') {
     const isAssigned = lomba.value.listJuri?.some((j: any) => j.id === userStore.id) || false;
     const canScore = lomba.value.status === 'BERLANGSUNG' && isAssigned;
-    return { 
-      text: canScore ? 'MULAI PENILAIAN' : 'PENILAIAN BELUM DIBUKA', 
-      disabled: !canScore, 
-      theme: 'blue' 
+    return {
+      text: canScore ? 'MULAI PENILAIAN' : 'PENILAIAN BELUM DIBUKA',
+      disabled: !canScore,
+      theme: 'blue'
     };
   }
   if (lomba.value.status === 'SELESAI') return { text: 'LIHAT PEMENANG', disabled: false, theme: 'blue' };

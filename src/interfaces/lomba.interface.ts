@@ -39,6 +39,8 @@ export interface LombaDetailResponse {
   contactPerson: string;
   status: string;
   isEditable: boolean;
+  canDeleteLomba: boolean;
+  hasReservations: boolean;
   isReservable: boolean;
   canToggleOngoing: boolean;
   canStartJudging: boolean;

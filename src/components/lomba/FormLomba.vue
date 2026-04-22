@@ -7,7 +7,8 @@
           <input
             v-model="form.namaLomba"
             type="text"
-            class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400"
+            :disabled="isFieldsDisabled"
+            class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder="Nama Lomba"
             required
           />
@@ -17,7 +18,8 @@
           <input
             v-model="form.lokasi"
             type="text"
-            class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400"
+            :disabled="isFieldsDisabled"
+            class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder="Lokasi"
             required
           />
@@ -31,7 +33,8 @@
           <input
             v-model="form.waktuTanggal"
             type="datetime-local"
-            class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400"
+            :disabled="isFieldsDisabled"
+            class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
             required
           />
         </div>
@@ -40,7 +43,8 @@
           <div class="relative">
             <select
               v-model="form.jenisBurung"
-              class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none"
+              :disabled="isFieldsDisabled"
+              class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
               required
             >
               <option value="" disabled>Jenis Burung</option>
@@ -63,7 +67,8 @@
           <div class="relative">
             <select
               v-model="form.kelas"
-              class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none"
+              :disabled="isFieldsDisabled"
+              class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none disabled:opacity-50 disabled:cursor-not-allowed"
               required
             >
               <option value="" disabled>Pilih Kelas</option>
@@ -82,7 +87,8 @@
             v-model="hargaTiketDisplay"
             type="text"
             inputmode="numeric"
-            class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400"
+            :disabled="isFieldsDisabled"
+            class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder="Rp 0"
             required
           />
@@ -94,8 +100,9 @@
         <label class="block text-sm font-semibold mb-2 text-[#1E3A8A]">Deskripsi Lomba <span class="text-red-500">*</span></label>
         <textarea
           v-model="form.deskripsi"
+          :disabled="isFieldsDisabled"
           rows="4"
-          class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 resize-y"
+          class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 resize-y disabled:opacity-50 disabled:cursor-not-allowed"
           placeholder="Tulis deskripsi lomba"
           required
         ></textarea>
@@ -108,6 +115,7 @@
           <div class="relative">
             <select
               v-model="selectedJuriIds[juriIndex - 1]"
+              :disabled="isJuriDisabled"
               class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 appearance-none"
               required
             >
@@ -133,7 +141,8 @@
           <input
             v-model="form.contactPerson"
             type="text"
-            class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400"
+            :disabled="isFieldsDisabled"
+            class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-semibold focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
             placeholder="Nama - Nomor WA"
             required
           />
@@ -148,8 +157,9 @@
               type="number"
               min="1"
               max="10"
+              :disabled="isFieldsDisabled"
               @input="updateHadiahArray"
-              class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-bold text-center focus:outline-none focus:ring-2 focus:ring-blue-400"
+              class="w-full border border-[#2D48C8] rounded-lg px-4 py-2.5 bg-[#DEE8FB] text-[#1C244F] font-bold text-center focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
               required
             />
           </div>
@@ -160,10 +170,11 @@
               <span class="text-xs font-semibold text-[#1E3A8A] w-14 shrink-0">Juara {{ index + 1 }} <span class="text-red-500">*</span></span>
               <input
                 :value="formatRupiah(prize ?? 0)"
+                :disabled="isFieldsDisabled"
                 @input="(e) => updateHadiahValue(index, (e.target as HTMLInputElement).value)"
                 type="text"
                 inputmode="numeric"
-                class="flex-1 border border-[#2D48C8] rounded-lg px-3 py-2 bg-[#DEE8FB] text-[#1C244F] font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-blue-400"
+                class="flex-1 border border-[#2D48C8] rounded-lg px-3 py-2 bg-[#DEE8FB] text-[#1C244F] font-semibold text-sm focus:outline-none focus:ring-2 focus:ring-blue-400 disabled:opacity-50 disabled:cursor-not-allowed"
                 placeholder="Rp 0"
                 required
               />
@@ -185,7 +196,7 @@
         <button
           type="submit"
           class="bg-[#2E42B2] text-white px-8 py-2.5 rounded-lg font-bold hover:bg-blue-900 transition min-w-[160px] text-sm"
-          :disabled="isLoading"
+          :disabled="isSubmitDisabled"
         >
           {{ isLoading ? 'Loading...' : (isEdit ? 'Simpan Perubahan' : 'Buat Lomba') }}
         </button>
@@ -223,6 +234,24 @@ const props = defineProps<{
 }>();
 
 const emit = defineEmits(['cancel', 'success']);
+
+const isBelumDimulai = computed(() => {
+  return !props.isEdit || props.editData?.status === 'BELUM_DIMULAI';
+});
+
+// Non-juri fields are locked if there are active reservations, or if lomba is no longer BELUM_DIMULAI.
+const isFieldsDisabled = computed(() => {
+  return props.isEdit && (props.editData?.hasReservations === true || !isBelumDimulai.value);
+});
+
+// Juri can be edited only until lomba is declared BERLANGSUNG.
+const isJuriDisabled = computed(() => {
+  return props.isEdit && !isBelumDimulai.value;
+});
+
+const isSubmitDisabled = computed(() => {
+  return isLoading.value || (props.isEdit && !isBelumDimulai.value);
+});
 const router = useRouter();
 
 const isLoading = ref(false);
@@ -344,6 +373,11 @@ watch(() => props.editData, (newData) => {
 }, { immediate: true });
 
 const submitForm = async () => {
+  if (props.isEdit && !isBelumDimulai.value) {
+    showError("Edit juri hanya dapat dilakukan sebelum lomba dinyatakan berlangsung.");
+    return;
+  }
+
   // Validasi 4 juri harus dipilih semua
   const validJuriIds = selectedJuriIds.value.filter(id => id !== null) as number[];
   if (validJuriIds.length !== 4) {
@@ -381,7 +415,10 @@ const executeSubmit = async () => {
     let lombaIdToAssign = '';
 
     if (props.isEdit) {
-      await putUpdateLomba(props.editData.id, payloadLomba);
+      // Jika ada reservasi, skip update lomba fields - hanya update juri
+      if (!props.editData?.hasReservations) {
+        await putUpdateLomba(props.editData.id, payloadLomba);
+      }
       lombaIdToAssign = props.editData.id;
     } else {
       const newLomba = await postCreateLomba(payloadLomba);
