@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { computed, ref, onMounted, onUnmounted } from 'vue' 
+import { computed, ref, onMounted, onUnmounted } from 'vue'
 import { useRouter } from 'vue-router'
 import { Icon } from '@iconify/vue'
 import type { Ticket } from '@/interfaces/ticket.interface'
@@ -13,7 +13,7 @@ let timer: any
 onMounted(() => {
   timer = setInterval(() => {
     now.value = Date.now()
-  }, 10000) 
+  }, 10000)
 })
 
 onUnmounted(() => {
@@ -23,9 +23,9 @@ onUnmounted(() => {
 const effectiveStatus = computed(() => {
   if (props.ticket.status !== 'Unpaid') return props.ticket.status
 
-  const reservasiTime = new Date(props.ticket.waktu_reservasi).getTime()
-  const limit = 2 * 60 * 60 * 1000 
-  
+  const reservasiTime = new Date(props.ticket.waktu_reservasi + 'Z').getTime()
+  const limit = 2 * 60 * 60 * 1000
+
   if (now.value - reservasiTime > limit) {
     return 'Expired'
   }
@@ -41,7 +41,7 @@ const badgeClass = computed(() => {
     Invalid: 'bg-[#d93e39] text-[#fac5c3]',
     Expired: 'bg-[#d93e39] text-[#fac5c3]',
   }
-  return map[effectiveStatus.value] ?? '' 
+  return map[effectiveStatus.value] ?? ''
 })
 
 const badgeLabel = computed(() => {
@@ -52,7 +52,7 @@ const badgeLabel = computed(() => {
     Invalid: 'Invalid',
     Expired: 'Expired',
   }
-  return map[effectiveStatus.value] ?? effectiveStatus.value 
+  return map[effectiveStatus.value] ?? effectiveStatus.value
 })
 
 const messageText = computed(() => {
@@ -60,8 +60,8 @@ const messageText = computed(() => {
     case 'Paid': return 'Pembayaran terkonfirmasi. Harap unduh E-Ticket!'
     case 'Unpaid': return 'Pembayaran belum dilakukan. Harap lakukan pembayaran.'
     case 'Menunggu Konfirmasi': return 'Mohon tunggu, bukti pembayaran sedang diverifikasi oleh admin.'
-    case 'Invalid': 
-      return `Alasan ditolak: ${props.ticket.keterangan_tolak ?? '-'}` + 
+    case 'Invalid':
+      return `Alasan ditolak: ${props.ticket.keterangan_tolak ?? '-'}` +
              (props.ticket.can_reupload ? ' (Batas maksimal upload ulang 1 Hari)' : '')
     case 'Expired': return 'Waktu pembayaran telah habis. Tiket expired.'
     default: return ''

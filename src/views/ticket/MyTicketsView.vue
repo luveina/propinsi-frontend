@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, onMounted, onUnmounted } from 'vue' 
+import { ref, computed, onMounted, onUnmounted } from 'vue'
 import { RouterLink } from 'vue-router'
 import { Icon } from '@iconify/vue'
 import Sidebar from '@/components/Sidebar.vue'
@@ -41,9 +41,10 @@ const filteredTickets = computed(() => {
   let result = [...tickets.value]
 
   // Mapping status berdasarkan waktu secara real-time
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const getEffectiveStatus = (t: any) => {
     if (t.status !== 'Unpaid') return t.status
-    const reservasiTime = new Date(t.waktu_reservasi).getTime()
+    const reservasiTime = new Date(t.waktu_reservasi + 'Z').getTime() // ← tambah 'Z'
     return (now.value - reservasiTime > 2 * 60 * 60 * 1000) ? 'Expired' : 'Unpaid'
   }
 
@@ -53,7 +54,7 @@ const filteredTickets = computed(() => {
   }
 
   if (activeStatus.value !== 'all') {
-    result = result.filter((t) => getEffectiveStatus(t) === activeStatus.value) 
+    result = result.filter((t) => getEffectiveStatus(t) === activeStatus.value)
   }
 
   result.sort((a, b) => {
