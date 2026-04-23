@@ -1,7 +1,7 @@
 import axios from 'axios';
-import type { LombaRequest, AssignJuriRequest } from '@/interfaces/lomba.interface';
+import type { LombaRequest, AssignJuriRequest, LombaDetailResponse } from '@/interfaces/lomba.interface';
 
-const API_URL = 'http://localhost:8080/api/lomba';
+const API_URL = `${import.meta.env.VITE_API_URL}/lomba`;
 
 /**
  * Get authorization headers from localStorage
@@ -70,6 +70,13 @@ export interface LombaItem {
   jumlahJuri: number
   jumlahJuara: number
   hadiah: number[]
+  listJuri?: Array<{
+    id: number
+    username: string
+    fullName: string
+    role: string
+  }>
+  deskripsi: string
 }
 
 export const getAllLomba = async (params?: LombaFilterParams) => {
@@ -90,6 +97,21 @@ export const getLombaByJuri = async (params?: LombaFilterParams) => {
 
 export const deleteLomba = async (id: string) => {
   const response = await axios.delete(`${API_URL}/${id}`, {
+    headers: getAuthHeaders()
+  });
+  return response.data;
+};
+
+export const getLombaDetail = async (id: string): Promise<LombaDetailResponse> => {
+  const response = await axios.get(`${API_URL}/detail/${id}`, {
+    headers: getAuthHeaders()
+  });
+  return response.data;
+};
+
+// Fungsi untuk koordinator mengubah status ke "BERLANGSUNG"
+export const updateLombaStatus = async (id: string, status: string) => {
+  const response = await axios.patch(`${API_URL}/${id}/status`, { status }, {
     headers: getAuthHeaders()
   });
   return response.data;

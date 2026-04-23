@@ -55,7 +55,7 @@
       <label class="field-label">Password</label>
       <PasswordInput
         v-model="form.password"
-        placeholder="Password"
+        placeholder="Password (minimal 6 karakter)"
         autocomplete="new-password"
         @blur="validateField('password')"
       />

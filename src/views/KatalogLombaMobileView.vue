@@ -3,7 +3,7 @@
 import { ref, computed, onMounted, watch } from 'vue'
 import { useRouter, RouterLink } from 'vue-router'
 import { useAuthStore } from '@/stores/auth/auth.store'
-import { getAllLomba, getLombaByJuri, deleteLomba } from '@/services/lomba.service'
+import { getAllLomba, getLombaByJuri } from '@/services/lomba.service'
 import type { LombaItem } from '@/services/lomba.service'
 
 const router = useRouter()

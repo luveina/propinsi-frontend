@@ -1,7 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import axios, { AxiosError } from 'axios';
 import type { AccountRequest } from '@/interfaces/account.interface';
 
-const API_URL = 'http://localhost:8080/api/accounts';
+const API_URL = `${import.meta.env.VITE_API_URL}/accounts`;
 
 /**
  * Get authorization headers from localStorage
@@ -23,21 +24,21 @@ export const postCreateAccount = async (payload: AccountRequest): Promise<any> =
     const response = await axios.post(API_URL, payload, {
       headers: getAuthHeaders()
     });
-    
+
     // response.data is BaseResponse<User>; return inner data if needed
     return response.data.data;
   } catch (error: unknown) {
     // Menangani error dari Axios secara spesifik agar tidak muncul error 'unknown'
     if (axios.isAxiosError(error)) {
       const axiosError = error as AxiosError<any>;
-      
+
       // Mengambil pesan error dari backend
       const serverMessage = axiosError.response?.data;
-      
+
       // Melempar kembali error agar bisa ditangkap oleh komponen UI (Modal)
       throw serverMessage || 'Terjadi kesalahan pada server';
     }
-    
+
     // Jika error bukan dari Axios
     throw 'Terjadi kesalahan sistem yang tidak diketahui';
   }
@@ -84,8 +85,8 @@ export const resetPasswordAccount = async (id: number): Promise<any> => {
   const token = localStorage.getItem('token'); // Ambil token dari storage
   try {
     const response = await axios.put(`${API_URL}/${id}/reset`, {}, {
-      headers: { 
-        Authorization: `Bearer ${token}` 
+      headers: {
+        Authorization: `Bearer ${token}`
       }
     });
     return response.data;

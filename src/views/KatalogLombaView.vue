@@ -168,8 +168,7 @@ function goToEdit(id: string) {
 }
 
 function openDeleteModal(lomba: LombaItem) {
-  lombaToDelete.value = lomba
-  isDeleteModalOpen.value = true
+  // Lomba deletion is now handled in DetailLombaView
 }
 
 function closeDeleteModal() {
@@ -178,19 +177,7 @@ function closeDeleteModal() {
 }
 
 async function confirmDelete() {
-  if (!lombaToDelete.value) return
-  try {
-    await deleteLomba(lombaToDelete.value.id)
-    notification.value = `Lomba "${lombaToDelete.value.namaLomba}" berhasil dihapus`
-    notificationType.value = 'success'
-    await fetchLomba()
-  } catch {
-    notification.value = 'Gagal menghapus lomba. Coba lagi.'
-    notificationType.value = 'error'
-  } finally {
-    closeDeleteModal()
-    setTimeout(() => (notification.value = ''), 3000)
-  }
+  // Lomba deletion is now handled in DetailLombaView
 }
 </script>
 
@@ -644,35 +631,6 @@ async function confirmDelete() {
     </div>
   </transition>
 
-  <!-- Delete Confirmation Modal -->
-  <Teleport to="body">
-    <div
-      v-if="isDeleteModalOpen"
-      class="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
-      @click.self="closeDeleteModal"
-    >
-      <div class="bg-white rounded-2xl p-8 w-[360px] mx-4 shadow-lg border border-gray-200 font-plus-jakarta text-center">
-        <h3 class="text-xl font-bold text-[#2E42B2] mb-3">Hapus Lomba</h3>
-        <p class="text-sm text-gray-600 mb-8 leading-relaxed">
-          Apakah Anda yakin ingin menghapus <strong>{{ lombaToDelete?.namaLomba }}</strong>?
-        </p>
-        <div class="flex gap-3">
-          <button
-            @click="closeDeleteModal"
-            class="flex-1 py-2.5 rounded-xl border border-gray-300 text-gray-600 text-sm font-semibold hover:bg-gray-50 transition-colors cursor-pointer"
-          >
-            Kembali
-          </button>
-          <button
-            @click="confirmDelete"
-            class="flex-1 py-2.5 rounded-xl bg-[#2E42B2] text-white text-sm font-semibold hover:bg-[#1c2d8f] transition-colors cursor-pointer"
-          >
-            Hapus
-          </button>
-        </div>
-      </div>
-    </div>
-  </Teleport>
 </template>
 
 <style scoped>
