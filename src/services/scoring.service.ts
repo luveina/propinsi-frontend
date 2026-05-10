@@ -6,6 +6,7 @@ import type {
   ScoringGantangan,
   ScoringVoteRequest,
   ScoringVoteResponse,
+  SemiFinalStandings,
 } from '@/interfaces/scoring.interface'
 
 const API_URL = `${import.meta.env.VITE_API_URL}/scoring`
@@ -57,5 +58,13 @@ export const postScoringDisqualify = async (lombaId: string, gantanganId: string
     { gantanganId, blokId },
     { headers: getAuthHeaders(), params: { lombaId } },
   )
+  return response.data.data
+}
+
+export const getSemiFinalStandings = async (lombaId: string): Promise<SemiFinalStandings> => {
+  const response = await axios.get<BaseApiResponse<SemiFinalStandings>>(`${API_URL}/semi-final`, {
+    headers: getAuthHeaders(),
+    params: { lombaId },
+  })
   return response.data.data
 }

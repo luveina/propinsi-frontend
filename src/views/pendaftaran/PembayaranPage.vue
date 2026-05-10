@@ -240,7 +240,13 @@ const formattedTimeLeft = computed(() => {
 });
 
 const startTimer = () => {
-  const createdTime = new Date(waktuReservasi.value).getTime() || Date.now();
+  // Samakan parsing dengan TicketCard (tambah 'Z' jika belum ada)
+  const dateStr = waktuReservasi.value.endsWith('Z') 
+    ? waktuReservasi.value 
+    : waktuReservasi.value + 'Z';
+    
+  const createdTime = new Date(dateStr).getTime();
+  
   const duration = statusFromQuery.value === 'Invalid' ? (24 * 60 * 60 * 1000) : (2 * 60 * 60 * 1000);
   const deadline = createdTime + duration;
 
@@ -251,7 +257,8 @@ const startTimer = () => {
     if (diff <= 0) {
       clearInterval(timerInterval);
       timeLeft.value = 0;
-      showTimeoutModal.value = true;
+      // Hanya tampilkan modal jika status awalnya bukan sudah expired dari DB
+      showTimeoutModal.value = true; 
     } else {
       timeLeft.value = diff;
     }

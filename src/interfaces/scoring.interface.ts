@@ -34,6 +34,21 @@ export interface ScoringVoteResponse {
   locked: boolean
 }
 
+export interface GantanganRanking {
+  nomorGantangan: number;
+  blokId: number;
+  jumlahAjuan: number;
+}
+
+export interface SemiFinalStandings {
+  lombaId: string;
+  namaLomba: string;
+  juriSubmitted: number;
+  totalJuri: number;
+  nextStep: 'WAITING' | 'KONCER' | 'FINISH';
+  rankings: GantanganRanking[];
+}
+
 export interface BaseApiResponse<T> {
   status: number
   message: string

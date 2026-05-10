@@ -59,17 +59,23 @@ const router = createRouter({
       component: () => import('@/views/lomba/EditLombaView.vue'),
       meta: { requiresAuth: true },
     },
-  {
-    path: '/penjurian',
-    name: 'penjurian',
-    component: () => import('@/views/ScoringView.vue'),
-    meta: { requiresAuth: true },
-  },
     {
       path: '/penjurian',
       name: 'penjurian',
       component: () => import('@/views/ScoringView.vue'),
       meta: { requiresAuth: true },
+    },
+    {
+      path: '/penjurian',
+      name: 'penjurian',
+      component: () => import('@/views/ScoringView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/penjurian/hasil/:lombaId',
+      name: 'hasil-ajuan',
+      component: () => import('@/views/HasilAjuanView.vue'),
+      meta: { requiresAuth: true, requiredRole: 'JURI' },
     },
   {
     path: '/reservasi/:lombaId',
