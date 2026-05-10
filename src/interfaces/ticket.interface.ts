@@ -1,5 +1,6 @@
 export interface Ticket {
   id: string
+  nama_peserta: string
   nama_lomba: string
   tanggal: string
   lokasi: string

@@ -67,7 +67,7 @@ const messageText = computed(() => {
     case 'Menunggu Konfirmasi': return 'Mohon tunggu, bukti pembayaran sedang diverifikasi oleh admin.'
     case 'Invalid':
       return `Alasan ditolak: ${props.ticket.keterangan_tolak ?? '-'}` +
-             (props.ticket.can_reupload ? ' (Batas maksimal upload ulang 1 Hari)' : '')
+             (props.ticket.can_reupload ? 'Ini adalah kesempatan terakhir untuk upload ulang! (Batas maksimal upload ulang 1 Hari)' : '')
     case 'Expired': return 'Waktu pembayaran telah habis. Tiket expired.'
     default: return ''
   }
@@ -131,7 +131,7 @@ function goToUploadUlang() {
 
     <div class="self-stretch bg-[#f9fafb] overflow-hidden flex flex-col items-start px-[10px]">
       <p
-        class="self-stretch text-sm font-medium leading-5"
+        class="self-stretch text-sm font-medium leading-5 whitespace-pre-line"
         :class="effectiveStatus === 'Invalid' || effectiveStatus === 'Expired' ? 'text-[#a9302d]' : 'text-[#374151]'"
       >
         {{ messageText }}

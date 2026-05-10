@@ -66,6 +66,14 @@
                   </div>
                 </div>
 
+                <!-- Nama Peserta -->
+                <div class="flex flex-col gap-2">
+                  <span class="text-base font-semibold text-[#2e42b2]">Nama Peserta:</span>
+                  <div class="h-14 rounded-[9px] bg-[#dee8fb] border border-[#2e42b2] flex items-center gap-3 px-4">
+                    <span class="text-base font-medium text-[#2e42b2]">{{ ticket.nama_peserta }}</span>
+                  </div>
+                </div>
+
                 <!-- Kelas + Jenis Burung -->
                 <div class="flex gap-5 flex-wrap">
                   <div class="flex-1 min-w-[160px] flex flex-col gap-2">
@@ -162,6 +170,14 @@
                 <b class="text-[22px] leading-[28px] text-[#2e42b2] flex-1">{{ ticket.nama_lomba }}</b>
                 <div class="rounded-[15px] bg-[#3da755] px-[14px] py-[6px] flex-shrink-0">
                   <span class="text-sm font-bold text-[#c5e9cd]">Dibayar</span>
+                </div>
+              </div>
+
+              <!-- Nama Peserta -->
+              <div class="flex flex-col gap-[6px]">
+                <span class="text-sm font-semibold text-[#2e42b2]">Nama Peserta:</span>
+                <div class="h-11 rounded-[9px] bg-[#dee8fb] border border-[#2e42b2] flex items-center gap-2 px-3">
+                  <span class="text-sm font-medium text-[#2e42b2]">{{ ticket.nama_peserta }}</span>
                 </div>
               </div>
 
