@@ -159,6 +159,10 @@ function goToDetail(id: string) {
   router.push(`/katalog-lomba/${id}`)
 }
 
+function goToCheckIn(eventId: string) {
+  router.push(`/check-in/${eventId}`)
+}
+
 function goToTambah() {
   router.push('/buat-lomba')
 }
@@ -443,6 +447,13 @@ async function confirmDelete() {
                     Detail
                   </button>
                   <button
+                    v-if="authStore.user?.role === 'KOORDINATOR_PENDAFTARAN'"
+                    @click="goToCheckIn(lomba.id)"
+                    class="bg-blue-500 hover:bg-blue-600 text-white text-sm font-bold px-6 py-2.5 rounded-lg transition-colors cursor-pointer w-full font-plus-jakarta"
+                  >
+                    Data Pendaftar
+                  </button>
+                  <button
                     v-if="canEdit(lomba.status)"
                     @click="openDeleteModal(lomba)"
                     class="bg-[#ec221f] hover:bg-red-700 text-white text-sm font-bold px-6 py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors cursor-pointer w-full font-plus-jakarta"
@@ -491,6 +502,13 @@ async function confirmDelete() {
 
                 <button @click="goToDetail(lomba.id)" class="w-full bg-[#2E42B2] text-white py-3 rounded-xl font-bold text-sm active:scale-95 transition-transform">
                   Detail
+                </button>
+                <button 
+                  v-if="authStore.user?.role === 'KOORDINATOR_PENDAFTARAN'"
+                  @click="goToCheckIn(lomba.id)" 
+                  class="w-full bg-blue-500 text-white py-3 rounded-xl font-bold text-sm active:scale-95 transition-transform"
+                >
+                  Data Pendaftar
                 </button>
               </div>
             </div>

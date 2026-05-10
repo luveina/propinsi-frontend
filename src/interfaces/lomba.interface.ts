@@ -33,7 +33,7 @@ export interface LombaDetailResponse {
   hargaTiket: number;
   hadiah: number[];
   jumlahGantangan: number;
-  listGantangan: any[]; // Tambahkan ini
+  listGantangan: any[];
   jumlahJuri: number;
   listJuri: { id: number; fullName: string; role: string }[];
   contactPerson: string;

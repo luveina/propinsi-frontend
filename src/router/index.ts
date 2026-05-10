@@ -101,6 +101,12 @@ const router = createRouter({
       meta: { requiresAuth: true, requiredRole: 'KOORDINATOR_PENDAFTARAN' },
     },
     {
+      path: '/check-in/:eventId',
+      name: 'check-in',
+      component: () => import('@/views/pendaftaran/CheckInView.vue'),
+      meta: { requiresAuth: true, requiredRole: 'KOORDINATOR_PENDAFTARAN' },
+    },
+    {
       path: '/manajemen-akun',
       name: 'manajemen-akun',
       component: ManajemenAkunView,

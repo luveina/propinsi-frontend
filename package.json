@@ -17,7 +17,7 @@
     "format": "oxfmt src/"
   },
   "dependencies": {
-    "@iconify/vue": "^5.0.0",
+    "@iconify/vue": "^5.0.1",
     "axios": "^1.13.6",
     "dom-to-image-more": "^3.7.2",
     "html2canvas": "^1.4.1",
