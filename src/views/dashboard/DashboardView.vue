@@ -9,12 +9,13 @@ const store = useDashboardStore()
 
 // ─── Date filter ─────────────────────────────────────────────────────────────
 const today = new Date()
-const startDate = ref(new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0])
-const endDate = ref(today.toISOString().split('T')[0])
+const startDate = ref<string>(new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0] as string)
+const endDate = ref<string>(today.toISOString().split('T')[0] as string)
 
 // ─── Category filter ──────────────────────────────────────────────────────────
-const filterBirdType = ref('')
-const filterClass = ref('')
+const filterBirdType = ref<string[]>([])
+const filterClass = ref<string[]>([])
+const dropdownOpen = ref(false)
 
 // Row highlight (visual only — no chart effect)
 const hoveredRow = ref<string | null>(null)
@@ -30,23 +31,33 @@ function syncOptions() {
   if (classes.length) kelasOptions.value = classes.map(c => c.kelas)
 }
 
-// Active filter label for UI display
-const activeFilter = computed<{ type: 'bird' | 'class'; label: string } | null>(() => {
-  if (filterBirdType.value) return { type: 'bird', label: filterBirdType.value }
-  if (filterClass.value) return { type: 'class', label: filterClass.value }
-  return null
+const activeFilters = computed(() => {
+  const res: { type: 'bird' | 'class'; label: string }[] = []
+  filterClass.value.forEach(k => res.push({ type: 'class', label: k }))
+  filterBirdType.value.forEach(b => res.push({ type: 'bird', label: b }))
+  return res
 })
 
-// Watch filters → re-fetch with filter params (debounce not needed since user picks from dropdown)
-watch(filterBirdType, (val) => {
-  if (val) filterClass.value = ''
-  store.fetchAnalytics(startDate.value, endDate.value, val || undefined, undefined)
+function removeFilter(f: { type: 'bird' | 'class'; label: string }) {
+  if (f.type === 'class') {
+    filterClass.value = filterClass.value.filter(k => k !== f.label)
+  } else {
+    filterBirdType.value = filterBirdType.value.filter(b => b !== f.label)
+  }
+}
+
+// Watch filters → re-fetch with filter params
+watch([startDate, endDate], () => {
+  if (startDate.value && endDate.value) applyDateFilter()
 })
 
-watch(filterClass, (val) => {
-  if (val) filterBirdType.value = ''
-  store.fetchAnalytics(startDate.value, endDate.value, undefined, val || undefined)
-})
+watch(filterBirdType, () => {
+  store.fetchAnalytics(startDate.value, endDate.value, filterBirdType.value.length ? filterBirdType.value : undefined, filterClass.value.length ? filterClass.value : undefined)
+}, { deep: true })
+
+watch(filterClass, () => {
+  store.fetchAnalytics(startDate.value, endDate.value, filterBirdType.value.length ? filterBirdType.value : undefined, filterClass.value.length ? filterClass.value : undefined)
+}, { deep: true })
 
 // ─── SVG chart constants ──────────────────────────────────────────────────────
 const VB_W = 800
@@ -77,20 +88,20 @@ const pts = computed(() =>
 
 function lineCmds(points: Array<{ x: number; y: number }>): string {
   return points.slice(1).map((c, i) => {
-    const p = points[i]
+    const p = points[i]!
     const cx = (p.x + c.x) / 2
-    return `C ${cx} ${p.y} ${cx} ${c.y} ${c.x} ${c.y}`
+    return `C ${cx} ${p!.y} ${cx} ${c.y} ${c.x} ${c.y}`
   }).join(' ')
 }
 
 function makePath(points: Array<{ x: number; y: number }>): string {
   if (!points.length) return ''
-  return `M ${points[0].x} ${points[0].y} ${lineCmds(points)}`
+  return `M ${points[0]!.x} ${points[0]!.y} ${lineCmds(points)}`
 }
 
 function makeArea(points: Array<{ x: number; y: number }>): string {
   if (!points.length) return ''
-  const f = points[0], l = points[points.length - 1]
+  const f = points[0]!, l = points[points.length - 1]!
   return `M ${f.x} ${B} L ${f.x} ${f.y} ${lineCmds(points)} L ${l.x} ${B} Z`
 }
 
@@ -155,6 +166,10 @@ function fmtFull(s: string): string {
   return new Date(s).toLocaleDateString('id-ID', { day: 'numeric', month: 'short', year: 'numeric' })
 }
 
+function formatRupiah(val: number): string {
+  return new Intl.NumberFormat('id-ID', { style: 'currency', currency: 'IDR', maximumFractionDigits: 0 }).format(val)
+}
+
 // ─── Tooltip ──────────────────────────────────────────────────────────────────
 const svgEl = ref<SVGSVGElement | null>(null)
 const tooltip = ref<{ pct: number; sy: number; d: (typeof trendData.value)[0] } | null>(null)
@@ -183,16 +198,24 @@ function unhoverRow() {
 }
 
 function clickBirdRow(name: string) {
-  filterBirdType.value = filterBirdType.value === name ? '' : name
+  if (filterBirdType.value.includes(name)) {
+    filterBirdType.value = filterBirdType.value.filter(n => n !== name)
+  } else {
+    filterBirdType.value.push(name)
+  }
 }
 
 function clickClassRow(name: string) {
-  filterClass.value = filterClass.value === name ? '' : name
+  if (filterClass.value.includes(name)) {
+    filterClass.value = filterClass.value.filter(n => n !== name)
+  } else {
+    filterClass.value.push(name)
+  }
 }
 
 function clearFilter() {
-  filterBirdType.value = ''
-  filterClass.value = ''
+  filterBirdType.value = []
+  filterClass.value = []
 }
 
 // ─── Initial + date-apply fetch ───────────────────────────────────────────────
@@ -267,65 +290,130 @@ onMounted(applyDateFilter)
             </div>
             <div class="hidden md:block w-px h-9 bg-gray-200 mx-1"></div>
 
-            <!-- Bird type filter -->
-            <div>
-              <label class="block text-xs font-semibold text-[#1C244F] mb-1">Filter Jenis Burung</label>
-              <div class="relative">
-                <select
-                  v-model="filterBirdType"
-                  :disabled="store.loading"
-                  class="appearance-none w-full border border-[#6D9BED] rounded-lg pl-3 pr-9 py-2.5 text-sm text-gray-700 bg-[#F3F4F6] outline-none cursor-pointer focus:border-[#2E42B2] focus:ring-1 focus:ring-[#2E42B2] disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <option value="">Semua Jenis Burung</option>
-                  <option v-for="b in birdTypeOptions" :key="b" :value="b">{{ b }}</option>
-                </select>
-                <svg class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6D9BED]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-
-            <!-- Class filter -->
-            <div>
-              <label class="block text-xs font-semibold text-[#1C244F] mb-1">Filter Kelas Lomba</label>
-              <div class="relative">
-                <select
-                  v-model="filterClass"
-                  :disabled="store.loading"
-                  class="appearance-none w-full border border-[#6D9BED] rounded-lg pl-3 pr-9 py-2.5 text-sm text-gray-700 bg-[#F3F4F6] outline-none cursor-pointer focus:border-[#2E42B2] focus:ring-1 focus:ring-[#2E42B2] disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <option value="">Semua Kelas</option>
-                  <option v-for="k in kelasOptions" :key="k" :value="k">{{ k }}</option>
-                </select>
-                <svg class="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#6D9BED]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
-                </svg>
-              </div>
-            </div>
-
-            <button
-              @click="applyDateFilter"
-              :disabled="store.loading"
-              class="px-5 py-2 bg-[#2E42B2] text-white text-sm font-semibold rounded-lg hover:bg-[#1E3A8A] transition-colors disabled:opacity-60 cursor-pointer self-end"
-            >
-              Terapkan
-            </button>
-
-            <!-- Active filter badge -->
-            <Transition name="fade-badge">
+            <!-- Combined Filter -->
+            <div class="relative w-64">
+              <label class="block text-xs font-semibold text-[#1C244F] mb-1">Filter Kategori</label>
               <div
-                v-if="activeFilter"
-                class="flex items-center gap-2 px-3 py-2 bg-[#DEE8FB] border border-[#6D9BED] rounded-lg"
+                @click="dropdownOpen = !dropdownOpen"
+                class="w-full border border-[#6D9BED] rounded-lg px-3 py-2.5 text-sm text-gray-700 bg-[#F3F4F6] cursor-pointer flex justify-between items-center"
               >
-                <span class="w-2 h-2 rounded-full bg-[#2E42B2] shrink-0"></span>
-                <span class="text-sm text-[#2E42B2] font-semibold">{{ activeFilter.label }}</span>
+                <span>{{ activeFilters.length ? `${activeFilters.length} Filter Terpilih` : 'Semua Tiket' }}</span>
+                <svg class="w-4 h-4 text-[#6D9BED]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                </svg>
+              </div>
+              <div
+                v-if="dropdownOpen"
+                class="absolute left-0 mt-2 bg-white border border-gray-200 rounded-lg shadow-xl w-64 max-h-72 overflow-y-auto z-30"
+              >
+                <!-- Kelas Lomba Section -->
+                <div class="px-3 py-2 bg-gray-50 border-b border-gray-200 sticky top-0 font-bold text-[#1C244F] text-xs">
+                  Kelas Lomba
+                </div>
+                <label v-for="k in kelasOptions" :key="'opt-' + k" class="flex items-center px-4 py-2 hover:bg-blue-50 text-sm cursor-pointer border-b border-gray-50 last:border-b-0">
+                  <input type="checkbox" :value="k" v-model="filterClass" class="mr-3 w-4 h-4 rounded text-[#2E42B2] focus:ring-[#2E42B2]" />
+                  <span class="text-gray-700">{{ k }}</span>
+                </label>
+
+                <!-- Jenis Burung Section -->
+                <div class="px-3 py-2 bg-gray-50 border-y border-gray-200 sticky top-0 font-bold text-[#1C244F] text-xs">
+                  Jenis Burung
+                </div>
+                <label v-for="b in birdTypeOptions" :key="'opt-' + b" class="flex items-center px-4 py-2 hover:bg-blue-50 text-sm cursor-pointer border-b border-gray-50 last:border-b-0">
+                  <input type="checkbox" :value="b" v-model="filterBirdType" class="mr-3 w-4 h-4 rounded text-[#2E42B2] focus:ring-[#2E42B2]" />
+                  <span class="text-gray-700">{{ b }}</span>
+                </label>
+              </div>
+            </div>
+
+            <!-- Active filter badges -->
+            <TransitionGroup name="fade-badge" tag="div" class="flex flex-wrap items-center gap-2">
+              <div
+                v-for="f in activeFilters" :key="f.type + f.label"
+                class="flex items-center gap-2 px-3 py-2 bg-[#DEE8FB] border border-[#6D9BED] rounded-lg h-[44px]"
+              >
+                <span class="w-2 h-2 rounded-full shrink-0" :class="f.type === 'class' ? 'bg-[#4B79E6]' : 'bg-[#2E42B2]'"></span>
+                <span class="text-sm text-[#2E42B2] font-semibold">{{ f.label }}</span>
                 <button
-                  @click="clearFilter"
+                  @click="removeFilter(f)"
                   class="text-[#2E42B2] hover:text-[#1C244F] ml-1 cursor-pointer leading-none text-base font-bold"
                 >×</button>
               </div>
-            </Transition>
+              <button
+                v-if="activeFilters.length > 0"
+                @click="clearFilter"
+                class="text-xs text-red-500 underline ml-2 h-full"
+              >Hapus Semua</button>
+            </TransitionGroup>
           </div>
+        </div>
+
+        <!-- ── Summary Cards ────────────────────────────────────────────── -->
+        <div class="grid grid-cols-4 gap-4">          <!-- Skeleton Loading for Cards -->
+          <template v-if="store.loading">
+            <div v-for="i in 4" :key="'skel-card-' + i" class="bg-white rounded-xl border border-gray-200 p-5 shadow-sm animate-pulse">
+              <div class="flex items-center gap-3 mb-2">
+                <div class="w-8 h-8 rounded-full bg-gray-200"></div>
+                <div class="h-4 bg-gray-200 rounded w-1/2"></div>
+              </div>
+              <div class="h-8 bg-gray-200 rounded w-3/4 mb-1"></div>
+            </div>
+          </template>
+
+          <!-- Card Content -->
+          <template v-else>
+            <!-- Revenue -->
+            <div class="bg-white rounded-xl border border-[#D1E0FF] p-5 shadow-sm flex flex-col justify-between">
+              <div class="flex items-center gap-2 mb-2 text-gray-500 text-sm font-medium">
+                <div class="w-8 h-8 rounded-full bg-[#E5F7E0] flex items-center justify-center shrink-0">
+                  <span class="text-green-600 font-bold text-lg leading-none">💸</span>
+                </div>
+                Total Pendapatan
+              </div>
+              <div class="text-2xl font-bold text-[#1C244F]">
+                {{ formatRupiah(store.analytics?.totalRevenue || 0) }}
+              </div>
+            </div>
+
+            <!-- Tiket Terjual -->
+            <div class="bg-white rounded-xl border border-[#D1E0FF] p-5 shadow-sm flex flex-col justify-between">
+              <div class="flex items-center gap-2 mb-2 text-gray-500 text-sm font-medium">
+                <div class="w-8 h-8 rounded-full bg-[#FFF4DE] flex items-center justify-center shrink-0">
+                  <span class="text-amber-500 font-bold text-lg leading-none">🎟️</span>
+                </div>
+                Total Tiket Terjual
+              </div>
+              <div class="text-2xl font-bold text-[#1C244F]">
+                {{ store.analytics?.totalTiketTerjual || 0 }}
+              </div>
+            </div>
+
+            <!-- Occupancy Rate -->
+            <div class="bg-white rounded-xl border border-[#D1E0FF] p-5 shadow-sm flex flex-col justify-between">
+              <div class="flex items-center gap-2 mb-2 text-gray-500 text-sm font-medium">
+                <div class="w-8 h-8 rounded-full bg-[#FFE5E5] flex items-center justify-center shrink-0">
+                  <span class="text-red-500 font-bold text-lg leading-none">🦅</span>
+                </div>
+                Rata-Rata Gantangan Terisi
+              </div>
+              <div class="text-2xl font-bold text-[#1C244F]">
+                {{ store.analytics?.occupancyRate || 0 }}%
+              </div>
+            </div>
+
+            <!-- Booking Success -->
+            <div class="bg-white rounded-xl border border-[#D1E0FF] p-5 shadow-sm flex flex-col justify-between">
+              <div class="flex items-center gap-2 mb-2 text-gray-500 text-sm font-medium">
+                <div class="w-8 h-8 rounded-full bg-[#E5F0FF] flex items-center justify-center shrink-0">
+                  <span class="text-blue-500 font-bold text-lg leading-none">🛍️</span>
+                </div>
+                Rate Booking Success
+              </div>
+              <div class="text-2xl font-bold text-[#1C244F]">
+                {{ store.analytics?.bookingSuccessRate || 0 }}%
+              </div>
+            </div>
+          </template>
         </div>
 
         <!-- Error -->
@@ -342,17 +430,16 @@ onMounted(applyDateFilter)
             <div>
               <h2 class="text-xl font-bold text-[#1C244F]">
                 Tren Penjualan Tiket Harian
-                <span v-if="activeFilter" class="text-[#2E42B2]"> — {{ activeFilter.label }}</span>
               </h2>
               <p class="text-xs text-gray-400 mt-0.5">
-                <span v-if="activeFilter">Data difilter berdasarkan {{ activeFilter.type === 'bird' ? 'jenis burung' : 'kelas lomba' }}: {{ activeFilter.label }}</span>
+                <span v-if="activeFilters.length">Data difilter berdasarkan pilihan kategori</span>
                 <span v-else>Menampilkan semua tiket dalam rentang tanggal yang dipilih</span>
               </p>
             </div>
             <div class="flex items-center gap-4 text-xs text-gray-500 shrink-0">
               <div class="flex items-center gap-1.5">
                 <span class="inline-block w-5 h-0.5 rounded bg-[#4B79E6]"></span>
-                <span>{{ activeFilter ? activeFilter.label : 'Semua Tiket' }}</span>
+                <span>{{ activeFilters.length ? 'Filter Terpilih' : 'Semua Tiket' }}</span>
               </div>
               <Transition name="fade-badge">
                 <div v-if="hoveredRow" class="flex items-center gap-1.5">
@@ -382,7 +469,7 @@ onMounted(applyDateFilter)
           >
             <img src="@/assets/data-not-found.svg" class="w-20 h-20 opacity-40" alt="" />
             <p class="text-sm font-medium">Tidak ada data untuk filter ini</p>
-            <button v-if="activeFilter" @click="clearFilter" class="text-xs text-[#2E42B2] underline cursor-pointer">Hapus filter</button>
+            <button v-if="activeFilters.length" @click="clearFilter" class="text-xs text-[#2E42B2] underline cursor-pointer">Hapus filter</button>
           </div>
 
           <!-- Chart -->
@@ -508,7 +595,7 @@ onMounted(applyDateFilter)
             >
               <p class="font-semibold text-[#1C244F] text-xs mb-1">{{ fmtFull(tooltip.d.tanggal) }}</p>
               <p class="text-[#2E42B2] text-xs font-medium">
-                <span class="text-gray-500">{{ activeFilter ? activeFilter.label : 'Semua Tiket' }}:</span>
+                <span class="text-gray-500">{{ activeFilters.length ? 'Total Data Filter :' : 'Semua Tiket :' }}</span>
                 <span class="font-bold ml-1">{{ tooltip.d.jumlah }} tiket</span>
               </p>
               <p v-if="hoveredRow && catTooltipCount !== null" class="text-amber-500 text-xs mt-0.5">
@@ -528,7 +615,7 @@ onMounted(applyDateFilter)
               <img src="@/assets/lucide_bird.svg" class="w-5 h-5 brightness-0 invert" alt="" />
               <span class="flex-1 text-sm font-bold text-[#DEE8FB]">
                 Top 5 Jenis Burung Paling Diminati
-                <span v-if="filterClass" class="text-xs font-normal opacity-70"> ({{ filterClass }})</span>
+                <span v-if="filterClass.length" class="text-xs font-normal opacity-70"> (Kategori Dipilih)</span>
               </span>
               <span class="text-sm font-bold text-[#DEE8FB]">% Terjual</span>
             </div>
@@ -549,7 +636,7 @@ onMounted(applyDateFilter)
                 :key="bird.jenisBurung"
                 class="flex items-center gap-4 px-6 py-3.5 border-b border-gray-100 cursor-pointer transition-all select-none"
                 :class="[
-                  filterBirdType === bird.jenisBurung
+                  filterBirdType.includes(bird.jenisBurung)
                     ? 'bg-[#DEE8FB] border-l-4 border-l-[#2E42B2]'
                     : hoveredRow === bird.jenisBurung
                       ? 'bg-[#F3F7FF]'
@@ -561,19 +648,19 @@ onMounted(applyDateFilter)
               >
                 <div
                   class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors"
-                  :class="filterBirdType === bird.jenisBurung ? 'bg-[#1C244F]' : 'bg-[#2E42B2]'"
+                  :class="filterBirdType.includes(bird.jenisBurung) ? 'bg-[#1C244F]' : 'bg-[#2E42B2]'"
                 >
                   <span class="text-[#DEE8FB] text-sm font-bold">{{ idx + 1 }}</span>
                 </div>
                 <span class="flex-1 text-sm font-semibold text-[#1C244F]">{{ bird.jenisBurung }}</span>
                 <span
                   class="text-sm font-bold transition-colors"
-                  :class="filterBirdType === bird.jenisBurung ? 'text-[#2E42B2]' : 'text-[#4B79E6]'"
+                  :class="filterBirdType.includes(bird.jenisBurung) ? 'text-[#2E42B2]' : 'text-[#4B79E6]'"
                 >
                   {{ bird.persentase }}%
                 </span>
                 <svg
-                  v-if="filterBirdType === bird.jenisBurung"
+                  v-if="filterBirdType.includes(bird.jenisBurung)"
                   class="w-4 h-4 text-[#2E42B2] shrink-0"
                   fill="currentColor" viewBox="0 0 20 20"
                 >
@@ -597,7 +684,7 @@ onMounted(applyDateFilter)
               </svg>
               <span class="flex-1 text-sm font-bold text-[#DEE8FB]">
                 Top 5 Kelas Lomba Paling Diminati
-                <span v-if="filterBirdType" class="text-xs font-normal opacity-70"> ({{ filterBirdType }})</span>
+                <span v-if="filterBirdType.length" class="text-xs font-normal opacity-70"> (Kategori Dipilih)</span>
               </span>
               <span class="text-sm font-bold text-[#DEE8FB]">% Terjual</span>
             </div>
@@ -618,7 +705,7 @@ onMounted(applyDateFilter)
                 :key="cls.kelas"
                 class="flex items-center gap-4 px-6 py-3.5 border-b border-gray-100 cursor-pointer transition-all select-none"
                 :class="[
-                  filterClass === cls.kelas
+                  filterClass.includes(cls.kelas)
                     ? 'bg-[#DEE8FB] border-l-4 border-l-[#2E42B2]'
                     : hoveredRow === cls.kelas
                       ? 'bg-[#F3F7FF]'
@@ -630,19 +717,19 @@ onMounted(applyDateFilter)
               >
                 <div
                   class="w-8 h-8 rounded-full flex items-center justify-center shrink-0 transition-colors"
-                  :class="filterClass === cls.kelas ? 'bg-[#1C244F]' : 'bg-[#2E42B2]'"
+                  :class="filterClass.includes(cls.kelas) ? 'bg-[#1C244F]' : 'bg-[#2E42B2]'"
                 >
                   <span class="text-[#DEE8FB] text-sm font-bold">{{ idx + 1 }}</span>
                 </div>
                 <span class="flex-1 text-sm font-semibold text-[#1C244F]">{{ cls.kelas }}</span>
                 <span
                   class="text-sm font-bold transition-colors"
-                  :class="filterClass === cls.kelas ? 'text-[#2E42B2]' : 'text-[#4B79E6]'"
+                  :class="filterClass.includes(cls.kelas) ? 'text-[#2E42B2]' : 'text-[#4B79E6]'"
                 >
                   {{ cls.persentase }}%
                 </span>
                 <svg
-                  v-if="filterClass === cls.kelas"
+                  v-if="filterClass.includes(cls.kelas)"
                   class="w-4 h-4 text-[#2E42B2] shrink-0"
                   fill="currentColor" viewBox="0 0 20 20"
                 >

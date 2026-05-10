@@ -18,6 +18,10 @@ export interface BirdTypeSalesData {
 }
 
 export interface AnalyticsData {
+  totalTiketTerjual: number
+  totalRevenue: number
+  bookingSuccessRate: number
+  occupancyRate: number
   top5Classes: ClassSalesData[]
   top5BirdTypes: BirdTypeSalesData[]
   trendData: TrendDataPoint[]

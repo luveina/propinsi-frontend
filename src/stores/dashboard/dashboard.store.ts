@@ -17,13 +17,17 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const loading = ref(false)
   const error = ref<string | null>(null)
 
-  async function fetchAnalytics(startDate: string, endDate: string, jenisBurung?: string, kelas?: string) {
+  async function fetchAnalytics(startDate: string, endDate: string, jenisBurung?: string[], kelas?: string[]) {
     loading.value = true
     error.value = null
     try {
       const params = new URLSearchParams({ start_date: startDate, end_date: endDate })
-      if (jenisBurung) params.set('jenis_burung', jenisBurung.replace(/ /g, '_').toUpperCase())
-      if (kelas) params.set('kelas', kelas)
+      if (jenisBurung && jenisBurung.length > 0) {
+        jenisBurung.forEach(jb => params.append('jenis_burung', jb.replace(/ /g, '_').toUpperCase()))
+      }
+      if (kelas && kelas.length > 0) {
+        kelas.forEach(k => params.append('kelas', k))
+      }
       const res = await fetch(`${BASE_URL}/analytics?${params}`, {
         method: 'GET',
         headers: getAuthHeaders(),
@@ -53,6 +57,10 @@ export const useDashboardStore = defineStore('dashboard', () => {
         }))
 
       analytics.value = {
+        totalTiketTerjual: Number(d.totalTiketTerjual ?? 0),
+        totalRevenue: Number(d.totalRevenue ?? 0),
+        bookingSuccessRate: Number(d.bookingSuccessRate ?? 0),
+        occupancyRate: Number(d.occupancyRate ?? 0),
         top5Classes: mapClass(d.top5Classes),
         top5BirdTypes: mapBird(d.top5BirdTypes),
         trendData: mapTrend(d.trendData),
