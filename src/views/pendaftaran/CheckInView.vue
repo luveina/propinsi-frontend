@@ -229,6 +229,16 @@
 
                 </tbody>
             </table>
+
+            <!-- Empty State -->
+            <div
+              v-if="attendanceStore.participants.length === 0 && !attendanceStore.loading"
+              class="w-full px-4 py-8 text-center bg-white rounded-b-xl border-t border-[#2E42B2]/20"
+            >
+              <p class="text-[#2E42B2] font-semibold font-plus-jakarta">
+                Data tidak ditemukan
+              </p>
+            </div>
             </div>
 
           <!-- Error Banner -->

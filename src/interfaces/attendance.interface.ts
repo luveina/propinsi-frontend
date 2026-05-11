@@ -6,6 +6,7 @@ export interface ParticipantResponse {
   phone_number: string;
   is_present: boolean;
   class: string;
+  class_value?: string;
 }
 
 export interface CheckInRequest {
