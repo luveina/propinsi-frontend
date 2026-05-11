@@ -10,6 +10,11 @@ const router = useRouter()
 const now = ref(Date.now())
 let timer: any
 
+const parseUtcMillis = (rawDate: string) => {
+  const hasTimezone = /([zZ]|[+\-]\d{2}:\d{2})$/.test(rawDate)
+  return new Date(hasTimezone ? rawDate : `${rawDate}Z`).getTime()
+}
+
 onMounted(() => {
   timer = setInterval(() => {
     now.value = Date.now()
@@ -23,7 +28,7 @@ onUnmounted(() => {
 const effectiveStatus = computed(() => {
   if (props.ticket.status !== 'Unpaid') return props.ticket.status
 
-  const reservasiTime = new Date(props.ticket.waktu_reservasi + 'Z').getTime()
+  const reservasiTime = parseUtcMillis(props.ticket.waktu_reservasi)
   const limit = 2 * 60 * 60 * 1000
 
   if (now.value - reservasiTime > limit) {

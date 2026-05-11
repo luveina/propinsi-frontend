@@ -92,7 +92,7 @@ function getStatusStyle(status: string) {
   switch (status) {
     case 'PAID': return 'bg-green-100 text-green-800 border-green-800'
     case 'REJECTED': return 'bg-red-100 text-red-800 border-red-800'
-    case 'EXPIRED': return 'bg-red-100 text-red-800 border-red-800'
+    case 'EXPIRED': return 'bg-gray-100 text-gray-700 border-gray-400'
     case 'BOOKED': return 'bg-blue-100 text-blue-800 border-blue-800'
     case 'MENUNGGU_KONFIRMASI': return 'bg-orange-100 text-orange-800 border-orange-800'
     default: return 'bg-gray-50 text-gray-500 border-gray-300'
@@ -105,7 +105,7 @@ function getStatusLabel(status: string) {
     'MENUNGGU_KONFIRMASI': 'Perlu Verifikasi',
     'PAID': 'Diterima',
     'REJECTED': 'Ditolak',
-    'EXPIRED': 'Ditolak'
+    'EXPIRED': 'Kedaluarsa'
   }
   return labels[status] || status
 }
@@ -243,7 +243,7 @@ const executeTerima = async () => {
               <option value="MENUNGGU_KONFIRMASI">Perlu Verifikasi</option>
               <option value="PAID">Diterima</option>
               <option value="REJECTED">Ditolak</option>
-              <option value="EXPIRED">Ditolak (Batas Upload Habis)</option>
+              <option value="EXPIRED">Kedaluarsa</option>
             </select>
 
             <select v-model="sortBy" class="bg-gray-50 border border-gray-300 text-gray-700 text-sm rounded-lg p-2.5 outline-none focus:ring-2 focus:ring-blue-400">

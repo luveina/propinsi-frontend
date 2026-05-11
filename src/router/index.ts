@@ -8,7 +8,6 @@ import PembayaranPage from '@/views/pendaftaran/PembayaranPage.vue';
 // import AppLayout from '@/layout/AppLayout.vue'
 import MyTicketsView from '@/views/ticket/MyTicketsView.vue'
 import TicketDetailView from '@/views/ticket/TicketDetailView.vue'
-import KatalogLombaMobileView from '@/views/KatalogLombaMobileView.vue'
 
 const router = createRouter({
   history: createWebHistory(import.meta.env.BASE_URL),
@@ -140,12 +139,6 @@ const router = createRouter({
       component: PembayaranPage,
       meta: { requiresAuth: true, requiredRole: 'PESERTA' },
       props: true,
-    },
-    {
-      path: '/katalog-lomba-mobile',
-      name: 'katalog-lomba-mobile',
-      component: KatalogLombaMobileView,
-      meta: { requiresAuth: true },
     },
     // ─── Fallback ─────────────────────────────────────────────────────
     {

@@ -223,8 +223,18 @@ const copyText = async (text: string) => {
 
 const statusFromQuery = ref(readQueryString(route.query.status) || 'Unpaid');
 
+const parseMillisForCountdown = (rawDate: string): number => {
+  if (!rawDate) return Date.now();
+
+  const hasTimezone = /([zZ]|[+\-]\d{2}:\d{2})$/.test(rawDate);
+  const normalizedDate = hasTimezone ? rawDate : `${rawDate}Z`;
+  const parsed = new Date(normalizedDate).getTime();
+
+  return Number.isFinite(parsed) ? parsed : Date.now();
+};
+
 const deadlineText = computed(() => {
-  const createdTime = new Date(waktuReservasi.value).getTime() || Date.now();
+  const createdTime = parseMillisForCountdown(waktuReservasi.value);
   const duration = statusFromQuery.value === 'Invalid' ? (24 * 60 * 60 * 1000) : (2 * 60 * 60 * 1000);
   const deadline = new Date(createdTime + duration);
   const options: Intl.DateTimeFormatOptions = { day: 'numeric', month: 'long', year: 'numeric', hour: '2-digit', minute: '2-digit' };
@@ -240,13 +250,7 @@ const formattedTimeLeft = computed(() => {
 });
 
 const startTimer = () => {
-  // Samakan parsing dengan TicketCard (tambah 'Z' jika belum ada)
-  const dateStr = waktuReservasi.value.endsWith('Z') 
-    ? waktuReservasi.value 
-    : waktuReservasi.value + 'Z';
-    
-  const createdTime = new Date(dateStr).getTime();
-  
+  const createdTime = parseMillisForCountdown(waktuReservasi.value);
   const duration = statusFromQuery.value === 'Invalid' ? (24 * 60 * 60 * 1000) : (2 * 60 * 60 * 1000);
   const deadline = createdTime + duration;
 
