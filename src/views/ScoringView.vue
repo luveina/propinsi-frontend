@@ -277,6 +277,10 @@ const cardClass = (item: ScoringGantangan) => {
 
 const formatBlockLabel = (label: string) => label.toUpperCase().replace('BLOK ', 'BLOK\n')
 
+const isAllLocked = computed(() => {
+  return blocks.value.length === 4 && blocks.value.every(block => block.locked === true)
+})
+
 onMounted(fetchBlocks)
 </script>
 
@@ -327,6 +331,15 @@ onMounted(fetchBlocks)
                 </div>
               </button>
             </div>
+            <div v-if="isAllLocked" class="mt-10 px-4 w-full max-w-xs mx-auto text-center">
+            <button 
+              @click="router.push({ name: 'hasil-ajuan', params: { lombaId: lombaId } })"
+              class="w-full bg-[#3041b3] text-white py-4 rounded-xl font-bold shadow-lg cursor-pointer"
+            >
+              Lihat Hasil Ajuan ▶
+            </button>
+            <p class="text-[10px] text-gray-400 mt-2 italic">Klik untuk melihat klasemen sementara.</p>
+          </div>
           </div>
         </template>
 

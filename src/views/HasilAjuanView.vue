@@ -8,7 +8,7 @@ const route = useRoute()
 const router = useRouter()
 
 // Ambil Lomba ID dari URL Query (?lombaId=...)
-const lombaId = computed(() => route.query.lombaId as string)
+const lombaId = computed(() => route.params.lombaId as string)
 
 // State
 const standings = ref<SemiFinalStandings | null>(null)
@@ -68,16 +68,18 @@ const buttonConfig = computed(() => {
   }
 })
 
-// Handler klik tombol di bawah
 const handleAction = () => {
   if (buttonConfig.value.disabled) return
   
+  // Pastikan lombaId terbawa ke halaman berikutnya
   const query = { lombaId: lombaId.value }
   
   if (standings.value?.nextStep === 'FINISH') {
-    router.push({ path: '/hasil-akhir', query })
-  } else {
-    router.push({ path: '/babak-koncer', query })
+    // Kalau menang mutlak, ke halaman Pengumuman
+    router.push({ name: 'hasil-akhir', query }) 
+  } else if (standings.value?.nextStep === 'KONCER') {
+    // Kalau seri, ke halaman Babak Koncer
+    router.push({ name: 'babak-koncer', query })
   }
 }
 </script>
