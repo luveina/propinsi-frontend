@@ -184,7 +184,7 @@ const handleLanjutPembayaran = async () => {
 
     await router.push({
       name: 'pembayaran',
-      query: {
+      query: { 
         reservasiId,
         namaLomba: lombaName.value,
         nomorGantangan: String(selectedSeat.value),

@@ -490,6 +490,10 @@ const getStatusLabel = (status: string) => {
 }
 
 const buttonStatus = computed(() => {
+  if (lomba.value.status === 'SELESAI') {
+    return { text: 'LIHAT PEMENANG', disabled: false, theme: 'blue' };
+  }
+
   if (userRole.value === 'JURI') {
     const isAssigned = lomba.value.listJuri?.some((j: any) => j.id === userStore.id) || false;
     const canScore = lomba.value.status === 'BERLANGSUNG' && isAssigned;
@@ -499,7 +503,6 @@ const buttonStatus = computed(() => {
       theme: 'blue'
     };
   }
-  if (lomba.value.status === 'SELESAI') return { text: 'LIHAT PEMENANG', disabled: false, theme: 'blue' };
 
   const resStatus = lomba.value.userBookingStatus;
   if (resStatus === 'PAID') return { text: 'SUDAH TERDAFTAR', disabled: true, theme: 'success' };
