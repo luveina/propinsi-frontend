@@ -800,13 +800,23 @@ const buttonStatus = computed(() => {
 
 const handleButtonClick = () => {
   if (buttonStatus.value.disabled) return
+
+  // 1. Jika status SELESAI, arahkan ke halaman hasil-akhir (LIHAT PEMENANG)
+  if (lomba.value.status === 'SELESAI') {
+    router.push({ path: '/hasil-akhir', query: { lombaId } })
+    return
+  }
+
+  // 2. Jika JURI (dalam masa berlangsung), arahkan ke penjurian
+  if (userRole.value === 'JURI') {
+    router.push({ path: '/penjurian', query: { lombaId } })
+    return
+  }
+
+  // 3. Logika untuk PESERTA (Bayar atau Reservasi Baru)
   const resStatus = lomba.value.userBookingStatus
   if (resStatus === 'BOOKED' || resStatus === 'MENUNGGU_KONFIRMASI') {
     router.push(`/pembayaran/${lomba.value.userReservationId}`)
-  } else if (lomba.value.status === 'SELESAI') {
-    router.push(`/winner/${lombaId}`)
-  } else if (userRole.value === 'JURI') {
-    router.push({ path: '/penjurian', query: { lombaId } })
   } else {
     router.push(`/reservasi/${lombaId}`)
   }
