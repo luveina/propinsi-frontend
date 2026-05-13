@@ -2,7 +2,11 @@
 import { computed, onMounted, ref } from 'vue'
 import { useRoute, useRouter } from 'vue-router'
 import { useAuthStore } from '@/stores/auth/auth.store'
-import type { ScoringBlokDetail, ScoringBlokSummary, ScoringGantangan } from '@/interfaces/scoring.interface'
+import type {
+  ScoringBlokDetail,
+  ScoringBlokSummary,
+  ScoringGantangan,
+} from '@/interfaces/scoring.interface'
 import {
   getScoringBlockDetail,
   getScoringBlocks,
@@ -82,23 +86,25 @@ const fetchBlocks = async () => {
   error.value = ''
   try {
     const lombaDetail: any = await getLombaDetail(lombaId.value)
-    
+
     if (lombaDetail.status !== 'BERLANGSUNG') {
       error.value = 'Penilaian belum bisa dimulai, status lomba bukan BERLANGSUNG.'
       return
     }
 
-    const { id: currentUserId } = JSON.parse(localStorage.getItem('user') || '{}');
-    const isAssigned = lombaDetail.listJuri?.some((j: any) => j.id === currentUserId) || false;
+    const { id: currentUserId } = JSON.parse(localStorage.getItem('user') || '{}')
+    const isAssigned = lombaDetail.listJuri?.some((j: any) => j.id === currentUserId) || false
 
     if (!isAssigned) {
-      error.value = 'Anda tidak memiliki akses penilaian pada lomba ini karena tidak ditugaskan sebagai Juri untuk lomba ini.'
+      error.value =
+        'Anda tidak memiliki akses penilaian pada lomba ini karena tidak ditugaskan sebagai Juri untuk lomba ini.'
       return
     }
 
     blocks.value = await getScoringBlocks(lombaId.value)
   } catch (err: any) {
-    error.value = err?.response?.data?.message || 'Gagal mengambil data atau Anda tidak memiliki akses.'
+    error.value =
+      err?.response?.data?.message || 'Gagal mengambil data atau Anda tidak memiliki akses.'
   } finally {
     loading.value = false
   }
@@ -129,7 +135,9 @@ const backToBlocks = async () => {
 
 const navigateBlock = async (direction: -1 | 1) => {
   if (logicalBlocks.value.length === 0) return
-  const currentIndex = logicalBlocks.value.findIndex((item) => item.blokId === selectedBlock.value?.blokId)
+  const currentIndex = logicalBlocks.value.findIndex(
+    (item) => item.blokId === selectedBlock.value?.blokId,
+  )
   if (currentIndex < 0) return
 
   // Infinite looping (neverending) based on logical order (1,2,3,4)
@@ -149,7 +157,8 @@ const isGantanganBooked = (item: ScoringGantangan) => {
   return item.isBooked || item.status === 'ACTIVE'
 }
 
-const isClickable = (item: ScoringGantangan) => isGantanganBooked(item) && item.status !== 'DISQUALIFIED'
+const isClickable = (item: ScoringGantangan) =>
+  isGantanganBooked(item) && item.status !== 'DISQUALIFIED'
 
 const isSelected = (id: string) => selectedAjuan.value.has(id)
 
@@ -278,7 +287,7 @@ const cardClass = (item: ScoringGantangan) => {
 const formatBlockLabel = (label: string) => label.toUpperCase().replace('BLOK ', 'BLOK\n')
 
 const isAllLocked = computed(() => {
-  return blocks.value.length === 4 && blocks.value.every(block => block.locked === true)
+  return blocks.value.length === 4 && blocks.value.every((block) => block.locked === true)
 })
 
 onMounted(fetchBlocks)
@@ -289,7 +298,11 @@ onMounted(fetchBlocks)
     <!-- Main Content -->
     <main class="flex-1 flex flex-col min-w-0 bg-white overflow-y-auto">
       <header class="topbar sticky top-0 z-30 flex-shrink-0">
-        <button class="p-2 -ml-2 text-white flex items-center justify-center cursor-pointer" aria-label="Kembali" @click="router.push('/katalog-lomba')">
+        <button
+          class="p-2 -ml-2 text-white flex items-center justify-center cursor-pointer"
+          aria-label="Kembali"
+          @click="router.push('/katalog-lomba')"
+        >
           <span class="chevron chevron-left"></span>
         </button>
         <h1>Penilaian</h1>
@@ -300,7 +313,9 @@ onMounted(fetchBlocks)
         <div v-if="!lombaId" class="alert error">
           Lomba belum dipilih. Buka halaman ini dari tombol Penilaian di katalog lomba.
           <div class="mt-2">
-            <button class="btn-primary" @click="router.push('/katalog-lomba')">Kembali ke Katalog</button>
+            <button class="btn-primary" @click="router.push('/katalog-lomba')">
+              Kembali ke Katalog
+            </button>
           </div>
         </div>
         <div v-if="error" class="alert error">{{ error }}</div>
@@ -324,22 +339,38 @@ onMounted(fetchBlocks)
               >
                 <div class="flex flex-col items-center justify-center gap-1">
                   <!-- Check/Tanda Udah Di-vote -->
-                  <svg v-if="block.locked" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-8 h-8 mb-2 opacity-90">
-                    <path fill-rule="evenodd" d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53-1.648-1.528a.75.75 0 1 0-1.032 1.086l2.25 2.083a.75.75 0 0 0 1.13-.092l3.75-5.207Z" clip-rule="evenodd" />
+                  <svg
+                    v-if="block.locked"
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    class="w-8 h-8 mb-2 opacity-90"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M2.25 12c0-5.385 4.365-9.75 9.75-9.75s9.75 4.365 9.75 9.75-4.365 9.75-9.75 9.75S2.25 17.385 2.25 12Zm13.36-1.814a.75.75 0 1 0-1.22-.872l-3.236 4.53-1.648-1.528a.75.75 0 1 0-1.032 1.086l2.25 2.083a.75.75 0 0 0 1.13-.092l3.75-5.207Z"
+                      clip-rule="evenodd"
+                    />
                   </svg>
-                  <span class="block-card-label" :class="{ 'whitespace-pre-line': true, 'text-center': true }">{{ formatBlockLabel(block.blokLabel) }}</span>
+                  <span
+                    class="block-card-label"
+                    :class="{ 'whitespace-pre-line': true, 'text-center': true }"
+                    >{{ formatBlockLabel(block.blokLabel) }}</span
+                  >
                 </div>
               </button>
             </div>
             <div v-if="isAllLocked" class="mt-10 px-4 w-full max-w-xs mx-auto text-center">
-            <button 
-              @click="router.push({ name: 'hasil-ajuan', params: { lombaId: lombaId } })"
-              class="w-full bg-[#3041b3] text-white py-4 rounded-xl font-bold shadow-lg cursor-pointer"
-            >
-              Lihat Hasil Ajuan ▶
-            </button>
-            <p class="text-[10px] text-gray-400 mt-2 italic">Klik untuk melihat klasemen sementara.</p>
-          </div>
+              <button
+                @click="router.push({ name: 'hasil-ajuan', params: { lombaId: lombaId } })"
+                class="w-full bg-[#3041b3] text-white py-4 rounded-xl font-bold shadow-lg cursor-pointer"
+              >
+                Lihat Hasil Ajuan ▶
+              </button>
+              <p class="text-[10px] text-gray-400 mt-2 italic">
+                Klik untuk melihat klasemen sementara.
+              </p>
+            </div>
           </div>
         </template>
 
@@ -354,18 +385,39 @@ onMounted(fetchBlocks)
           <div class="mode-card">
             <p class="mode-label">Aksi:</p>
             <div class="mode-switcher">
-              <button class="mode-btn" :class="{ active: mode === 'AJUAN' }" @click="mode = 'AJUAN'">
+              <button
+                class="mode-btn"
+                :class="{ active: mode === 'AJUAN' }"
+                @click="mode = 'AJUAN'"
+              >
                 <span class="mode-icon icon-check">✓</span>
                 Ajuan
               </button>
-              <button class="mode-btn warning-mode" :class="{ active: mode === 'PERINGATAN' }" @click="mode = 'PERINGATAN'">
+              <button
+                class="mode-btn warning-mode"
+                :class="{ active: mode === 'PERINGATAN' }"
+                @click="mode = 'PERINGATAN'"
+              >
                 <span class="mode-icon icon-warning">!</span>
                 Peringatan
               </button>
-              <button class="mode-btn disqualified-mode" :class="{ active: mode === 'DISKUALIFIKASI' }" @click="mode = 'DISKUALIFIKASI'">
+              <button
+                class="mode-btn disqualified-mode"
+                :class="{ active: mode === 'DISKUALIFIKASI' }"
+                @click="mode = 'DISKUALIFIKASI'"
+              >
                 <span class="mode-icon icon-ban">
-                  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="currentColor" class="w-3.5 h-3.5 mt-[1px]">
-                    <path fill-rule="evenodd" d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z" clip-rule="evenodd" />
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="currentColor"
+                    class="w-3.5 h-3.5 mt-[1px]"
+                  >
+                    <path
+                      fill-rule="evenodd"
+                      d="M5.47 5.47a.75.75 0 0 1 1.06 0L12 10.94l5.47-5.47a.75.75 0 1 1 1.06 1.06L13.06 12l5.47 5.47a.75.75 0 1 1-1.06 1.06L12 13.06l-5.47 5.47a.75.75 0 0 1-1.06-1.06L10.94 12 5.47 6.53a.75.75 0 0 1 0-1.06Z"
+                      clip-rule="evenodd"
+                    />
                   </svg>
                 </span>
                 Diskualifikasi
@@ -393,17 +445,29 @@ onMounted(fetchBlocks)
             >
               <span class="number">{{ item.nomorGantangan }}</span>
 
-              <div v-if="item.warningCount > 0 && item.status !== 'DISQUALIFIED'" class="warning-indicator mt-1 text-xs font-bold text-yellow-700 flex items-center justify-center gap-1 z-10 w-full absolute bottom-3">
-                <span class="w-4 h-4 rounded-full bg-yellow-500 text-white flex items-center justify-center text-[10px]">!</span>
+              <div
+                v-if="item.warningCount > 0 && item.status !== 'DISQUALIFIED'"
+                class="warning-indicator mt-1 text-xs font-bold text-yellow-700 flex items-center justify-center gap-1 z-10 w-full absolute bottom-3"
+              >
+                <span
+                  class="w-4 h-4 rounded-full bg-yellow-500 text-white flex items-center justify-center text-[10px]"
+                  >!</span
+                >
                 {{ item.warningCount }}/3
               </div>
 
               <span v-if="mode === 'AJUAN' && isSelected(item.id)" class="badge check z-10">✓</span>
-              <span v-if="item.status === 'DISQUALIFIED'" class="overlay-text z-10">Didiskualifikasi</span>
+              <span v-if="item.status === 'DISQUALIFIED'" class="overlay-text z-10"
+                >Didiskualifikasi</span
+              >
             </button>
           </div>
 
-          <button class="submit-btn" :disabled="saving || !!selectedBlock?.locked || mode !== 'AJUAN'" @click="submitAjuan">
+          <button
+            class="submit-btn"
+            :disabled="saving || !!selectedBlock?.locked || mode !== 'AJUAN'"
+            @click="submitAjuan"
+          >
             {{ saving ? 'Menyimpan...' : 'Ajukan Gantangan' }}
           </button>
         </template>
@@ -413,9 +477,7 @@ onMounted(fetchBlocks)
     <div v-if="showEmptySubmitConfirm" class="modal-backdrop">
       <div class="modal-card">
         <h3>Tidak Ada Gantangan Terpilih</h3>
-        <p>
-          Anda belum memilih gantangan manapun. Apakah Anda yakin akan mengajukan ajuan kosong?
-        </p>
+        <p>Anda belum memilih gantangan manapun. Apakah Anda yakin akan mengajukan ajuan kosong?</p>
         <div class="modal-actions">
           <button class="btn-secondary" @click="showEmptySubmitConfirm = false">Batal</button>
           <button class="btn-primary" @click="submitAjuanFinal">Tetap Ajukan</button>
@@ -428,12 +490,25 @@ onMounted(fetchBlocks)
       <div class="modal-card text-center">
         <h3 class="text-blue-700 font-bold mb-4">Berikan Peringatan</h3>
         <p class="text-sm text-gray-600 mb-6">
-          Apakah Anda yakin ingin memberikan peringatan pada <b>Gantangan {{ confirmWarningTarget.nomorGantangan }}</b>?<br />
-          Tersisa <b>{{ 3 - (confirmWarningTarget.warningCount || 0) }} peringatan lagi</b> sebelum diskualifikasi otomatis.
+          Apakah Anda yakin ingin memberikan peringatan pada
+          <b>Gantangan {{ confirmWarningTarget.nomorGantangan }}</b
+          >?<br />
+          Tersisa <b>{{ 3 - (confirmWarningTarget.warningCount || 0) }} peringatan lagi</b> sebelum
+          diskualifikasi otomatis.
         </p>
         <div class="flex gap-3 justify-center w-full">
-          <button class="btn-secondary flex-1 py-2 rounded-lg bg-gray-200 text-gray-700 font-bold" @click="confirmWarningTarget = null">Batal</button>
-          <button class="btn-primary flex-1 py-2 rounded-lg bg-blue-700 text-white font-bold" @click="proceedWarning">Beri Peringatan</button>
+          <button
+            class="btn-secondary flex-1 py-2 rounded-lg bg-gray-200 text-gray-700 font-bold"
+            @click="confirmWarningTarget = null"
+          >
+            Batal
+          </button>
+          <button
+            class="btn-primary flex-1 py-2 rounded-lg bg-blue-700 text-white font-bold"
+            @click="proceedWarning"
+          >
+            Beri Peringatan
+          </button>
         </div>
       </div>
     </div>
@@ -443,12 +518,24 @@ onMounted(fetchBlocks)
       <div class="modal-card text-center">
         <h3 class="text-black font-bold mb-4">Konfirmasi Diskualifikasi</h3>
         <p class="text-sm text-gray-600 mb-6">
-          Apakah Anda yakin diskualifikasi <b>Gantangan {{ confirmDisqualifyTarget.nomorGantangan }}</b>?<br />
+          Apakah Anda yakin diskualifikasi
+          <b>Gantangan {{ confirmDisqualifyTarget.nomorGantangan }}</b
+          >?<br />
           <b>Gantangan tersebut tidak bisa diajukan lagi untuk babak selanjutnya.</b>
         </p>
         <div class="flex gap-3 justify-center w-full">
-          <button class="btn-secondary flex-1 py-2 rounded-lg bg-gray-200 text-gray-700 font-bold" @click="confirmDisqualifyTarget = null">Batal</button>
-          <button class="btn-primary flex-1 py-2 rounded-lg bg-black text-white font-bold" @click="proceedDisqualify">Diskualifikasi</button>
+          <button
+            class="btn-secondary flex-1 py-2 rounded-lg bg-gray-200 text-gray-700 font-bold"
+            @click="confirmDisqualifyTarget = null"
+          >
+            Batal
+          </button>
+          <button
+            class="btn-primary flex-1 py-2 rounded-lg bg-black text-white font-bold"
+            @click="proceedDisqualify"
+          >
+            Diskualifikasi
+          </button>
         </div>
       </div>
     </div>
@@ -496,9 +583,19 @@ onMounted(fetchBlocks)
   margin-bottom: 12px;
 }
 
-.alert.error { background: #ffe6e6; color: #7f1d1d; }
-.alert.info { background: #e8f1ff; color: #1f3a8a; }
-.loading { text-align: center; color: #5360a6; padding: 20px; }
+.alert.error {
+  background: #ffe6e6;
+  color: #7f1d1d;
+}
+.alert.info {
+  background: #e8f1ff;
+  color: #1f3a8a;
+}
+.loading {
+  text-align: center;
+  color: #5360a6;
+  padding: 20px;
+}
 
 .block-grid {
   display: grid;
@@ -511,25 +608,33 @@ onMounted(fetchBlocks)
 .block-card {
   border: none;
   border-radius: 12px;
-    height: 200px;
-    background: #3041b3;
-    color: white;
-    cursor: pointer;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    transition: transform 0.1s;
-  }
-  .block-card:active { transform: scale(0.98); }
+  height: 200px;
+  background: #3041b3;
+  color: white;
+  cursor: pointer;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: transform 0.1s;
+}
+.block-card:active {
+  transform: scale(0.98);
+}
 
-  .block-card-label {
+.block-card-label {
   font-weight: 700;
 }
 
-.block-card.locked { background: #64748b; color: #ffffff; box-shadow: none; }
+.block-card.locked {
+  background: #64748b;
+  color: #ffffff;
+  box-shadow: none;
+}
 
-.block-head { margin-bottom: 16px; }
+.block-head {
+  margin-bottom: 16px;
+}
 
 .back-btn {
   border: none;
@@ -546,58 +651,58 @@ onMounted(fetchBlocks)
 .mode-card {
   border: 1px solid #c9ccd6;
   border-radius: 12px;
-    padding: 12px;
-    background: #f8f9fa;
-    margin-bottom: 14px;
-  }
+  padding: 12px;
+  background: #f8f9fa;
+  margin-bottom: 14px;
+}
 
-  .mode-label {
-    margin: 0 0 8px;
-    font-size: 13px;
-    color: #3041b3;
-    font-weight: 700;
-  }
+.mode-label {
+  margin: 0 0 8px;
+  font-size: 13px;
+  color: #3041b3;
+  font-weight: 700;
+}
 
-  .mode-switcher {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    gap: 8px;
-  }
+.mode-switcher {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 8px;
+}
 
-  .mode-btn {
-    border-radius: 10px;
-    border: 1px solid #c8ccd5;
-    background: #fff;
-    color: #2f3445;
-    font-size: 11px;
-    font-weight: 600;
-    padding: 8px 4px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    gap: 6px;
-  }
+.mode-btn {
+  border-radius: 10px;
+  border: 1px solid #c8ccd5;
+  background: #fff;
+  color: #2f3445;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 8px 4px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
 
-  .mode-btn.active {
-    background: #3041b3;
-    color: #fff;
-    border-color: #3041b3;
-    box-shadow: 0 4px 6px rgba(48,65,179,0.2);
-  }
+.mode-btn.active {
+  background: #3041b3;
+  color: #fff;
+  border-color: #3041b3;
+  box-shadow: 0 4px 6px rgba(48, 65, 179, 0.2);
+}
 
-  .mode-btn.warning-mode.active {
-    background: #ffb400;
-    border-color: #ffb400;
-    color: #fff;
-    box-shadow: 0 4px 6px rgba(255,180,0,0.2);
-  }
+.mode-btn.warning-mode.active {
+  background: #ffb400;
+  border-color: #ffb400;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(255, 180, 0, 0.2);
+}
 
-  .mode-btn.disqualified-mode.active {
-    background: #000000;
-    border-color: #000000;
-    color: #fff;
-    box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-  }
+.mode-btn.disqualified-mode.active {
+  background: #000000;
+  border-color: #000000;
+  color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.2);
+}
 
 .mode-icon {
   width: 20px;
@@ -610,103 +715,144 @@ onMounted(fetchBlocks)
 }
 
 /* Check (Ajuan) */
-.mode-btn:not(.active) .icon-check { background: #3041b3; color: #fff; }
-.mode-btn.active .icon-check { background: #fff; color: #3041b3; }
+.mode-btn:not(.active) .icon-check {
+  background: #3041b3;
+  color: #fff;
+}
+.mode-btn.active .icon-check {
+  background: #fff;
+  color: #3041b3;
+}
 
 /* Warning (Peringatan) */
-.mode-btn.warning-mode:not(.active) .icon-warning { background: #ffb400; color: #fff; }
-.mode-btn.warning-mode.active .icon-warning { background: #fff; color: #ffb400; }
+.mode-btn.warning-mode:not(.active) .icon-warning {
+  background: #ffb400;
+  color: #fff;
+}
+.mode-btn.warning-mode.active .icon-warning {
+  background: #fff;
+  color: #ffb400;
+}
 
 /* Ban (Diskualifikasi) */
-.mode-btn.disqualified-mode:not(.active) .icon-ban { background: #000; color: #fff; }
-.mode-btn.disqualified-mode.active .icon-ban { background: #fff; color: #000; }
+.mode-btn.disqualified-mode:not(.active) .icon-ban {
+  background: #000;
+  color: #fff;
+}
+.mode-btn.disqualified-mode.active .icon-ban {
+  background: #fff;
+  color: #000;
+}
 
 .block-navigator {
-    margin: 14px 0 10px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
+  margin: 14px 0 10px;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+}
 
-  .block-navigator h2 {
-    margin: 0;
-    color: #3041b3;
-    font-size: 16px;
-    font-weight: 700;
-  }
+.block-navigator h2 {
+  margin: 0;
+  color: #3041b3;
+  font-size: 16px;
+  font-weight: 700;
+}
 
-  .nav-btn {
-    width: 32px;
-    height: 32px;
-    border: 1px solid #c4c8d4;
-    background: transparent;
-    display: grid;
-    place-items: center;
-    border-radius: 50%;
-  }
+.nav-btn {
+  width: 32px;
+  height: 32px;
+  border: 1px solid #c4c8d4;
+  background: transparent;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
 
-  .nav-btn:disabled { opacity: 0.45; }
+.nav-btn:disabled {
+  opacity: 0.45;
+}
 
-  .chevron {
-    width: 10px;
-    height: 10px;
-    border-top: 2px solid currentColor;
-    border-right: 2px solid currentColor;
-    display: inline-block;
-  }
-  .chevron-right { transform: rotate(45deg); }
-  .chevron-left { transform: rotate(-135deg); }
+.chevron {
+  width: 10px;
+  height: 10px;
+  border-top: 2px solid currentColor;
+  border-right: 2px solid currentColor;
+  display: inline-block;
+}
+.chevron-right {
+  transform: rotate(45deg);
+}
+.chevron-left {
+  transform: rotate(-135deg);
+}
 
-  .nav-triangle {
-    width: 0;
-    height: 0;
-    border-top: 6px solid transparent;
-    border-bottom: 6px solid transparent;
-    display: inline-block;
-  }
-  .triangle-right {
-    border-left: 8px solid #3041b3;
-    margin-left: 3px;
-  }
-  .triangle-left {
-    border-right: 8px solid #3041b3;
-    margin-right: 3px;
-  }
+.nav-triangle {
+  width: 0;
+  height: 0;
+  border-top: 6px solid transparent;
+  border-bottom: 6px solid transparent;
+  display: inline-block;
+}
+.triangle-right {
+  border-left: 8px solid #3041b3;
+  margin-left: 3px;
+}
+.triangle-left {
+  border-right: 8px solid #3041b3;
+  margin-right: 3px;
+}
 
-  .grid-wrap {
-    display: grid;
-    max-height: max-content;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-    max-width: 250px;
-    margin: 0 auto 16px auto;
-    align-content: start;
-  }
+.grid-wrap {
+  display: grid;
+  max-height: max-content;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  max-width: 250px;
+  margin: 0 auto 16px auto;
+  align-content: start;
+}
 
-  .gantangan-card {
-    aspect-ratio: 1 / 1;
-    height: auto;
-    border: none;
-    border-radius: 12px;
-    position: relative;
-    font-weight: 600;
-    color: #fff;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
-  }
+.gantangan-card {
+  aspect-ratio: 1 / 1;
+  height: auto;
+  border: none;
+  border-radius: 12px;
+  position: relative;
+  font-weight: 600;
+  color: #fff;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
 
-  .gantangan-card .number {
-    font-size: 32px;
-  }
+.gantangan-card .number {
+  font-size: 32px;
+}
 
-  .gantangan-card.default { background: #8eb1e3; }
-  .gantangan-card.selected { background: #3041b3; box-shadow: 0 4px 8px rgba(48,65,179,0.3); }
-.gantangan-card.warning { background: #fce598; color: #fff; }
-.gantangan-card.disqualified { background: #000; color: #fff; }
-.gantangan-card.unbooked { background: #c1c3ca; color: #e8e9ed; box-shadow: none; }
-.gantangan-card:disabled { cursor: not-allowed; }
+.gantangan-card.default {
+  background: #8eb1e3;
+}
+.gantangan-card.selected {
+  background: #3041b3;
+  box-shadow: 0 4px 8px rgba(48, 65, 179, 0.3);
+}
+.gantangan-card.warning {
+  background: #fce598;
+  color: #fff;
+}
+.gantangan-card.disqualified {
+  background: #000;
+  color: #fff;
+}
+.gantangan-card.unbooked {
+  background: #c1c3ca;
+  color: #e8e9ed;
+  box-shadow: none;
+}
+.gantangan-card:disabled {
+  cursor: not-allowed;
+}
 
 .badge {
   position: absolute;
@@ -721,7 +867,11 @@ onMounted(fetchBlocks)
   font-weight: 700;
 }
 
-.badge.check { background: #3041b3; border: 2px solid rgba(255, 255, 255, 0.85); box-shadow: 0 2px 4px rgba(0,0,0,0.2); }
+.badge.check {
+  background: #3041b3;
+  border: 2px solid rgba(255, 255, 255, 0.85);
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
 
 .overlay-text {
   position: absolute;
@@ -734,22 +884,25 @@ onMounted(fetchBlocks)
 }
 
 .submit-btn {
-    margin-top: 16px;
-    width: 100%;
-    max-width: 320px;
-    margin-left: auto;
-    margin-right: auto;
-    display: block;
-    border: none;
-    border-radius: 12px;
-    background: #3041b3;
-    color: #fff;
-    font-weight: 700;
-    height: 42px;
-    font-size: 15px;
+  margin-top: 16px;
+  width: 100%;
+  max-width: 320px;
+  margin-left: auto;
+  margin-right: auto;
+  display: block;
+  border: none;
+  border-radius: 12px;
+  background: #3041b3;
+  color: #fff;
+  font-weight: 700;
+  height: 42px;
+  font-size: 15px;
 }
 
-.submit-btn:disabled { background: #bcc2e1; box-shadow: none; }
+.submit-btn:disabled {
+  background: #bcc2e1;
+  box-shadow: none;
+}
 
 .modal-backdrop {
   position: fixed;
@@ -766,7 +919,7 @@ onMounted(fetchBlocks)
   border-radius: 16px;
   width: min(340px, 100%);
   padding: 24px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
 }
 
 .modal-card h3 {
@@ -789,14 +942,20 @@ onMounted(fetchBlocks)
   gap: 12px;
 }
 
-.btn-secondary, .btn-primary {
+.btn-secondary,
+.btn-primary {
   border: none;
   border-radius: 8px;
   padding: 10px 16px;
   font-weight: 600;
   font-size: 14px;
 }
-.btn-secondary { background: #f1f2f5; color: #4a4f62; }
-.btn-primary { background: #3041b3; color: #fff; }
-
+.btn-secondary {
+  background: #f1f2f5;
+  color: #4a4f62;
+}
+.btn-primary {
+  background: #3041b3;
+  color: #fff;
+}
 </style>

@@ -9,7 +9,6 @@ const drawerOpen = ref(false)
 
 <template>
   <div class="flex h-screen overflow-hidden bg-[#F4F7FE] font-plus-jakarta">
-
     <!-- DESKTOP: Sidebar permanen (hidden di mobile) -->
     <div class="hidden md:flex md:flex-shrink-0">
       <Sidebar />
@@ -40,7 +39,6 @@ const drawerOpen = ref(false)
 
     <!-- MAIN CONTENT -->
     <div class="flex flex-col flex-1 min-w-0 overflow-hidden">
-
       <!-- HeaderMobile hanya muncul di bawah md -->
       <div class="md:hidden">
         <HeaderMobile
@@ -53,7 +51,6 @@ const drawerOpen = ref(false)
       <main class="flex-1 overflow-y-auto">
         <RouterView />
       </main>
-
     </div>
   </div>
 </template>
@@ -61,13 +58,21 @@ const drawerOpen = ref(false)
 <style scoped>
 /* Backdrop fade */
 .fade-enter-active,
-.fade-leave-active { transition: opacity 0.25s ease; }
+.fade-leave-active {
+  transition: opacity 0.25s ease;
+}
 .fade-enter-from,
-.fade-leave-to { opacity: 0; }
+.fade-leave-to {
+  opacity: 0;
+}
 
 /* Drawer slide dari kiri */
 .slide-enter-active,
-.slide-leave-active { transition: transform 0.25s ease; }
+.slide-leave-active {
+  transition: transform 0.25s ease;
+}
 .slide-enter-from,
-.slide-leave-to { transform: translateX(-100%); }
+.slide-leave-to {
+  transform: translateX(-100%);
+}
 </style>

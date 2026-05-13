@@ -35,18 +35,36 @@ export interface ScoringVoteResponse {
 }
 
 export interface GantanganRanking {
-  nomorGantangan: number;
-  blokId: number;
-  jumlahAjuan: number;
+  gantanganId: string
+  nomorGantangan: number
+  blokId: number
+  jumlahAjuan: number
+}
+
+export interface KoncerVoteItemRequest {
+  gantanganId: string
+  poin: 'A' | 'B'
+}
+
+export interface KoncerVoteSubmitRequest {
+  votes: KoncerVoteItemRequest[]
+}
+
+export interface KoncerStatusResponse {
+  hasSubmitted: boolean
+  totalJuriSubmitted: number
+  isKoncerFinished: boolean
+  userVotes?: Record<string, 'A' | 'B'>
 }
 
 export interface SemiFinalStandings {
-  lombaId: string;
-  namaLomba: string;
-  juriSubmitted: number;
-  totalJuri: number;
-  nextStep: 'WAITING' | 'KONCER' | 'FINISH';
-  rankings: GantanganRanking[];
+  lombaId: string
+  namaLomba: string
+  juriSubmitted: number
+  totalJuri: number
+  nextStep: 'WAITING' | 'KONCER' | 'FINISH'
+  rankings: GantanganRanking[]
+  koncerQualifiers: GantanganRanking[]
 }
 
 export interface BaseApiResponse<T> {

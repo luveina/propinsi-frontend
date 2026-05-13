@@ -13,9 +13,7 @@
         <div class="brand">
           <img src="@/assets/silobur-biru.png" alt="SILOBUR-NG Logo" class="brand-logo" />
         </div>
-        <div class="subtitle">
-          Harap login untuk menggunakan SILOBUR-<i class="ng">NG</i>
-        </div>
+        <div class="subtitle">Harap login untuk menggunakan SILOBUR-<i class="ng">NG</i></div>
 
         <div class="field-group">
           <label class="field-label">Username</label>
@@ -39,10 +37,16 @@
             @blur="validateField('password')"
           />
           <span v-if="errors.password" class="error-msg">{{ errors.password }}</span>
-          <button type="button" class="forgot-link" @click="showForgotModal = true">Lupa password?</button>
+          <button type="button" class="forgot-link" @click="showForgotModal = true">
+            Lupa password?
+          </button>
         </div>
 
-        <button class="btn-submit" @click="handleLogin" :disabled="authStore.loading || !isFormValid">
+        <button
+          class="btn-submit"
+          @click="handleLogin"
+          :disabled="authStore.loading || !isFormValid"
+        >
           <b>{{ authStore.loading ? 'Loading...' : 'Login' }}</b>
         </button>
 
@@ -86,7 +90,9 @@
           @blur="validateField('password')"
         />
         <span v-if="errors.password" class="error-msg">{{ errors.password }}</span>
-        <button type="button" class="forgot-link" @click="showForgotModal = true">Lupa password?</button>
+        <button type="button" class="forgot-link" @click="showForgotModal = true">
+          Lupa password?
+        </button>
       </div>
 
       <button class="btn-submit" @click="handleLogin" :disabled="authStore.loading || !isFormValid">
@@ -109,10 +115,7 @@
     @confirm="showErrorModal = false"
     @close="showErrorModal = false"
   />
-  <ForgotPasswordModal
-    :show="showForgotModal"
-    @close="showForgotModal = false"
-  />
+  <ForgotPasswordModal :show="showForgotModal" @close="showForgotModal = false" />
 </template>
 
 <script setup lang="ts">
@@ -245,7 +248,9 @@ async function handleLogin() {
   color: #2e42b2;
 }
 
-.ng { font-weight: 700; }
+.ng {
+  font-weight: 700;
+}
 
 .subtitle {
   font-size: 18px;
@@ -291,8 +296,12 @@ async function handleLogin() {
   letter-spacing: 0.2px;
 }
 
-.text-input::placeholder { color: #4b79e6; }
-.text-input:focus { border-color: #1c244f; }
+.text-input::placeholder {
+  color: #4b79e6;
+}
+.text-input:focus {
+  border-color: #1c244f;
+}
 
 .error-msg {
   font-size: 12px;
@@ -327,8 +336,13 @@ async function handleLogin() {
   line-height: 24px;
 }
 
-.btn-submit:hover:not(:disabled) { background-color: #2339a8; }
-.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-submit:hover:not(:disabled) {
+  background-color: #2339a8;
+}
+.btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 
 .register-link {
   font-size: 16px;
@@ -345,5 +359,8 @@ async function handleLogin() {
   text-align: center;
 }
 
-.underline { text-decoration: underline; color: #2e42b2; }
+.underline {
+  text-decoration: underline;
+  color: #2e42b2;
+}
 </style>

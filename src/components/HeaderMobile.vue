@@ -1,5 +1,7 @@
 <template>
-  <header class="bg-[#2E42B2] py-5 px-6 flex items-center justify-between relative shadow-md shrink-0 z-20 text-white">
+  <header
+    class="bg-[#2E42B2] py-5 px-6 flex items-center justify-between relative shadow-md shrink-0 z-20 text-white"
+  >
     <button
       @click="$emit('menuClick')"
       class="w-11 h-11 bg-white/10 rounded-xl flex items-center justify-center cursor-pointer z-30 transition hover:bg-white/20"
@@ -21,17 +23,17 @@
 </template>
 
 <script setup lang="ts">
-import { Icon } from '@iconify/vue';
-import { useRouter } from 'vue-router';
+import { Icon } from '@iconify/vue'
+import { useRouter } from 'vue-router'
 
 defineProps({
   title: {
     type: String,
-    default: 'Detail'
-  }
-});
+    default: 'Detail',
+  },
+})
 
-defineEmits(['menuClick']);
+defineEmits(['menuClick'])
 
-const router = useRouter();
+const router = useRouter()
 </script>

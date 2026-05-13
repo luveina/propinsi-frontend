@@ -6,15 +6,27 @@
           <div class="header-spacer" />
           <b class="modal-title">{{ isEdit ? 'Simpan Lomba' : 'Buat Lomba' }}</b>
           <button class="close-btn" @click="$emit('close')">
-            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-              <path d="M18 6L6 18M6 6L18 18" stroke="#4B5563" stroke-width="2" stroke-linecap="round"/>
+            <svg
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              xmlns="http://www.w3.org/2000/svg"
+            >
+              <path
+                d="M18 6L6 18M6 6L18 18"
+                stroke="#4B5563"
+                stroke-width="2"
+                stroke-linecap="round"
+              />
             </svg>
           </button>
         </div>
 
         <p class="modal-body">
           Pastikan semua detail lomba sudah benar<br />
-          sebelum {{ isEdit ? 'di-' : '' }}<em>{{ isEdit ? 'edit' : 'dibuat' }}</em>.
+          sebelum {{ isEdit ? 'di-' : '' }}<em>{{ isEdit ? 'edit' : 'dibuat' }}</em
+          >.
         </p>
 
         <div class="modal-actions">
@@ -22,7 +34,7 @@
             <b>Kembali</b>
           </button>
           <button class="btn btn-confirm" @click="$emit('confirm')" :disabled="loading">
-            <b>{{ loading ? 'Loading...' : (isEdit ? 'Simpan' : 'Buat') }}</b>
+            <b>{{ loading ? 'Loading...' : isEdit ? 'Simpan' : 'Buat' }}</b>
           </button>
         </div>
       </div>
@@ -130,8 +142,19 @@ defineEmits<{
   line-height: 24px;
 }
 
-.btn-cancel { background-color: #d2d5db; color: #394050; }
-.btn-confirm { background-color: #2e42b2; color: #fff; }
-.btn:hover:not(:disabled) { opacity: 0.9; }
-.btn:disabled { opacity: 0.6; cursor: not-allowed; }
+.btn-cancel {
+  background-color: #d2d5db;
+  color: #394050;
+}
+.btn-confirm {
+  background-color: #2e42b2;
+  color: #fff;
+}
+.btn:hover:not(:disabled) {
+  opacity: 0.9;
+}
+.btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 </style>

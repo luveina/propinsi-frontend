@@ -16,8 +16,18 @@ const emit = defineEmits<{
 const localStatus = ref(props.status)
 const localSort = ref(props.sort)
 
-watch(() => props.status, (val) => { localStatus.value = val })
-watch(() => props.sort, (val) => { localSort.value = val })
+watch(
+  () => props.status,
+  (val) => {
+    localStatus.value = val
+  },
+)
+watch(
+  () => props.sort,
+  (val) => {
+    localSort.value = val
+  },
+)
 
 const statusOptions = [
   { value: 'all', label: 'Semua Status' },
@@ -56,8 +66,9 @@ function saveFilter() {
       class="fixed inset-0 bg-black/35 z-[1000] flex items-end justify-center"
       @click.self="close"
     >
-      <div class="w-full max-w-[430px] rounded-t-[20px] bg-white overflow-hidden flex flex-col items-center px-[15px] pt-[15px] pb-8 gap-[15px] font-plus-jakarta">
-
+      <div
+        class="w-full max-w-[430px] rounded-t-[20px] bg-white overflow-hidden flex flex-col items-center px-[15px] pt-[15px] pb-8 gap-[15px] font-plus-jakarta"
+      >
         <b class="text-[28px] leading-[34px] text-[#2e42b2]">Filters</b>
 
         <!-- Status Tiket -->
@@ -71,7 +82,7 @@ function saveFilter() {
                 'rounded-[15px] flex items-center justify-center py-2 px-[15px] cursor-pointer transition-colors',
                 localStatus === opt.value
                   ? 'bg-[#2e42b2] text-[#dee8fb]'
-                  : 'bg-[#dee8fb] border border-[#2e42b2] text-[#2e42b2] hover:bg-[#c7d7f5]'
+                  : 'bg-[#dee8fb] border border-[#2e42b2] text-[#2e42b2] hover:bg-[#c7d7f5]',
               ]"
               @click="localStatus = opt.value"
             >
@@ -91,7 +102,7 @@ function saveFilter() {
                 'rounded-[15px] flex items-center justify-center py-2 px-[15px] cursor-pointer transition-colors',
                 localSort === opt.value
                   ? 'bg-[#2e42b2] text-[#dee8fb]'
-                  : 'bg-[#dee8fb] border border-[#2e42b2] text-[#2e42b2] hover:bg-[#c7d7f5]'
+                  : 'bg-[#dee8fb] border border-[#2e42b2] text-[#2e42b2] hover:bg-[#c7d7f5]',
               ]"
               @click="localSort = opt.value"
             >
@@ -115,7 +126,6 @@ function saveFilter() {
             <b class="text-sm tracking-[0.2px] leading-6 text-white">Simpan Filter</b>
           </div>
         </div>
-
       </div>
     </div>
   </Teleport>

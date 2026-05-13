@@ -11,7 +11,7 @@ const now = ref(Date.now())
 let timer: any
 
 const parseUtcMillis = (rawDate: string) => {
-  const hasTimezone = /([zZ]|[+\-]\d{2}:\d{2})$/.test(rawDate)
+  const hasTimezone = /([zZ]|[+-]\d{2}:\d{2})$/.test(rawDate)
   return new Date(hasTimezone ? rawDate : `${rawDate}Z`).getTime()
 }
 
@@ -62,14 +62,21 @@ const badgeLabel = computed(() => {
 
 const messageText = computed(() => {
   switch (effectiveStatus.value) {
-    case 'Paid': return 'Pembayaran terkonfirmasi. Harap unduh E-Ticket!'
-    case 'Unpaid': return 'Pembayaran belum dilakukan. Harap lakukan pembayaran.'
-    case 'Menunggu Konfirmasi': return 'Mohon tunggu, bukti pembayaran sedang diverifikasi oleh admin.'
+    case 'Paid':
+      return 'Pembayaran terkonfirmasi. Harap unduh E-Ticket!'
+    case 'Unpaid':
+      return 'Pembayaran belum dilakukan. Harap lakukan pembayaran.'
+    case 'Menunggu Konfirmasi':
+      return 'Mohon tunggu, bukti pembayaran sedang diverifikasi oleh admin.'
     case 'Invalid':
-      return `Alasan ditolak: ${props.ticket.keterangan_tolak ?? '-'}` +
-             (props.ticket.can_reupload ? ' (Batas maksimal upload ulang 1 Hari)' : '')
-    case 'Expired': return 'Waktu pembayaran telah habis. Tiket expired.'
-    default: return ''
+      return (
+        `Alasan ditolak: ${props.ticket.keterangan_tolak ?? '-'}` +
+        (props.ticket.can_reupload ? ' (Batas maksimal upload ulang 1 Hari)' : '')
+      )
+    case 'Expired':
+      return 'Waktu pembayaran telah habis. Tiket expired.'
+    default:
+      return ''
   }
 })
 
@@ -87,8 +94,8 @@ function goToUpload() {
       namaLomba: props.ticket.nama_lomba,
       nomorGantangan: props.ticket.nomor_gantangan || 0,
       nominal: props.ticket.nominal,
-      waktuReservasi: props.ticket.waktu_reservasi
-    }
+      waktuReservasi: props.ticket.waktu_reservasi,
+    },
   })
 }
 
@@ -110,8 +117,8 @@ function goToUploadUlang() {
       nomorGantangan: props.ticket.nomor_gantangan || 0,
       nominal: props.ticket.nominal,
       waktuReservasi: props.ticket.waktu_reservasi,
-      status: props.ticket.status
-    }
+      status: props.ticket.status,
+    },
   })
 }
 </script>
@@ -119,20 +126,36 @@ function goToUploadUlang() {
 <template>
   <div
     class="self-stretch rounded-[6.85px] bg-[#f9fafb] border-[0.8px] border-[#2e42b2] overflow-hidden flex flex-col items-start py-[10px] gap-[7.5px] font-plus-jakarta"
-    :class="effectiveStatus === 'Paid' ? 'cursor-pointer hover:shadow-md hover:shadow-[#2e42b2]/10 transition-shadow' : ''"
+    :class="
+      effectiveStatus === 'Paid'
+        ? 'cursor-pointer hover:shadow-md hover:shadow-[#2e42b2]/10 transition-shadow'
+        : ''
+    "
     @click="effectiveStatus === 'Paid' ? goToDetail() : undefined"
   >
     <div class="self-stretch flex items-center justify-between px-[10px] gap-5">
       <b class="text-base leading-6 text-[#2e42b2]">{{ ticket.nama_lomba }}</b>
-      <div :class="['rounded-[11.14px] flex items-center justify-center py-[5.9px] px-[11.1px] flex-shrink-0', badgeClass]">
-        <span class="text-[10.4px] font-semibold tracking-[0.15px] leading-[17.82px] whitespace-nowrap">{{ badgeLabel }}</span>
+      <div
+        :class="[
+          'rounded-[11.14px] flex items-center justify-center py-[5.9px] px-[11.1px] flex-shrink-0',
+          badgeClass,
+        ]"
+      >
+        <span
+          class="text-[10.4px] font-semibold tracking-[0.15px] leading-[17.82px] whitespace-nowrap"
+          >{{ badgeLabel }}</span
+        >
       </div>
     </div>
 
     <div class="self-stretch bg-[#f9fafb] overflow-hidden flex flex-col items-start px-[10px]">
       <p
         class="self-stretch text-sm font-medium leading-5"
-        :class="effectiveStatus === 'Invalid' || effectiveStatus === 'Expired' ? 'text-[#a9302d]' : 'text-[#374151]'"
+        :class="
+          effectiveStatus === 'Invalid' || effectiveStatus === 'Expired'
+            ? 'text-[#a9302d]'
+            : 'text-[#374151]'
+        "
       >
         {{ messageText }}
       </p>
@@ -140,22 +163,35 @@ function goToUploadUlang() {
 
     <div class="self-stretch flex items-start px-[10px] gap-[10px] flex-wrap">
       <div class="flex items-center gap-[5px]">
-        <Icon icon="mdi:calendar-outline" class="text-[#2e42b2]" style="width:13.5px;height:13.5px;" />
-        <span class="text-[9.01px] leading-[140%] font-inter text-[#374151]">{{ ticket.tanggal }}</span>
+        <Icon
+          icon="mdi:calendar-outline"
+          class="text-[#2e42b2]"
+          style="width: 13.5px; height: 13.5px"
+        />
+        <span class="text-[9.01px] leading-[140%] font-inter text-[#374151]">{{
+          ticket.tanggal
+        }}</span>
       </div>
       <div class="flex items-center gap-[5px]">
-        <Icon icon="mdi:map-marker-outline" class="text-[#2e42b2]" style="width:13.5px;height:13.5px;" />
-        <span class="text-[9.01px] leading-[140%] font-inter text-[#374151]">{{ ticket.lokasi }}</span>
+        <Icon
+          icon="mdi:map-marker-outline"
+          class="text-[#2e42b2]"
+          style="width: 13.5px; height: 13.5px"
+        />
+        <span class="text-[9.01px] leading-[140%] font-inter text-[#374151]">{{
+          ticket.lokasi
+        }}</span>
       </div>
       <div class="flex items-center gap-[5px]">
-        <Icon icon="mdi:bird" class="text-[#2e42b2]" style="width:13.5px;height:13.5px;" />
-        <span class="text-[9.01px] leading-[140%] font-inter text-[#374151]">{{ ticket.jenis_burung }}</span>
+        <Icon icon="mdi:bird" class="text-[#2e42b2]" style="width: 13.5px; height: 13.5px" />
+        <span class="text-[9.01px] leading-[140%] font-inter text-[#374151]">{{
+          ticket.jenis_burung
+        }}</span>
       </div>
     </div>
 
     <!-- Action button -->
     <div class="self-stretch bg-[#f9fafb] overflow-hidden flex flex-col items-start px-[10px]">
-
       <!-- PAID -->
       <div
         v-if="effectiveStatus === 'Paid'"
@@ -187,7 +223,9 @@ function goToUploadUlang() {
       <div
         v-else-if="ticket.status === 'Invalid'"
         class="self-stretch rounded-[5.76px] bg-[#a9302d] overflow-hidden flex items-center justify-center py-[5px] px-[28.2px] transition-opacity"
-        :class="ticket.can_reupload ? 'cursor-pointer active:opacity-85' : 'cursor-not-allowed opacity-50'"
+        :class="
+          ticket.can_reupload ? 'cursor-pointer active:opacity-85' : 'cursor-not-allowed opacity-50'
+        "
         @click.stop="ticket.can_reupload ? goToUploadUlang() : undefined"
       >
         <b class="text-sm leading-5 text-[#f9fafb]">
@@ -203,7 +241,6 @@ function goToUploadUlang() {
       >
         <span class="text-sm font-bold leading-5 text-white">Tiket Kadaluwarsa</span>
       </div>
-
     </div>
   </div>
 </template>

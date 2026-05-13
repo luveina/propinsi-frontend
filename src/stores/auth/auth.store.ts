@@ -2,7 +2,12 @@
 import { defineStore } from 'pinia'
 import { ref, computed } from 'vue'
 import { useRouter } from 'vue-router'
-import type { AuthUser, LoginRequest, RegisterRequest, ChangePasswordRequest } from '@/interfaces/auth.interface'
+import type {
+  AuthUser,
+  LoginRequest,
+  RegisterRequest,
+  ChangePasswordRequest,
+} from '@/interfaces/auth.interface'
 
 const BASE_URL = `${import.meta.env.VITE_API_URL}/auth`
 

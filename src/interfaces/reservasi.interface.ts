@@ -1,49 +1,50 @@
 export interface GantanganItem {
-  nomorGantangan: number;
-  status: 'AVAILABLE' | 'BOOKED' | 'PAID';
+  nomorGantangan: number
+  status: 'AVAILABLE' | 'BOOKED' | 'PAID'
 }
 
 export interface BookingRequest {
-  lombaId: string;
-  nomorGantangan: number;
+  lombaId: string
+  nomorGantangan: number
 }
 
 export interface BookingResponse {
-  reservationId: string;
+  reservationId: string
 }
 
 export interface BaseResponse<T> {
-  status: number;
-  message: string;
-  data: T;
-}export interface GantanganItem {
-  nomorGantangan: number;
-  status: 'AVAILABLE' | 'BOOKED' | 'PAID';
+  status: number
+  message: string
+  data: T
+}
+export interface GantanganItem {
+  nomorGantangan: number
+  status: 'AVAILABLE' | 'BOOKED' | 'PAID'
 }
 
 export interface BookingRequest {
-  lombaId: string;
-  nomorGantangan: number;
+  lombaId: string
+  nomorGantangan: number
 }
 
 export interface BookingResponse {
-  reservationId: string;
+  reservationId: string
 }
 
 export interface BaseResponse<T> {
-  status: number;
-  message: string;
-  data: T;
+  status: number
+  message: string
+  data: T
 }
 
 export interface ReservasiResponse {
-  id: string;
-  namaPeserta: string;
-  username: string;
-  namaLomba: string;
-  nomorGantangan: number;
-  nominal: number;
-  urlBukti: string;
-  status: string;
-  waktuReservasi: string;
+  id: string
+  namaPeserta: string
+  username: string
+  namaLomba: string
+  nomorGantangan: number
+  nominal: number
+  urlBukti: string
+  status: string
+  waktuReservasi: string
 }

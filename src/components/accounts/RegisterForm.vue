@@ -87,13 +87,15 @@ import PasswordInput from '@/components/PasswordInput.vue'
 defineProps<{ loading?: boolean }>()
 
 const emit = defineEmits<{
-  submit: [form: {
-    fullName: string
-    username: string
-    phoneNumber: string
-    password: string
-    confirmPassword: string
-  }]
+  submit: [
+    form: {
+      fullName: string
+      username: string
+      phoneNumber: string
+      password: string
+      confirmPassword: string
+    },
+  ]
 }>()
 
 const form = ref({
@@ -115,31 +117,23 @@ const errors = ref({
 function validateField(field: keyof typeof form.value) {
   switch (field) {
     case 'username':
-      if (!form.value.username)
-        errors.value.username = 'Username wajib diisi'
-      else if (form.value.username.length < 4)
-        errors.value.username = 'Username minimal 4 karakter'
-      else
-        errors.value.username = ''
+      if (!form.value.username) errors.value.username = 'Username wajib diisi'
+      else if (form.value.username.length < 4) errors.value.username = 'Username minimal 4 karakter'
+      else errors.value.username = ''
       break
     case 'fullName':
       errors.value.fullName = form.value.fullName ? '' : 'Nama Lengkap wajib diisi'
       break
     case 'phoneNumber':
-      if (!form.value.phoneNumber)
-        errors.value.phoneNumber = 'Nomor WhatsApp wajib diisi'
+      if (!form.value.phoneNumber) errors.value.phoneNumber = 'Nomor WhatsApp wajib diisi'
       else if (!/^08\d{8,11}$/.test(form.value.phoneNumber))
         errors.value.phoneNumber = 'Format nomor tidak valid (contoh: 08123456789)'
-      else
-        errors.value.phoneNumber = ''
+      else errors.value.phoneNumber = ''
       break
     case 'password':
-      if (!form.value.password)
-        errors.value.password = 'Password wajib diisi'
-      else if (form.value.password.length < 6)
-        errors.value.password = 'Password minimal 6 karakter'
-      else
-        errors.value.password = ''
+      if (!form.value.password) errors.value.password = 'Password wajib diisi'
+      else if (form.value.password.length < 6) errors.value.password = 'Password minimal 6 karakter'
+      else errors.value.password = ''
       if (form.value.confirmPassword) validateField('confirmPassword')
       break
     case 'confirmPassword':
@@ -147,8 +141,7 @@ function validateField(field: keyof typeof form.value) {
         errors.value.confirmPassword = 'Konfirmasi Password wajib diisi'
       else if (form.value.confirmPassword !== form.value.password)
         errors.value.confirmPassword = 'Password dan Konfirmasi Password tidak cocok'
-      else
-        errors.value.confirmPassword = ''
+      else errors.value.confirmPassword = ''
       break
   }
 }
@@ -188,7 +181,9 @@ function handleSubmit() {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
 
-.brand { text-align: center; }
+.brand {
+  text-align: center;
+}
 
 .brand-logo {
   height: 100px;
@@ -196,8 +191,12 @@ function handleSubmit() {
   object-fit: contain;
 }
 
-.ng { font-weight: 700; }
-.silobur { color: #2e42b2; }
+.ng {
+  font-weight: 700;
+}
+.silobur {
+  color: #2e42b2;
+}
 
 .subtitle {
   font-size: 16px;
@@ -235,8 +234,12 @@ function handleSubmit() {
   letter-spacing: 0.2px;
 }
 
-.text-input::placeholder { color: #4b79e6; }
-.text-input:focus { border-color: #1c244f; }
+.text-input::placeholder {
+  color: #4b79e6;
+}
+.text-input:focus {
+  border-color: #1c244f;
+}
 
 .error-msg {
   font-size: 12px;
@@ -259,6 +262,11 @@ function handleSubmit() {
   margin-top: 4px;
 }
 
-.btn-submit:hover:not(:disabled) { background-color: #2339a8; }
-.btn-submit:disabled { opacity: 0.5; cursor: not-allowed; }
+.btn-submit:hover:not(:disabled) {
+  background-color: #2339a8;
+}
+.btn-submit:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
 </style>
