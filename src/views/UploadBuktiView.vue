@@ -5,10 +5,13 @@
 
 <template>
   <!-- Header sudah dihandle AppLayout -->
-  <div class="flex flex-col items-center justify-center gap-6 bg-[#f9fafb] min-h-full px-5 py-10 font-plus-jakarta">
-
+  <div
+    class="flex flex-col items-center justify-center gap-6 bg-[#f9fafb] min-h-full px-5 py-10 font-plus-jakarta"
+  >
     <!-- Placeholder box -->
-    <div class="self-stretch rounded-[12px] bg-[#dee8fb] border-2 border-dashed border-[#2e42b2] flex flex-col items-center justify-center gap-3 p-10">
+    <div
+      class="self-stretch rounded-[12px] bg-[#dee8fb] border-2 border-dashed border-[#2e42b2] flex flex-col items-center justify-center gap-3 p-10"
+    >
       <span class="text-4xl">📤</span>
       <span class="text-lg font-bold text-[#2e42b2] text-center">Upload Bukti Pembayaran</span>
       <span class="text-sm text-[#374151] text-center leading-relaxed">
@@ -24,6 +27,5 @@
     >
       <b class="text-base tracking-[0.2px] leading-6 text-white">← Kembali ke Tiket Saya</b>
     </router-link>
-
   </div>
 </template>

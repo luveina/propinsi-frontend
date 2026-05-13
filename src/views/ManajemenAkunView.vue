@@ -1,66 +1,66 @@
 <!-- eslint-disable @typescript-eslint/no-explicit-any -->
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
-import Sidebar from '@/components/Sidebar.vue';
-import ModalTambahAkun from '@/components/accounts/ModalTambahAkun.vue';
-import { getAllAccounts, deleteAccount } from '@/services/account.service.ts';
+import { ref, computed, onMounted } from 'vue'
+import Sidebar from '@/components/Sidebar.vue'
+import ModalTambahAkun from '@/components/accounts/ModalTambahAkun.vue'
+import { getAllAccounts, deleteAccount } from '@/services/account.service.ts'
 
 // ==============================
 // 1. STATE (Tempat nyimpen data)
 // ==============================
-const accounts = ref<any[]>([]); // Menyimpan data asli dari database
-const searchQuery = ref('');     // Menyimpan teks pencarian
-const filterRole = ref('');      // Menyimpan pilihan filter dropdown
-const isModalOpen = ref(false);  // Mengatur buka/tutup modal
-const isEditMode = ref(false); // Menyimpan status apakah sedang dalam mode edit
-const selectedAccount = ref<any>(null); // Menyimpan data akun yang sedang diedit (jika ada)
+const accounts = ref<any[]>([]) // Menyimpan data asli dari database
+const searchQuery = ref('') // Menyimpan teks pencarian
+const filterRole = ref('') // Menyimpan pilihan filter dropdown
+const isModalOpen = ref(false) // Mengatur buka/tutup modal
+const isEditMode = ref(false) // Menyimpan status apakah sedang dalam mode edit
+const selectedAccount = ref<any>(null) // Menyimpan data akun yang sedang diedit (jika ada)
 const currentUser = ref({
   fullName: '',
-  role: ''
-});
+  role: '',
+})
 
 // delete confirmation
-const isDeleteModalOpen = ref(false);
-const accountToDelete = ref<any>(null);
+const isDeleteModalOpen = ref(false)
+const accountToDelete = ref<any>(null)
 
 // notification
-const notification = ref<string>('');
-const notificationType = ref<'success' | 'error'>('success');
+const notification = ref<string>('')
+const notificationType = ref<'success' | 'error'>('success')
 
 // loading
-const loading = ref(false);
+const loading = ref(false)
 
 // ==============================
 // 2. FUNGSI TARIK DATA (GET)
 // ==============================
 const fetchAccounts = async () => {
-  loading.value = true;
+  loading.value = true
   try {
-    const data = await getAllAccounts();
-    accounts.value = data;
+    const data = await getAllAccounts()
+    accounts.value = data
   } catch (error) {
-    console.error("Gagal mengambil data akun:", error);
+    console.error('Gagal mengambil data akun:', error)
   } finally {
-    loading.value = false;
+    loading.value = false
   }
-};
+}
 
 onMounted(() => {
-  fetchAccounts();
+  fetchAccounts()
 
-  const userRaw = localStorage.getItem('user');
+  const userRaw = localStorage.getItem('user')
   if (userRaw) {
-    const userParsed = JSON.parse(userRaw);
-    
+    const userParsed = JSON.parse(userRaw)
+
     // Debug dulu untuk memastikan fullName sudah muncul
-    console.log("Data Login Baru:", userParsed);
+    console.log('Data Login Baru:', userParsed)
 
     currentUser.value = {
       fullName: userParsed.fullName || 'Nama Tidak Ditemukan',
-      role: userParsed.role || 'Admin'
-    };
+      role: userParsed.role || 'Admin',
+    }
   }
-});
+})
 
 // ==============================
 // 3. FITUR SEARCH & FILTER
@@ -68,103 +68,104 @@ onMounted(() => {
 
 // Helper function untuk normalize role dari enum name ke label
 const normalizeRole = (role: string): string => {
-  if (!role) return '';
+  if (!role) return ''
   const roleMap: Record<string, string> = {
-    'ADMIN': 'Admin',
-    'JURI': 'Juri',
-    'KOORDINATOR_LOMBA': 'Koordinator Lomba',
-    'KOORDINATOR_PENDAFTARAN': 'Koordinator Pendaftaran',
-    'PESERTA': 'Peserta',
-    'Admin': 'Admin',
-    'Juri': 'Juri',
+    ADMIN: 'Admin',
+    JURI: 'Juri',
+    KOORDINATOR_LOMBA: 'Koordinator Lomba',
+    KOORDINATOR_PENDAFTARAN: 'Koordinator Pendaftaran',
+    PESERTA: 'Peserta',
+    Admin: 'Admin',
+    Juri: 'Juri',
     'Koordinator Lomba': 'Koordinator Lomba',
     'Koordinator Pendaftaran': 'Koordinator Pendaftaran',
-    'Peserta': 'Peserta'
-  };
-  return roleMap[role] || role;
-};
+    Peserta: 'Peserta',
+  }
+  return roleMap[role] || role
+}
 
 const filteredAccounts = computed(() => {
   return accounts.value.filter((account) => {
-    const matchSearch = account.username?.toLowerCase().includes(searchQuery.value.toLowerCase()) || false;
-    const matchRole = filterRole.value === '' || account.role === filterRole.value;
-    return matchSearch && matchRole;
-  });
-});
+    const matchSearch =
+      account.username?.toLowerCase().includes(searchQuery.value.toLowerCase()) || false
+    const matchRole = filterRole.value === '' || account.role === filterRole.value
+    return matchSearch && matchRole
+  })
+})
 
 // ==============================
 // 4. HANDLER SETELAH SIMPAN
 // ==============================
 const handleSuccessAdd = () => {
-  notification.value = 'Akun berhasil dibuat';
-  notificationType.value = 'success';
-  isModalOpen.value = false;
-  fetchAccounts();
-  setTimeout(() => (notification.value = ''), 3000);
-};
+  notification.value = 'Akun berhasil dibuat'
+  notificationType.value = 'success'
+  isModalOpen.value = false
+  fetchAccounts()
+  setTimeout(() => (notification.value = ''), 3000)
+}
 
 const handleSuccessUpdate = () => {
-  notification.value = 'Akun berhasil diperbarui';
-  notificationType.value = 'success';
-  isModalOpen.value = false;
-  fetchAccounts();
-  setTimeout(() => (notification.value = ''), 3000);
-};
+  notification.value = 'Akun berhasil diperbarui'
+  notificationType.value = 'success'
+  isModalOpen.value = false
+  fetchAccounts()
+  setTimeout(() => (notification.value = ''), 3000)
+}
 
 const handleModalSuccess = () => {
   if (isEditMode.value) {
-    handleSuccessUpdate();
+    handleSuccessUpdate()
   } else {
-    handleSuccessAdd();
+    handleSuccessAdd()
   }
-};
+}
 
 const openEditModal = (account: any) => {
-  selectedAccount.value = { ...account };
-  isEditMode.value = true;
-  isModalOpen.value = true;
-};
+  selectedAccount.value = { ...account }
+  isEditMode.value = true
+  isModalOpen.value = true
+}
 
 const openAddModal = () => {
-  selectedAccount.value = null;
-  isEditMode.value = false;
-  isModalOpen.value = true;
-};
+  selectedAccount.value = null
+  isEditMode.value = false
+  isModalOpen.value = true
+}
 
 // delete modal
 const openDeleteModal = (account: any) => {
-  accountToDelete.value = account;
-  isDeleteModalOpen.value = true;
-};
+  accountToDelete.value = account
+  isDeleteModalOpen.value = true
+}
 
 const closeDeleteModal = () => {
-  isDeleteModalOpen.value = false;
-  accountToDelete.value = null;
-};
+  isDeleteModalOpen.value = false
+  accountToDelete.value = null
+}
 
 const confirmDeleteAccount = async () => {
-  if (!accountToDelete.value) return;
+  if (!accountToDelete.value) return
   try {
-    await deleteAccount(accountToDelete.value.id);
-    notification.value = 'Akun berhasil dinonaktifkan';
-    notificationType.value = 'success';
-    fetchAccounts();
+    await deleteAccount(accountToDelete.value.id)
+    notification.value = 'Akun berhasil dinonaktifkan'
+    notificationType.value = 'success'
+    fetchAccounts()
   } catch (e: any) {
     // Tampilkan pesan error dari backend jika ada
-    const errorMessage = e?.response?.data?.message || 'Gagal menonaktifkan akun';
-    notification.value = errorMessage;
-    notificationType.value = 'error';
+    const errorMessage = e?.response?.data?.message || 'Gagal menonaktifkan akun'
+    notification.value = errorMessage
+    notificationType.value = 'error'
   } finally {
-    closeDeleteModal();
-    setTimeout(() => (notification.value = ''), 3000);
+    closeDeleteModal()
+    setTimeout(() => (notification.value = ''), 3000)
   }
-};
+}
 
 const closeModal = () => {
-  isModalOpen.value = false;
-  isEditMode.value = false;
-  selectedAccount.value = null;
-};
+  isModalOpen.value = false
+  isEditMode.value = false
+  selectedAccount.value = null
+}
 </script>
 
 <template>
@@ -187,7 +188,11 @@ const closeModal = () => {
       <div class="px-12 py-8">
         <div
           v-if="notification"
-          :class="notificationType === 'success' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'"
+          :class="
+            notificationType === 'success'
+              ? 'bg-green-100 text-green-800'
+              : 'bg-red-100 text-red-800'
+          "
           class="p-3 rounded mb-4"
         >
           {{ notification }}
@@ -202,8 +207,18 @@ const closeModal = () => {
                 placeholder="Cari Username"
                 class="w-full pl-4 pr-10 py-2 border border-gray-300 rounded-lg focus:outline-blue-500 text-sm"
               />
-              <svg class="w-5 h-5 absolute right-3 top-2.5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"></path>
+              <svg
+                class="w-5 h-5 absolute right-3 top-2.5 text-gray-400"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"
+                ></path>
               </svg>
             </div>
 
@@ -218,8 +233,18 @@ const closeModal = () => {
                 <option value="Koordinator Pendaftaran">Koordinator Pendaftaran</option>
                 <option value="Peserta">Peserta</option>
               </select>
-              <svg class="w-4 h-4 absolute right-3 top-3 text-gray-500 pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"></path>
+              <svg
+                class="w-4 h-4 absolute right-3 top-3 text-gray-500 pointer-events-none"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M19 9l-7 7-7-7"
+                ></path>
               </svg>
             </div>
 
@@ -228,7 +253,12 @@ const closeModal = () => {
               class="flex-1 bg-[#2E42B2] hover:bg-blue-800 text-white px-5 py-2.5 rounded-lg font-medium text-sm flex items-center gap-2 transition-colors w-full md:w-auto justify-center cursor-pointer"
             >
               <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4v16m8-8H4"></path>
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M12 4v16m8-8H4"
+                ></path>
               </svg>
               Tambah Akun
             </button>
@@ -251,14 +281,20 @@ const closeModal = () => {
               <tr v-if="loading">
                 <td colspan="6" class="py-16 text-center">
                   <div class="flex justify-center items-center">
-                    <div class="animate-spin rounded-full h-10 w-10 border-4 border-[#2E42B2] border-t-transparent"></div>
+                    <div
+                      class="animate-spin rounded-full h-10 w-10 border-4 border-[#2E42B2] border-t-transparent"
+                    ></div>
                   </div>
                 </td>
               </tr>
               <tr v-else-if="filteredAccounts.length === 0">
                 <td colspan="6" class="py-12 text-center text-gray-500">
                   <div class="flex flex-col items-center justify-center">
-                    <img src="@/assets/data-not-found.svg" alt="Kosong" class="w-24 opacity-50 mb-3" />
+                    <img
+                      src="@/assets/data-not-found.svg"
+                      alt="Kosong"
+                      class="w-24 opacity-50 mb-3"
+                    />
                     <p>Belum ada data akun yang sesuai.</p>
                   </div>
                 </td>
@@ -267,19 +303,34 @@ const closeModal = () => {
                 v-else
                 v-for="(account, index) in filteredAccounts"
                 :key="account.id || index"
-                :class="['odd:bg-white even:bg-[#DEE8FB] hover:bg-[#EBEBEC] transition-colors', account.status === 'Inactive' ? 'bg-red-50' : '']"
+                :class="[
+                  'odd:bg-white even:bg-[#DEE8FB] hover:bg-[#EBEBEC] transition-colors',
+                  account.status === 'Inactive' ? 'bg-red-50' : '',
+                ]"
               >
-                <td class="py-3 px-6 text-sm text-[#2E42B2] font-medium text-center">{{ account.username }}</td>
+                <td class="py-3 px-6 text-sm text-[#2E42B2] font-medium text-center">
+                  {{ account.username }}
+                </td>
                 <td class="py-3 px-6 text-sm text-[#2E42B2] text-center">{{ account.fullName }}</td>
-                <td class="py-3 px-6 text-sm text-[#2E42B2] text-center">{{ account.phoneNumber }}</td>
+                <td class="py-3 px-6 text-sm text-[#2E42B2] text-center">
+                  {{ account.phoneNumber }}
+                </td>
                 <td class="py-3 px-6 text-sm text-center">
-                  <span class="inline-block whitespace-nowrap bg-[#9CBFF4] text-[#2E42B2] py-1 px-4 rounded-full text-xs font-semibold border border-[#2E42B2]">
+                  <span
+                    class="inline-block whitespace-nowrap bg-[#9CBFF4] text-[#2E42B2] py-1 px-4 rounded-full text-xs font-semibold border border-[#2E42B2]"
+                  >
                     {{ normalizeRole(account.role) }}
                   </span>
                 </td>
                 <td class="py-3 px-6 text-sm text-center">
-                  <span :class="['inline-block whitespace-nowrap py-1 px-4 rounded-full text-xs font-semibold border',
-                    account.status === 'Inactive' ? 'bg-red-200 text-red-700 border-red-700' : 'bg-[#9CBFF4] text-[#2E42B2] border-[#2E42B2]']">
+                  <span
+                    :class="[
+                      'inline-block whitespace-nowrap py-1 px-4 rounded-full text-xs font-semibold border',
+                      account.status === 'Inactive'
+                        ? 'bg-red-200 text-red-700 border-red-700'
+                        : 'bg-[#9CBFF4] text-[#2E42B2] border-[#2E42B2]',
+                    ]"
+                  >
                     {{ account.status === 'Inactive' ? 'Non Aktif' : 'Aktif' }}
                   </span>
                 </td>
@@ -289,12 +340,16 @@ const closeModal = () => {
                       v-if="account.status !== 'Inactive'"
                       @click="openEditModal(account)"
                       class="bg-[#FCD34D] hover:bg-yellow-600 text-yellow-900 px-3 py-1 rounded text-xs font-medium transition-colors cursor-pointer"
-                    >Edit</button>
+                    >
+                      Edit
+                    </button>
                     <button
                       v-if="account.status !== 'Inactive' && account.role !== 'Admin'"
                       @click="openDeleteModal(account)"
                       class="bg-[#EF4444] hover:bg-red-700 text-white px-3 py-1 rounded text-xs font-medium transition-colors cursor-pointer"
-                    >Hapus</button>
+                    >
+                      Hapus
+                    </button>
                   </div>
                 </td>
               </tr>
@@ -311,15 +366,26 @@ const closeModal = () => {
         />
 
         <!-- Konfirmasi hapus soft-delete -->
-        <div v-if="isDeleteModalOpen" class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/80">
+        <div
+          v-if="isDeleteModalOpen"
+          class="fixed inset-0 z-50 flex items-center justify-center bg-gray-900/80"
+        >
           <div class="bg-white rounded-lg shadow-lg w-full max-w-sm p-6">
             <div class="flex justify-between items-center mb-4">
               <h2 class="text-xl font-bold">Hapus Akun</h2>
-              <button @click="closeDeleteModal" class="text-gray-400 hover:text-gray-600 text-2xl cursor-pointer">&times;</button>
+              <button
+                @click="closeDeleteModal"
+                class="text-gray-400 hover:text-gray-600 text-2xl cursor-pointer"
+              >
+                &times;
+              </button>
             </div>
             <p>Apakah Anda yakin akan menonaktifkan akun ini?</p>
             <div class="mt-6 flex justify-end">
-              <button @click="confirmDeleteAccount" class="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 cursor-pointer">
+              <button
+                @click="confirmDeleteAccount"
+                class="px-4 py-2 bg-blue-700 text-white rounded hover:bg-blue-800 cursor-pointer"
+              >
                 Ya, Nonaktifkan Akun
               </button>
             </div>

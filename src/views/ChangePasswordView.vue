@@ -38,7 +38,11 @@
           <span v-if="errors.confirmPassword" class="error-msg">{{ errors.confirmPassword }}</span>
         </div>
 
-        <button class="btn-submit" @click="handleChangePassword" :disabled="authStore.loading || !isFormValid">
+        <button
+          class="btn-submit"
+          @click="handleChangePassword"
+          :disabled="authStore.loading || !isFormValid"
+        >
           <b>{{ authStore.loading ? 'Loading...' : 'Ganti Password' }}</b>
         </button>
 
@@ -79,7 +83,11 @@
         <span v-if="errors.confirmPassword" class="error-msg">{{ errors.confirmPassword }}</span>
       </div>
 
-      <button class="btn-submit" @click="handleChangePassword" :disabled="authStore.loading || !isFormValid">
+      <button
+        class="btn-submit"
+        @click="handleChangePassword"
+        :disabled="authStore.loading || !isFormValid"
+      >
         <b>{{ authStore.loading ? 'Loading...' : 'Ganti Password' }}</b>
       </button>
 
@@ -146,7 +154,6 @@ function validateAll() {
   validateField('confirmPassword')
 }
 
-
 const isFormValid = computed(() => {
   return (
     form.value.newPassword !== '' &&
@@ -175,7 +182,6 @@ async function handleBackToLogin() {
 </script>
 
 <style scoped>
-
 .error-msg {
   font-size: 12px;
   color: #d93e39;
@@ -207,21 +213,122 @@ async function handleBackToLogin() {
 }
 
 /* Biarkan style lainnya di bawah ini... */
-.page-desktop { display: flex; width: 100%; min-height: 100vh; background-color: #c4d8f9; font-family: 'Plus Jakarta Sans', sans-serif; }
-.left-panel { flex: 1; display: flex; align-items: center; justify-content: center; padding: 40px 80px; }
-.left-text { font-size: 32px; line-height: 38px; color: #2e42b2; text-align: center; }
-.right-panel { width: 720px; flex-shrink: 0; background-color: #fff; display: flex; align-items: center; justify-content: center; min-height: 100vh; padding: 40px; box-sizing: border-box; }
-.page-mobile { width: 100%; min-height: 100vh; background-color: #fff; display: flex; align-items: center; justify-content: center; font-family: 'Plus Jakarta Sans', sans-serif; padding: 40px 34px; box-sizing: border-box; }
-.form { width: 100%; max-width: 566px; display: flex; flex-direction: column; align-items: center; gap: 20px; }
-.brand { display: flex; align-items: center; justify-content: center; gap: 12px; }
-.brand-logo { height: 64px; width: auto; object-fit: contain; }
-.left-logo { height: 80px; width: auto; object-fit: contain; display: block; margin: 0 auto 16px; }
-.brand-text { font-family: 'Afacad', sans-serif; font-size: 48px; letter-spacing: -0.25px; line-height: 64px; color: #2e42b2; }
-.ng { font-weight: 700; }
-.subtitle { font-size: 18px; font-weight: 600; line-height: 28px; color: #1c244f; text-align: center; align-self: stretch; }
-.field-group { align-self: stretch; display: flex; flex-direction: column; gap: 5px; }
-.field-label { font-size: 16px; font-weight: 500; line-height: 24px; color: #2e42b2; }
-.btn-submit { align-self: stretch; border-radius: 6px; background-color: #2d48c8; color: #f9fafb; border: none; padding: 13px 24px; font-size: 16px; font-family: 'Plus Jakarta Sans', sans-serif; cursor: pointer; letter-spacing: 0.2px; line-height: 24px; }
-.btn-submit:hover:not(:disabled) { background-color: #2339a8; }
-.btn-submit:disabled { opacity: 0.6; cursor: not-allowed; }
+.page-desktop {
+  display: flex;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #c4d8f9;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+}
+.left-panel {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 40px 80px;
+}
+.left-text {
+  font-size: 32px;
+  line-height: 38px;
+  color: #2e42b2;
+  text-align: center;
+}
+.right-panel {
+  width: 720px;
+  flex-shrink: 0;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+  padding: 40px;
+  box-sizing: border-box;
+}
+.page-mobile {
+  width: 100%;
+  min-height: 100vh;
+  background-color: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  padding: 40px 34px;
+  box-sizing: border-box;
+}
+.form {
+  width: 100%;
+  max-width: 566px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 20px;
+}
+.brand {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+}
+.brand-logo {
+  height: 64px;
+  width: auto;
+  object-fit: contain;
+}
+.left-logo {
+  height: 80px;
+  width: auto;
+  object-fit: contain;
+  display: block;
+  margin: 0 auto 16px;
+}
+.brand-text {
+  font-family: 'Afacad', sans-serif;
+  font-size: 48px;
+  letter-spacing: -0.25px;
+  line-height: 64px;
+  color: #2e42b2;
+}
+.ng {
+  font-weight: 700;
+}
+.subtitle {
+  font-size: 18px;
+  font-weight: 600;
+  line-height: 28px;
+  color: #1c244f;
+  text-align: center;
+  align-self: stretch;
+}
+.field-group {
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+}
+.field-label {
+  font-size: 16px;
+  font-weight: 500;
+  line-height: 24px;
+  color: #2e42b2;
+}
+.btn-submit {
+  align-self: stretch;
+  border-radius: 6px;
+  background-color: #2d48c8;
+  color: #f9fafb;
+  border: none;
+  padding: 13px 24px;
+  font-size: 16px;
+  font-family: 'Plus Jakarta Sans', sans-serif;
+  cursor: pointer;
+  letter-spacing: 0.2px;
+  line-height: 24px;
+}
+.btn-submit:hover:not(:disabled) {
+  background-color: #2339a8;
+}
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
 </style>

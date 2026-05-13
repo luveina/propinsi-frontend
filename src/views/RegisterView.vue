@@ -73,11 +73,11 @@ async function handleRegister(formData: {
   confirmPassword: string
 }) {
   // Validasi format nomor telepon
-  const phoneRegex = /^08\d{8,11}$/;
+  const phoneRegex = /^08\d{8,11}$/
   if (!phoneRegex.test(formData.phoneNumber)) {
-    errorMessage.value = 'Nomor telepon harus dimulai dengan 08 dan terdiri dari 10-13 digit';
-    showErrorModal.value = true;
-    return;
+    errorMessage.value = 'Nomor telepon harus dimulai dengan 08 dan terdiri dari 10-13 digit'
+    showErrorModal.value = true
+    return
   }
 
   authStore.clearError()
@@ -153,7 +153,9 @@ function goToLogin() {
   gap: 20px;
 }
 
-.ng { font-weight: 700; }
+.ng {
+  font-weight: 700;
+}
 
 .login-link {
   font-size: 16px;
@@ -170,5 +172,8 @@ function goToLogin() {
   text-align: center;
 }
 
-.underline { text-decoration: underline; color: #2e42b2; }
+.underline {
+  text-decoration: underline;
+  color: #2e42b2;
+}
 </style>

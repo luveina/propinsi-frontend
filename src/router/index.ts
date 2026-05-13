@@ -4,7 +4,7 @@ import RegisterView from '@/views/RegisterView.vue'
 import ChangePasswordView from '@/views/ChangePasswordView.vue'
 import ManajemenAkunView from '@/views/ManajemenAkunView.vue'
 import ProfileView from '@/views/ProfileView.vue'
-import PembayaranPage from '@/views/pendaftaran/PembayaranPage.vue';
+import PembayaranPage from '@/views/pendaftaran/PembayaranPage.vue'
 // import AppLayout from '@/layout/AppLayout.vue'
 import MyTicketsView from '@/views/ticket/MyTicketsView.vue'
 import TicketDetailView from '@/views/ticket/TicketDetailView.vue'
@@ -76,30 +76,48 @@ const router = createRouter({
       component: () => import('@/views/HasilAjuanView.vue'),
       meta: { requiresAuth: true, requiredRole: 'JURI' },
     },
-  {
-    path: '/reservasi/:lombaId',
-    name: 'reservasi-gantangan',
-    component: () => import('@/views/pendaftaran/ReservasiGantanganView.vue'),
-    meta: { requiresAuth: true }
-  },
-  {
-    path: '/katalog-lomba/:id',
-    name: 'detail-lomba',
-    component: () => import('@/views/lomba/DetailLombaView.vue'),
-    meta: { requiresAuth: true },
-  },
+    {
+      path: '/penjurian/koncer/:lombaId',
+      name: 'babak-koncer',
+      component: () => import('@/views/lomba/BabakKoncerView.vue'),
+      meta: { requiresAuth: true, requiredRole: 'JURI' },
+    },
+    {
+      path: '/hasil-akhir',
+      name: 'hasil-akhir',
+      component: () => import('@/views/lomba/HasilAkhirView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/winner/:lombaId',
+      name: 'winner',
+      component: () => import('@/views/lomba/HasilAkhirView.vue'),
+      meta: { requiresAuth: true },
+    },
     {
       path: '/reservasi/:lombaId',
       name: 'reservasi-gantangan',
       component: () => import('@/views/pendaftaran/ReservasiGantanganView.vue'),
       meta: { requiresAuth: true },
     },
-  {
-    path: '/pembayaran',
-    name: 'pembayaran',
-    component: PembayaranPage,
-    // Kita pancing parameter dari URL query
-  },
+    {
+      path: '/katalog-lomba/:id',
+      name: 'detail-lomba',
+      component: () => import('@/views/lomba/DetailLombaView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/reservasi/:lombaId',
+      name: 'reservasi-gantangan',
+      component: () => import('@/views/pendaftaran/ReservasiGantanganView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: '/pembayaran',
+      name: 'pembayaran',
+      component: PembayaranPage,
+      // Kita pancing parameter dari URL query
+    },
     {
       path: '/verifikasi-pembayaran',
       name: 'verifikasi-pembayaran',

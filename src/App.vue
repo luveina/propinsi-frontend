@@ -3,5 +3,8 @@
 </template>
 
 <style>
-body { margin: 0; background-color: #F4F7FE; }
+body {
+  margin: 0;
+  background-color: #f4f7fe;
+}
 </style>

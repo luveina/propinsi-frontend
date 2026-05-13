@@ -1,5 +1,5 @@
 <template>
-  <button 
+  <button
     :disabled="status !== 'AVAILABLE'"
     @click="$emit('click')"
     class="w-14 h-14 rounded-xl flex items-center justify-center text-[16px] font-semibold transition-all border-4 cursor-pointer text-white font-plus-jakarta"

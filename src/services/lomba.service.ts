@@ -1,53 +1,58 @@
-import axios from 'axios';
-import type { LombaRequest, AssignJuriRequest, LombaDetailResponse } from '@/interfaces/lomba.interface';
+import axios from 'axios'
+import type {
+  LombaRequest,
+  AssignJuriRequest,
+  LombaDetailResponse,
+  FinalResultResponse,
+} from '@/interfaces/lomba.interface'
 
-const API_URL = `${import.meta.env.VITE_API_URL}/lomba`;
+const API_URL = `${import.meta.env.VITE_API_URL}/lomba`
 
 /**
  * Get authorization headers from localStorage
  */
 function getAuthHeaders() {
-  const token = localStorage.getItem('token');
+  const token = localStorage.getItem('token')
   return {
     'Content-Type': 'application/json',
-    ...(token && { Authorization: `Bearer ${token}` })
-  };
+    ...(token && { Authorization: `Bearer ${token}` }),
+  }
 }
 
 export const postCreateLomba = async (payload: LombaRequest) => {
   const response = await axios.post(API_URL, payload, {
-    headers: getAuthHeaders()
-  });
-  return response.data;
-};
+    headers: getAuthHeaders(),
+  })
+  return response.data
+}
 
 export const putUpdateLomba = async (id: string, payload: LombaRequest) => {
   const response = await axios.put(`${API_URL}/${id}`, payload, {
-    headers: getAuthHeaders()
-  });
-  return response.data;
-};
+    headers: getAuthHeaders(),
+  })
+  return response.data
+}
 
 export const getLombaById = async (id: string) => {
   const response = await axios.get(`${API_URL}/${id}`, {
-    headers: getAuthHeaders()
-  });
-  return response.data;
-};
+    headers: getAuthHeaders(),
+  })
+  return response.data
+}
 
 export const getAvailableJuri = async () => {
   const response = await axios.get(`${API_URL}/available-juri`, {
-    headers: getAuthHeaders()
-  });
-  return response.data;
-};
+    headers: getAuthHeaders(),
+  })
+  return response.data
+}
 
 export const postAssignJuri = async (lombaId: string, payload: AssignJuriRequest) => {
   const response = await axios.post(`${API_URL}/${lombaId}/assign-juri`, payload, {
-    headers: getAuthHeaders()
-  });
-  return response.data;
-};
+    headers: getAuthHeaders(),
+  })
+  return response.data
+}
 
 export interface LombaFilterParams {
   jenisBurung?: string
@@ -83,36 +88,47 @@ export const getAllLomba = async (params?: LombaFilterParams) => {
   const response = await axios.get(API_URL, {
     headers: getAuthHeaders(),
     params,
-  });
-  return response.data;
-};
+  })
+  return response.data
+}
 
 export const getLombaByJuri = async (params?: LombaFilterParams) => {
   const response = await axios.get(`${API_URL}/by-juri`, {
     headers: getAuthHeaders(),
     params,
-  });
-  return response.data;
-};
+  })
+  return response.data
+}
 
 export const deleteLomba = async (id: string) => {
   const response = await axios.delete(`${API_URL}/${id}`, {
-    headers: getAuthHeaders()
-  });
-  return response.data;
-};
+    headers: getAuthHeaders(),
+  })
+  return response.data
+}
 
 export const getLombaDetail = async (id: string): Promise<LombaDetailResponse> => {
   const response = await axios.get(`${API_URL}/detail/${id}`, {
-    headers: getAuthHeaders()
-  });
-  return response.data;
-};
+    headers: getAuthHeaders(),
+  })
+  return response.data
+}
 
 // Fungsi untuk koordinator mengubah status ke "BERLANGSUNG"
 export const updateLombaStatus = async (id: string, status: string) => {
-  const response = await axios.patch(`${API_URL}/${id}/status`, { status }, {
-    headers: getAuthHeaders()
-  });
-  return response.data;
-};
+  const response = await axios.patch(
+    `${API_URL}/${id}/status`,
+    { status },
+    {
+      headers: getAuthHeaders(),
+    },
+  )
+  return response.data
+}
+
+export const getLombaResult = async (id: string): Promise<FinalResultResponse> => {
+  const response = await axios.get(`${API_URL}/result/${id}`, {
+    headers: getAuthHeaders(),
+  })
+  return response.data.data
+}

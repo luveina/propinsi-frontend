@@ -26,7 +26,7 @@ const now = ref(Date.now())
 let interval: any
 
 const parseUtcMillis = (rawDate: string) => {
-  const hasTimezone = /([zZ]|[+\-]\d{2}:\d{2})$/.test(rawDate)
+  const hasTimezone = /([zZ]|[+-]\d{2}:\d{2})$/.test(rawDate)
   return new Date(hasTimezone ? rawDate : `${rawDate}Z`).getTime()
 }
 
@@ -50,7 +50,7 @@ const filteredTickets = computed(() => {
   const getEffectiveStatus = (t: any) => {
     if (t.status !== 'Unpaid') return t.status
     const reservasiTime = parseUtcMillis(t.waktu_reservasi)
-    return (now.value - reservasiTime > 2 * 60 * 60 * 1000) ? 'Expired' : 'Unpaid'
+    return now.value - reservasiTime > 2 * 60 * 60 * 1000 ? 'Expired' : 'Unpaid'
   }
 
   if (searchQuery.value.trim()) {
@@ -74,7 +74,6 @@ const filteredTickets = computed(() => {
 
 <template>
   <div class="min-h-screen bg-[#F4F7FE] font-plus-jakarta flex flex-col">
-
     <!-- Backdrop + Drawer (mobile only) -->
     <Teleport to="body">
       <Transition name="fade">
@@ -85,7 +84,10 @@ const filteredTickets = computed(() => {
         />
       </Transition>
       <Transition name="slide">
-        <div v-if="!isDesktop && isSidebarOpen" class="fixed inset-y-0 left-0 z-[70] w-64 shadow-2xl">
+        <div
+          v-if="!isDesktop && isSidebarOpen"
+          class="fixed inset-y-0 left-0 z-[70] w-64 shadow-2xl"
+        >
           <Sidebar />
         </div>
       </Transition>
@@ -96,35 +98,56 @@ const filteredTickets = computed(() => {
       <Sidebar />
 
       <div class="flex-1 flex flex-col overflow-hidden">
-
         <!-- Header putih seperti KatalogLombaView -->
-        <div class="bg-white px-10 py-5 border-b border-gray-200 flex justify-between items-center shrink-0">
+        <div
+          class="bg-white px-10 py-5 border-b border-gray-200 flex justify-between items-center shrink-0"
+        >
           <h1 class="text-4xl font-bold text-[#2E42B2] font-plus-jakarta">Tiket Saya</h1>
           <RouterLink
             to="/profile"
             class="flex items-center gap-3 hover:opacity-80 transition-opacity no-underline"
           >
-            <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
+            <div
+              class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0"
+            >
               <svg class="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-                <path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" />
+                <path
+                  d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
+                />
               </svg>
             </div>
             <div class="text-right">
-              <p class="font-semibold text-sm leading-tight text-gray-900 font-plus-jakarta">{{ authStore.user?.fullName }}</p>
-              <p class="text-xs text-gray-500 font-plus-jakarta">{{ authStore.user?.role?.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) }}</p>
+              <p class="font-semibold text-sm leading-tight text-gray-900 font-plus-jakarta">
+                {{ authStore.user?.fullName }}
+              </p>
+              <p class="text-xs text-gray-500 font-plus-jakarta">
+                {{
+                  authStore.user?.role
+                    ?.replace(/_/g, ' ')
+                    .replace(/\b\w/g, (c: string) => c.toUpperCase())
+                }}
+              </p>
             </div>
-            <svg class="w-4 h-4 text-gray-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+            <svg
+              class="w-4 h-4 text-gray-500"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <path
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                stroke-width="2"
+                d="M19 9l-7 7-7-7"
+              />
             </svg>
           </RouterLink>
         </div>
 
         <!-- Content -->
         <div class="flex-1 overflow-y-auto px-10 pt-6 pb-8">
-
           <!-- Filter bar inline seperti KatalogLombaView -->
           <div class="flex items-end gap-3 mb-6 flex-wrap font-plus-jakarta">
-
             <!-- Search -->
             <div class="relative">
               <input
@@ -133,14 +156,26 @@ const filteredTickets = computed(() => {
                 placeholder="Cari Tiket Saya"
                 class="bg-[#E8EDF5] border border-[#2e42b2] text-[#2e42b2] placeholder-[#2e42b2] placeholder:opacity-60 text-sm rounded-lg pl-4 pr-10 py-2 focus:outline-none focus:ring-2 focus:ring-[#2e42b2] w-[190px] font-medium"
               />
-              <svg class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-[#2e42b2] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-4.35-4.35M17 11A6 6 0 105 11a6 6 0 0012 0z" />
+              <svg
+                class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-[#2e42b2] pointer-events-none"
+                fill="none"
+                stroke="currentColor"
+                viewBox="0 0 24 24"
+              >
+                <path
+                  stroke-linecap="round"
+                  stroke-linejoin="round"
+                  stroke-width="2"
+                  d="M21 21l-4.35-4.35M17 11A6 6 0 105 11a6 6 0 0012 0z"
+                />
               </svg>
             </div>
 
             <!-- Filter Status -->
             <div class="flex flex-col gap-1">
-              <label class="text-[10px] text-[#2e42b2] font-bold pl-0.5 uppercase tracking-wider">Status Tiket</label>
+              <label class="text-[10px] text-[#2e42b2] font-bold pl-0.5 uppercase tracking-wider"
+                >Status Tiket</label
+              >
               <div class="relative">
                 <select
                   v-model="activeStatus"
@@ -153,15 +188,27 @@ const filteredTickets = computed(() => {
                   <option value="Invalid">Invalid</option>
                   <option value="Expired">Expired</option>
                 </select>
-                <svg class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-[#2e42b2] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                <svg
+                  class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-[#2e42b2] pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </div>
             </div>
 
             <!-- Sort By -->
             <div class="flex flex-col gap-1">
-              <label class="text-[10px] text-[#2e42b2] font-bold pl-0.5 uppercase tracking-wider">Sort By</label>
+              <label class="text-[10px] text-[#2e42b2] font-bold pl-0.5 uppercase tracking-wider"
+                >Sort By</label
+              >
               <div class="relative">
                 <select
                   v-model="activeSort"
@@ -170,8 +217,18 @@ const filteredTickets = computed(() => {
                   <option value="newest">Newest</option>
                   <option value="oldest">Oldest</option>
                 </select>
-                <svg class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-[#2e42b2] pointer-events-none" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7" />
+                <svg
+                  class="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-[#2e42b2] pointer-events-none"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M19 9l-7 7-7-7"
+                  />
                 </svg>
               </div>
             </div>
@@ -179,19 +236,33 @@ const filteredTickets = computed(() => {
 
           <!-- Loading -->
           <div v-if="loading" class="flex justify-center items-center py-24">
-            <div class="animate-spin rounded-full h-10 w-10 border-4 border-[#2E42B2] border-t-transparent"></div>
+            <div
+              class="animate-spin rounded-full h-10 w-10 border-4 border-[#2E42B2] border-t-transparent"
+            ></div>
           </div>
 
           <!-- Error -->
           <div v-else-if="error" class="flex flex-col items-center justify-center py-24 gap-3">
             <Icon icon="mdi:alert-circle-outline" class="w-16 h-16 text-[#d93e39]" />
             <p class="text-sm text-[#d93e39] text-center">{{ error }}</p>
-            <button class="px-5 py-2 rounded-lg bg-[#2e42b2] text-white text-sm font-semibold" @click="ticketStore.fetchMyTickets()">Coba Lagi</button>
+            <button
+              class="px-5 py-2 rounded-lg bg-[#2e42b2] text-white text-sm font-semibold"
+              @click="ticketStore.fetchMyTickets()"
+            >
+              Coba Lagi
+            </button>
           </div>
 
           <!-- Empty State -->
-          <div v-else-if="filteredTickets.length === 0" class="flex flex-col items-center justify-center py-24 gap-4">
-            <img src="@/assets/data-not-found.svg" alt="Tidak ada tiket" class="w-[150px] h-[150px]" />
+          <div
+            v-else-if="filteredTickets.length === 0"
+            class="flex flex-col items-center justify-center py-24 gap-4"
+          >
+            <img
+              src="@/assets/data-not-found.svg"
+              alt="Tidak ada tiket"
+              class="w-[150px] h-[150px]"
+            />
             <p class="text-xl font-bold text-[#2e42b2] text-center">Tiket tidak ditemukan</p>
           </div>
 
@@ -199,7 +270,6 @@ const filteredTickets = computed(() => {
           <div v-else class="flex flex-col gap-4">
             <TicketCard v-for="ticket in filteredTickets" :key="ticket.id" :ticket="ticket" />
           </div>
-
         </div>
       </div>
     </div>
@@ -209,10 +279,11 @@ const filteredTickets = computed(() => {
       <HeaderMobile title="Tiket Saya" @menu-click="isSidebarOpen = true" />
 
       <main class="flex-1 flex flex-col gap-5 pb-5">
-
         <!-- Search + Filter -->
         <div class="flex items-center gap-2 px-5 pt-5">
-          <div class="flex flex-1 items-center gap-2 h-[38px] rounded-[6px] bg-[#dee8fb] border border-[#2e42b2] px-5 overflow-hidden">
+          <div
+            class="flex flex-1 items-center gap-2 h-[38px] rounded-[6px] bg-[#dee8fb] border border-[#2e42b2] px-5 overflow-hidden"
+          >
             <input
               v-model="searchQuery"
               class="flex-1 bg-transparent outline-none text-base font-medium text-[#2e42b2] placeholder-[#2e42b2]/70"
@@ -224,10 +295,15 @@ const filteredTickets = computed(() => {
             class="flex-shrink-0 w-[38px] h-[38px] flex items-center justify-center rounded-lg bg-[#dee8fb] border border-[#2e42b2] cursor-pointer hover:bg-[#c7d7f5] transition-colors"
             @click="showFilter = true"
           >
-            <svg class="w-5 h-5 text-[#2e42b2]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <line x1="4" y1="6" x2="20" y2="6" stroke-width="2" stroke-linecap="round"/>
-              <line x1="7" y1="12" x2="17" y2="12" stroke-width="2" stroke-linecap="round"/>
-              <line x1="10" y1="18" x2="14" y2="18" stroke-width="2" stroke-linecap="round"/>
+            <svg
+              class="w-5 h-5 text-[#2e42b2]"
+              fill="none"
+              stroke="currentColor"
+              viewBox="0 0 24 24"
+            >
+              <line x1="4" y1="6" x2="20" y2="6" stroke-width="2" stroke-linecap="round" />
+              <line x1="7" y1="12" x2="17" y2="12" stroke-width="2" stroke-linecap="round" />
+              <line x1="10" y1="18" x2="14" y2="18" stroke-width="2" stroke-linecap="round" />
             </svg>
           </button>
         </div>
@@ -241,12 +317,24 @@ const filteredTickets = computed(() => {
         <div v-else-if="error" class="flex flex-col items-center justify-center py-24 gap-3 px-5">
           <Icon icon="mdi:alert-circle-outline" class="w-16 h-16 text-[#d93e39]" />
           <p class="text-sm text-[#d93e39] text-center">{{ error }}</p>
-          <button class="px-5 py-2 rounded-lg bg-[#2e42b2] text-white text-sm font-semibold" @click="ticketStore.fetchMyTickets()">Coba Lagi</button>
+          <button
+            class="px-5 py-2 rounded-lg bg-[#2e42b2] text-white text-sm font-semibold"
+            @click="ticketStore.fetchMyTickets()"
+          >
+            Coba Lagi
+          </button>
         </div>
 
         <!-- Empty State -->
-        <div v-else-if="filteredTickets.length === 0" class="flex flex-col items-center justify-center py-24 gap-4">
-          <img src="@/assets/data-not-found.svg" alt="Tidak ada tiket" class="w-[150px] h-[150px]" />
+        <div
+          v-else-if="filteredTickets.length === 0"
+          class="flex flex-col items-center justify-center py-24 gap-4"
+        >
+          <img
+            src="@/assets/data-not-found.svg"
+            alt="Tidak ada tiket"
+            class="w-[150px] h-[150px]"
+          />
           <b class="text-[28px] leading-[34px] text-[#2e42b2] text-center">Tiket tidak ditemukan</b>
         </div>
 
@@ -254,23 +342,29 @@ const filteredTickets = computed(() => {
         <div v-else class="flex flex-col gap-[10px] px-5">
           <TicketCard v-for="ticket in filteredTickets" :key="ticket.id" :ticket="ticket" />
         </div>
-
       </main>
 
       <!-- Filter Sheet (mobile only) -->
-      <FilterSheet
-        v-model="showFilter"
-        v-model:status="activeStatus"
-        v-model:sort="activeSort"
-      />
+      <FilterSheet v-model="showFilter" v-model:status="activeStatus" v-model:sort="activeSort" />
     </div>
-
   </div>
 </template>
 
 <style scoped>
-.slide-enter-active, .slide-leave-active { transition: transform 0.3s ease; }
-.slide-enter-from, .slide-leave-to { transform: translateX(-100%); }
-.fade-enter-active, .fade-leave-active { transition: opacity 0.3s ease; }
-.fade-enter-from, .fade-leave-to { opacity: 0; }
+.slide-enter-active,
+.slide-leave-active {
+  transition: transform 0.3s ease;
+}
+.slide-enter-from,
+.slide-leave-to {
+  transform: translateX(-100%);
+}
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
+}
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
+}
 </style>

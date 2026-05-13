@@ -7,6 +7,8 @@ import type {
   ScoringVoteRequest,
   ScoringVoteResponse,
   SemiFinalStandings,
+  KoncerVoteSubmitRequest,
+  KoncerStatusResponse,
 } from '@/interfaces/scoring.interface'
 
 const API_URL = `${import.meta.env.VITE_API_URL}/scoring`
@@ -27,23 +29,40 @@ export const getScoringBlocks = async (lombaId: string): Promise<ScoringBlokSumm
   return response.data.data
 }
 
-export const getScoringBlockDetail = async (lombaId: string, blokId: number): Promise<ScoringBlokDetail> => {
-  const response = await axios.get<BaseApiResponse<ScoringBlokDetail>>(`${API_URL}/blok/${blokId}`, {
-    headers: getAuthHeaders(),
-    params: { lombaId },
-  })
+export const getScoringBlockDetail = async (
+  lombaId: string,
+  blokId: number,
+): Promise<ScoringBlokDetail> => {
+  const response = await axios.get<BaseApiResponse<ScoringBlokDetail>>(
+    `${API_URL}/blok/${blokId}`,
+    {
+      headers: getAuthHeaders(),
+      params: { lombaId },
+    },
+  )
   return response.data.data
 }
 
-export const postScoringVote = async (lombaId: string, payload: ScoringVoteRequest): Promise<ScoringVoteResponse> => {
-  const response = await axios.post<BaseApiResponse<ScoringVoteResponse>>(`${API_URL}/vote`, payload, {
-    headers: getAuthHeaders(),
-    params: { lombaId },
-  })
+export const postScoringVote = async (
+  lombaId: string,
+  payload: ScoringVoteRequest,
+): Promise<ScoringVoteResponse> => {
+  const response = await axios.post<BaseApiResponse<ScoringVoteResponse>>(
+    `${API_URL}/vote`,
+    payload,
+    {
+      headers: getAuthHeaders(),
+      params: { lombaId },
+    },
+  )
   return response.data.data
 }
 
-export const postScoringWarning = async (lombaId: string, gantanganId: string, blokId?: number): Promise<ScoringGantangan> => {
+export const postScoringWarning = async (
+  lombaId: string,
+  gantanganId: string,
+  blokId?: number,
+): Promise<ScoringGantangan> => {
   const response = await axios.post<BaseApiResponse<ScoringGantangan>>(
     `${API_URL}/warning`,
     { gantanganId, blokId },
@@ -52,7 +71,11 @@ export const postScoringWarning = async (lombaId: string, gantanganId: string, b
   return response.data.data
 }
 
-export const postScoringDisqualify = async (lombaId: string, gantanganId: string, blokId?: number): Promise<ScoringGantangan> => {
+export const postScoringDisqualify = async (
+  lombaId: string,
+  gantanganId: string,
+  blokId?: number,
+): Promise<ScoringGantangan> => {
   const response = await axios.post<BaseApiResponse<ScoringGantangan>>(
     `${API_URL}/disqualify`,
     { gantanganId, blokId },
@@ -67,4 +90,25 @@ export const getSemiFinalStandings = async (lombaId: string): Promise<SemiFinalS
     params: { lombaId },
   })
   return response.data.data
+}
+
+export const getKoncerStatus = async (lombaId: string): Promise<KoncerStatusResponse> => {
+  const response = await axios.get<BaseApiResponse<KoncerStatusResponse>>(
+    `${API_URL}/koncer/status`,
+    {
+      headers: getAuthHeaders(),
+      params: { lombaId },
+    },
+  )
+  return response.data.data
+}
+
+export const postKoncerVote = async (
+  lombaId: string,
+  payload: KoncerVoteSubmitRequest,
+): Promise<void> => {
+  await axios.post<BaseApiResponse<void>>(`${API_URL}/koncer`, payload, {
+    headers: getAuthHeaders(),
+    params: { lombaId },
+  })
 }
