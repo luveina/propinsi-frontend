@@ -96,29 +96,38 @@
               <div class="flex flex-col gap-3">
                 <template v-if="userRole === 'KOORDINATOR_LOMBA'">
                   <button
-                    @click="goToEdit"
-                    :disabled="!lomba.isEditable"
-                    class="w-48 py-3 rounded-xl font-bold text-sm transition shadow-md"
-                    :class="
-                      lomba.isEditable
-                        ? 'bg-[#2E42B2] text-white hover:bg-blue-800 active:scale-95 cursor-pointer'
-                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    "
+                    v-if="lomba.status === 'SELESAI'"
+                    @click="router.push({ path: '/hasil-akhir', query: { lombaId } })"
+                    class="w-48 py-3 rounded-xl font-bold text-sm transition shadow-md bg-[#2E42B2] text-white hover:bg-blue-800 active:scale-95 cursor-pointer"
                   >
-                    Edit Lomba
+                    Lihat Pemenang
                   </button>
-                  <button
-                    @click="openDeleteModal"
-                    :disabled="!lomba.canDeleteLomba"
-                    class="w-48 py-3 rounded-xl font-bold text-sm transition shadow-md"
-                    :class="
-                      lomba.canDeleteLomba
-                        ? 'bg-[#2E42B2] text-white hover:bg-blue-800 active:scale-95 cursor-pointer'
-                        : 'bg-gray-200 text-gray-400 cursor-not-allowed'
-                    "
-                  >
-                    Hapus Lomba
-                  </button>
+                  <template v-else>
+                    <button
+                      @click="goToEdit"
+                      :disabled="!lomba.isEditable"
+                      class="w-48 py-3 rounded-xl font-bold text-sm transition shadow-md"
+                      :class="
+                        lomba.isEditable
+                          ? 'bg-[#2E42B2] text-white hover:bg-blue-800 active:scale-95 cursor-pointer'
+                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      "
+                    >
+                      Edit Lomba
+                    </button>
+                    <button
+                      @click="openDeleteModal"
+                      :disabled="!lomba.canDeleteLomba"
+                      class="w-48 py-3 rounded-xl font-bold text-sm transition shadow-md"
+                      :class="
+                        lomba.canDeleteLomba
+                          ? 'bg-[#2E42B2] text-white hover:bg-blue-800 active:scale-95 cursor-pointer'
+                          : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                      "
+                    >
+                      Hapus Lomba
+                    </button>
+                  </template>
                 </template>
 
                 <template v-else-if="userRole === 'PESERTA' || userRole === 'JURI'">
@@ -542,7 +551,7 @@
 
       <!-- FIXED BOTTOM BAR MOBILE -->
       <div
-        v-if="userRole === 'PESERTA' || userRole === 'JURI'"
+        v-if="userRole === 'PESERTA' || userRole === 'JURI' || lomba.status === 'SELESAI'"
         class="fixed bottom-0 left-0 right-0 p-6 bg-white border-t border-gray-100 shadow-[0_-8px_20px_rgba(0,0,0,0.08)] z-30"
       >
         <div class="max-w-md mx-auto text-center">

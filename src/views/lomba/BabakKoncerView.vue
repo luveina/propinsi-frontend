@@ -17,6 +17,8 @@ const submitting = ref(false)
 // State Votes: Map dari gantanganId ke pilihan 'A' | 'B'
 const votes = ref<Record<string, 'A' | 'B'>>({})
 
+const namaLomba = ref('')
+
 // Read-only state (setelah berhasil disubmit)
 const isSubmittedLocally = ref(false)
 
@@ -29,6 +31,7 @@ const fetchStandings = async () => {
   if (!lombaId.value) return
   try {
     const data = await getSemiFinalStandings(lombaId.value)
+    if (data.namaLomba) namaLomba.value = data.namaLomba
     if (data.koncerQualifiers && data.koncerQualifiers.length > 0) {
       rankings.value = data.koncerQualifiers
     }
@@ -42,8 +45,8 @@ const checkStatus = async () => {
   try {
     const status = await getKoncerStatus(lombaId.value)
     isSubmittedLocally.value = status.hasSubmitted
-    koncerFinished.value = status.isKoncerFinished
-    waitingOtherJudges.value = status.hasSubmitted && !status.isKoncerFinished
+    koncerFinished.value = status.koncerFinished
+    waitingOtherJudges.value = status.hasSubmitted && !status.koncerFinished
 
     if (status.userVotes) {
       votes.value = status.userVotes
@@ -206,6 +209,10 @@ const handleGoPemenang = () => {
           <span class="chevron chevron-left"></span>
           <span>Hasil Ajuan</span>
         </button>
+      </div>
+
+      <div v-if="namaLomba" class="w-full max-w-md mb-1">
+        <p class="text-center font-bold text-[#3041b3] uppercase text-sm tracking-wider">{{ namaLomba }}</p>
       </div>
 
       <div v-if="loading" class="mt-10 animate-pulse text-gray-500">Loading...</div>

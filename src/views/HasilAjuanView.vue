@@ -107,6 +107,10 @@ const handleAction = () => {
         </button>
       </div>
 
+      <div v-if="standings?.namaLomba" class="w-full max-w-md mb-3 shrink-0">
+        <p class="text-center font-bold text-[#3041b3] uppercase text-sm tracking-wider">{{ standings.namaLomba }}</p>
+      </div>
+
       <div v-if="loading" class="flex-1 flex items-center justify-center">
         <div class="animate-spin rounded-full h-10 w-10 border-4 border-[#3041b3] border-t-transparent"></div>
       </div>

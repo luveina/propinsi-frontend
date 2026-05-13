@@ -15,6 +15,8 @@ const jumlahJuara = ref(0)
 const maxRowsPerPage = 12
 const currentPage = ref(1)
 
+const namaLomba = ref('')
+
 const fetchResult = async () => {
   if (!lombaId.value) return
   loading.value = true
@@ -23,8 +25,10 @@ const fetchResult = async () => {
     if (detailData && detailData.hadiah) {
         jumlahJuara.value = detailData.hadiah.length
     }
+    if (detailData && detailData.namaLomba) {
+        namaLomba.value = detailData.namaLomba
+    }
     const resultData = await getLombaResult(lombaId.value)
-    // Jika resultData.results exists
     if (resultData && resultData.results) {
         results.value = resultData.results
     }
@@ -72,78 +76,75 @@ const isWinner = (absoluteIndex: number) => {
     </header>
 
     <div class="flex-1 overflow-y-auto p-4 flex flex-col items-center">
-      <div class="w-full max-w-md bg-white rounded-lg shadow-sm border border-gray-100 p-4">
-        <!-- Breadcrumb / Tab Back -->
-        <button @click="router.back()" class="flex items-center text-[#2E42B2] font-semibold mb-4 text-sm hover:underline cursor-pointer">
-          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4 mr-1">
+      <!-- Nav Kembali -->
+      <div class="w-full max-w-md mb-3 shrink-0">
+        <button @click="router.push('/katalog-lomba/' + lombaId)" class="text-[#3041b3] font-bold flex items-center gap-2 text-sm cursor-pointer">
+          <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke-width="2" stroke="currentColor" class="w-4 h-4">
             <path stroke-linecap="round" stroke-linejoin="round" d="M15.75 19.5L8.25 12l7.5-7.5" />
           </svg>
-          Detail Lomba
+          <span>Detail Lomba</span>
         </button>
+      </div>
 
-        <div v-if="loading" class="text-center py-10 text-gray-500 font-semibold">
-          Memuat Hasil...
-        </div>
+      <div v-if="namaLomba" class="w-full max-w-md mb-3 shrink-0">
+        <p class="text-center font-bold text-[#3041b3] uppercase text-sm tracking-wider">{{ namaLomba }}</p>
+      </div>
 
-        <div v-else>
-          <div class="overflow-x-auto rounded-lg border border-[#3041B3]">
-            <table class="w-full text-center text-[10px] md:text-sm">
-              <thead class="bg-[#3041B3] text-white">
-                <tr>
-                  <th class="py-3 px-2 font-semibold">No</th>
-                  <th class="py-3 px-2 font-semibold">Gantangan</th>
-                  <th class="py-3 px-2 font-semibold">Ajuan</th>
-                  <th class="py-3 px-2 font-semibold">Koncer</th>
-                  <th class="py-3 px-2 font-semibold leading-tight">Total<br/>Poin</th>
-                </tr>
-              </thead>
-              <tbody>
-                <!-- Tabel Body -->
-                <tr 
-                  v-for="(item, index) in paginatedResults" 
-                  :key="item.nomorGantangan"
-                  class="border-b border-gray-100"
-                  :class="{'bg-[#F0F2FF] font-medium text-[#2E42B2]': isWinner((currentPage - 1) * maxRowsPerPage + index)}"
-                >
-                  <td class="py-3 px-2 text-gray-700" :class="{'text-[#2E42B2]': isWinner((currentPage - 1) * maxRowsPerPage + index)}">
-                    {{ (currentPage - 1) * maxRowsPerPage + index + 1 }}
-                  </td>
-                  <td class="py-3 px-2">
-                    <span class="inline-block bg-[#A8B7FF] text-white px-2 py-0.5 rounded-full font-bold shadow-sm">
+      <div v-if="loading" class="mt-10 text-center text-gray-500 font-semibold">
+        Memuat Hasil...
+      </div>
+
+      <div v-else class="w-full max-w-md">
+        <div class="overflow-x-auto rounded-2xl border border-[#3041b3]/40 shadow-sm overflow-hidden mb-6">
+          <table class="w-full text-center text-[10px] md:text-sm border-collapse table-fixed">
+            <thead class="bg-[#3041b3] text-white text-[11px] uppercase font-bold tracking-widest">
+              <tr>
+                <th class="py-4 w-10">No</th>
+                <th class="py-4">Gantangan</th>
+                <th class="py-4">Ajuan</th>
+                <th class="py-4">Koncer</th>
+                <th class="py-4">Total Poin</th>
+              </tr>
+            </thead>
+            <tbody class="text-blue-900">
+              <tr
+                v-for="(item, index) in paginatedResults"
+                :key="item.nomorGantangan"
+                class="border-b border-[#3041b3]/10 transition-all duration-500"
+                :class="isWinner((currentPage - 1) * maxRowsPerPage + index) ? 'bg-[#DEE8FB]' : 'bg-white'"
+              >
+                <td class="py-4 text-sm font-bold text-[#3041b3]">{{ (currentPage - 1) * maxRowsPerPage + index + 1 }}</td>
+                <td class="py-4">
+                  <div class="flex justify-center">
+                    <span class="bg-[#9CBFF4] text-[#3041b3] px-4 py-0.5 rounded-full border border-[#3041b3] font-black text-sm min-w-[44px]">
                       {{ item.nomorGantangan }}
                     </span>
-                  </td>
-                  <td class="py-3 px-2 text-gray-600">
-                    {{ item.totalAjuan !== null ? item.totalAjuan : '-' }}
-                  </td>
-                  <td class="py-3 px-2 text-gray-600">
-                    {{ item.hasilKoncer ? item.hasilKoncer : '-' }}
-                  </td>
-                  <td class="py-3 px-2 text-gray-600">
-                    {{ item.totalPoin !== null ? item.totalPoin : '-' }}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
-          </div>
+                  </div>
+                </td>
+                <td class="py-4 font-semibold">{{ item.totalAjuan !== null ? item.totalAjuan : '-' }}</td>
+                <td class="py-4 font-semibold">{{ item.hasilKoncer ? item.hasilKoncer : '-' }}</td>
+                <td class="py-4 font-black text-[#3041b3]">{{ item.totalPoin !== null ? item.totalPoin : '-' }}</td>
+              </tr>
+            </tbody>
+          </table>
+        </div>
 
-          <!-- Pagination Controls -->
-          <div class="flex justify-center items-center mt-6 gap-2">
-            <button 
-              @click="setPage(1)"
-              class="w-8 h-8 rounded border font-semibold transition-colors duration-200 cursor-pointer flex items-center justify-center"
-              :class="currentPage === 1 ? 'bg-[#3041B3] text-white border-[#3041B3] scale-110 shadow-sm' : 'bg-white text-[#3041B3] border-gray-300 hover:bg-gray-50'"
-            >
-              1
-            </button>
-            <button 
-              @click="setPage(2)"
-              class="w-8 h-8 rounded border font-semibold transition-colors duration-200 cursor-pointer flex items-center justify-center"
-              :class="currentPage === 2 ? 'bg-[#3041B3] text-white border-[#3041B3] scale-110 shadow-sm' : 'bg-white text-[#3041B3] border-gray-300 hover:bg-gray-50'"
-            >
-              2
-            </button>
-          </div>
+        <!-- Pagination Controls -->
+        <div class="flex justify-center items-center mb-6 gap-2">
+          <button
+            @click="setPage(1)"
+            class="w-8 h-8 rounded border font-semibold transition-colors duration-200 cursor-pointer flex items-center justify-center"
+            :class="currentPage === 1 ? 'bg-[#3041B3] text-white border-[#3041B3] scale-110 shadow-sm' : 'bg-white text-[#3041B3] border-gray-300 hover:bg-gray-50'"
+          >
+            1
+          </button>
+          <button
+            @click="setPage(2)"
+            class="w-8 h-8 rounded border font-semibold transition-colors duration-200 cursor-pointer flex items-center justify-center"
+            :class="currentPage === 2 ? 'bg-[#3041B3] text-white border-[#3041B3] scale-110 shadow-sm' : 'bg-white text-[#3041B3] border-gray-300 hover:bg-gray-50'"
+          >
+            2
+          </button>
         </div>
       </div>
     </div>

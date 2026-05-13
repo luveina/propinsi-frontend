@@ -36,8 +36,17 @@ const blocks = ref<ScoringBlokSummary[]>([])
 const selectedBlock = ref<ScoringBlokDetail | null>(null)
 const mode = ref<Mode>('AJUAN')
 const selectedAjuan = ref<Set<string>>(new Set())
+const namaLomba = ref('')
 
 const showEmptySubmitConfirm = ref(false)
+const showSubmitConfirm = ref(false)
+
+const selectedGantanganNumbers = computed(() =>
+  orderedGantangans.value
+    .filter((g) => selectedAjuan.value.has(g.id))
+    .map((g) => g.nomorGantangan)
+    .sort((a, b) => a - b),
+)
 
 const isJuri = computed(() => (authStore.user?.role || '').toUpperCase().includes('JURI'))
 
@@ -86,8 +95,9 @@ const fetchBlocks = async () => {
   error.value = ''
   try {
     const lombaDetail: any = await getLombaDetail(lombaId.value)
+    if (lombaDetail.namaLomba) namaLomba.value = lombaDetail.namaLomba
 
-    if (lombaDetail.status !== 'BERLANGSUNG') {
+    if (lombaDetail.status !== 'BERLANGSUNG' && lombaDetail.status !== 'SELESAI') {
       error.value = 'Penilaian belum bisa dimulai, status lomba bukan BERLANGSUNG.'
       return
     }
@@ -119,6 +129,9 @@ const openBlock = async (blokId: number) => {
 
   try {
     selectedBlock.value = await getScoringBlockDetail(lombaId.value, blokId)
+    if (selectedBlock.value.selectedGantanganIds?.length) {
+      selectedAjuan.value = new Set(selectedBlock.value.selectedGantanganIds)
+    }
   } catch (err: any) {
     error.value = err?.response?.data?.message || 'Gagal mengambil data gantangan.'
   } finally {
@@ -248,7 +261,7 @@ const submitAjuan = async () => {
     return
   }
 
-  await submitAjuanFinal()
+  showSubmitConfirm.value = true
 }
 
 const submitAjuanFinal = async () => {
@@ -324,6 +337,7 @@ onMounted(fetchBlocks)
         <div v-if="lombaId && !isJuri" class="alert error">Halaman ini hanya untuk role Juri.</div>
 
         <template v-else-if="lombaId && !selectedBlock">
+          <p v-if="namaLomba" class="text-center font-bold text-[#3041b3] uppercase text-sm tracking-wider pt-2 mb-1">{{ namaLomba }}</p>
           <div class="flex flex-col flex-1 justify-center items-center h-full -mt-6">
             <h2 class="title">Pilih Blok untuk Dinilai</h2>
 
@@ -381,6 +395,8 @@ onMounted(fetchBlocks)
               Pilih Gantangan - {{ selectedBlock?.blokLabel }}
             </button>
           </div>
+
+          <p v-if="namaLomba" class="text-center font-bold text-[#3041b3] uppercase text-sm tracking-wider mb-3">{{ namaLomba }}</p>
 
           <div class="mode-card">
             <p class="mode-label">Aksi:</p>
@@ -481,6 +497,31 @@ onMounted(fetchBlocks)
         <div class="modal-actions">
           <button class="btn-secondary" @click="showEmptySubmitConfirm = false">Batal</button>
           <button class="btn-primary" @click="submitAjuanFinal">Tetap Ajukan</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Modal Konfirmasi Ajuan -->
+    <div v-if="showSubmitConfirm" class="modal-backdrop">
+      <div class="modal-card text-center">
+        <h3 class="text-[#3041b3] font-bold mb-4">Konfirmasi Ajuan</h3>
+        <p class="text-sm text-gray-600 mb-6">
+          Apakah Anda yakin ingin mengajukan
+          <b>Gantangan {{ selectedGantanganNumbers.join(', ') }}</b>?
+        </p>
+        <div class="flex gap-3 justify-center w-full">
+          <button
+            class="btn-secondary flex-1 py-2 rounded-lg bg-gray-200 text-gray-700 font-bold"
+            @click="showSubmitConfirm = false"
+          >
+            Batal
+          </button>
+          <button
+            class="btn-primary flex-1 py-2 rounded-lg bg-[#3041b3] text-white font-bold"
+            @click="showSubmitConfirm = false; submitAjuanFinal()"
+          >
+            Ajukan
+          </button>
         </div>
       </div>
     </div>

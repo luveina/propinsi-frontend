@@ -21,6 +21,7 @@ export interface ScoringBlokDetail {
   namaLomba: string
   locked: boolean
   gantangan: ScoringGantangan[]
+  selectedGantanganIds: string[]
 }
 
 export interface ScoringVoteRequest {
@@ -53,7 +54,7 @@ export interface KoncerVoteSubmitRequest {
 export interface KoncerStatusResponse {
   hasSubmitted: boolean
   totalJuriSubmitted: number
-  isKoncerFinished: boolean
+  koncerFinished: boolean
   userVotes?: Record<string, 'A' | 'B'>
 }
 
