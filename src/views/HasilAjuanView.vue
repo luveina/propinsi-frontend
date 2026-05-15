@@ -29,7 +29,7 @@ const fetchStandings = async () => {
 // Logic mencari nilai tertinggi untuk highlight baris 
 const maxAjuan = computed(() => {
   if (!standings.value?.rankings || standings.value.rankings.length === 0) return 0
-  return standings.value.rankings[0].jumlahAjuan
+  return standings.value.rankings[0]?.jumlahAjuan ?? 0
 })
 
 // Lifecycle: Polling tiap 3 detik agar real-time
@@ -46,7 +46,7 @@ onUnmounted(() => {
 
 // Logic Konfigurasi Tombol Bawah
 const buttonConfig = computed(() => {
-  if (!standings.value || standings.value.juriSubmitted < 4) {
+  if (!standings.value || standings.value.juriSubmitted < standings.value.totalJuri) {
     return {
       label: 'Menunggu Hasil Penjurian...',
       disabled: true,
@@ -158,7 +158,7 @@ const handleAction = () => {
         </table>
       </div>
 
-      <div v-if="standings && standings.juriSubmitted < 4" class="w-full max-w-xs text-center mb-10 shrink-0">
+      <div v-if="standings && standings.juriSubmitted < standings.totalJuri" class="w-full max-w-xs text-center mb-10 shrink-0">
         <p class="text-[11px] text-blue-400 italic leading-relaxed">
           Silakan refresh halaman secara berkala untuk memperbarui hasil penjurian.
         </p>
