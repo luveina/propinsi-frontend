@@ -119,9 +119,21 @@ const router = createRouter({
       // Kita pancing parameter dari URL query
     },
     {
+      path: '/dashboard',
+      name: 'dashboard',
+      component: () => import('@/views/dashboard/DashboardView.vue'),
+      meta: { requiresAuth: true },
+    },
+    {
       path: '/verifikasi-pembayaran',
       name: 'verifikasi-pembayaran',
       component: () => import('@/views/pendaftaran/VerifikasiPembayaranView.vue'),
+      meta: { requiresAuth: true, requiredRole: 'KOORDINATOR_PENDAFTARAN' },
+    },
+    {
+      path: '/check-in/:eventId',
+      name: 'check-in',
+      component: () => import('@/views/pendaftaran/CheckInView.vue'),
       meta: { requiresAuth: true, requiredRole: 'KOORDINATOR_PENDAFTARAN' },
     },
     {

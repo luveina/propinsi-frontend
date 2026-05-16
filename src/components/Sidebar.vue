@@ -22,6 +22,18 @@ function handleLogout() {
     </div>
 
     <nav class="flex-1 px-4 pt-2 pb-6 space-y-2 mt-4">
+
+      <!-- Dashboard: Koordinator Lomba & Koordinator Pendaftaran -->
+      <RouterLink
+        v-if="authStore.user?.role === 'KOORDINATOR_LOMBA' || authStore.user?.role === 'KOORDINATOR_PENDAFTARAN'"
+        to="/dashboard"
+        class="flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-semibold transition-colors hover:bg-[#1E3A8A]"
+        active-class="bg-[#1E3A8A] shadow-inner"
+      >
+        <img src="@/assets/device-analytics.svg" class="w-5 h-5 brightness-0 invert" alt="" />
+        Dashboard Operasional
+      </RouterLink>
+
       <RouterLink
         v-if="authStore.user?.role === 'ADMIN'"
         to="/manajemen-akun"

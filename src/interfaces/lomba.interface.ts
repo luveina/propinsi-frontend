@@ -23,38 +23,39 @@ export interface AssignJuriRequest {
 }
 
 export interface LombaDetailResponse {
-  id: string
-  namaLomba: string
-  deskripsi: string
-  lokasi: string
-  waktuTanggal: string
-  jenisBurung: string
-  kelas: string
-  hargaTiket: number
-  hadiah: number[]
-  jumlahGantangan: number
-  listGantangan: any[] // Tambahkan ini
-  jumlahJuri: number
-  listJuri: { id: number; fullName: string; role: string }[]
-  contactPerson: string
-  status: string
-  isEditable: boolean
-  canDeleteLomba: boolean
-  hasReservations: boolean
-  isReservable: boolean
-  canToggleOngoing: boolean
-  canStartJudging: boolean
-  isFullBooked: boolean
-  canViewWinner: boolean
+  id: string;
+  namaLomba: string;
+  deskripsi: string;
+  lokasi: string;
+  waktuTanggal: string;
+  jenisBurung: string;
+  kelas: string;
+  hargaTiket: number;
+  hadiah: number[];
+  jumlahGantangan: number;
+  listGantangan: any[];
+  jumlahJuri: number;
+  listJuri: { id: number; fullName: string; role: string }[];
+  contactPerson: string;
+  status: string;
+  isEditable: boolean;
+  canDeleteLomba: boolean;
+  hasReservations: boolean;
+  isReservable: boolean;
+  canToggleOngoing: boolean;
+  canStartJudging: boolean;
+  isFullBooked: boolean;
+  canViewWinner: boolean;
 }
 
 export interface FinalResultGantanganResponse {
-  nomorGantangan: number
-  totalAjuan: number | null
-  hasilKoncer: string | null
-  totalPoin: number | null
+  nomorGantangan: number;
+  totalAjuan: number | null;
+  hasilKoncer: string | null;
+  totalPoin: number | null;
 }
 
 export interface FinalResultResponse {
-  results: FinalResultGantanganResponse[]
+  results: FinalResultGantanganResponse[];
 }
+
