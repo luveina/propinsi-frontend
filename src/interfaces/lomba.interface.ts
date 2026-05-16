@@ -47,3 +47,15 @@ export interface LombaDetailResponse {
   isFullBooked: boolean;
   canViewWinner: boolean;
 }
+
+export interface FinalResultGantanganResponse {
+  nomorGantangan: number;
+  totalAjuan: number | null;
+  hasilKoncer: string | null;
+  totalPoin: number | null;
+}
+
+export interface FinalResultResponse {
+  results: FinalResultGantanganResponse[];
+}
+

@@ -394,7 +394,7 @@ onMounted(applyDateFilter)
                 <div class="w-8 h-8 rounded-full bg-[#FFE5E5] flex items-center justify-center shrink-0">
                   <span class="text-red-500 font-bold text-lg leading-none">🦅</span>
                 </div>
-                Rata-Rata Gantangan Terisi
+                Rata-Rata Kehadiran Gantangan
               </div>
               <div class="text-2xl font-bold text-[#1C244F]">
                 {{ store.analytics?.occupancyRate || 0 }}%

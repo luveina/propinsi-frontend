@@ -29,8 +29,12 @@ const fetchResult = async () => {
         namaLomba.value = detailData.namaLomba
     }
     const resultData = await getLombaResult(lombaId.value)
-    if (resultData && resultData.results) {
-        results.value = resultData.results
+    if (resultData) {
+        if (Array.isArray(resultData)) {
+            results.value = resultData
+        } else if ((resultData as any).results) {
+            results.value = (resultData as any).results
+        }
     }
   } catch (error) {
     console.error('Gagal mengambil data hasil akhir lomba:', error)
@@ -52,8 +56,40 @@ const setPage = (page: number) => {
   currentPage.value = page
 }
 
+const getAbsoluteIndex = (index: number) => {
+  return (currentPage.value - 1) * maxRowsPerPage + index
+}
+
 const isWinner = (absoluteIndex: number) => {
   return absoluteIndex < jumlahJuara.value
+}
+
+const getWinnerRank = (absoluteIndex: number) => {
+  return isWinner(absoluteIndex) ? absoluteIndex + 1 : null
+}
+
+const getWinnerRowClass = (absoluteIndex: number) => {
+  if (isWinner(absoluteIndex)) {
+    return 'bg-[#DEE8FB] text-[#1E2A78] shadow-[inset_5px_0_0_#3041B3]'
+  }
+
+  return 'bg-white'
+}
+
+const getWinnerBadgeClass = (absoluteIndex: number) => {
+  if (isWinner(absoluteIndex)) {
+    return 'bg-[#3041B3] text-white border-[#1E2A78]'
+  }
+
+  return 'bg-[#DEE8FB] text-[#3041b3] border-[#3041b3]/40'
+}
+
+const getGantanganBadgeClass = (absoluteIndex: number) => {
+  if (isWinner(absoluteIndex)) {
+    return 'bg-[#3041B3] text-white border-[#1E2A78] shadow-sm'
+  }
+
+  return 'bg-[#9CBFF4] text-[#3041b3] border-[#3041b3]'
 }
 </script>
 
@@ -99,7 +135,7 @@ const isWinner = (absoluteIndex: number) => {
           <table class="w-full text-center text-[10px] md:text-sm border-collapse table-fixed">
             <thead class="bg-[#3041b3] text-white text-[11px] uppercase font-bold tracking-widest">
               <tr>
-                <th class="py-4 w-10">No</th>
+                <th class="py-4 w-16">No</th>
                 <th class="py-4">Gantangan</th>
                 <th class="py-4">Ajuan</th>
                 <th class="py-4">Koncer</th>
@@ -111,19 +147,42 @@ const isWinner = (absoluteIndex: number) => {
                 v-for="(item, index) in paginatedResults"
                 :key="item.nomorGantangan"
                 class="border-b border-[#3041b3]/10 transition-all duration-500"
-                :class="isWinner((currentPage - 1) * maxRowsPerPage + index) ? 'bg-[#DEE8FB]' : 'bg-white'"
+                :class="getWinnerRowClass(getAbsoluteIndex(index))"
               >
-                <td class="py-4 text-sm font-bold text-[#3041b3]">{{ (currentPage - 1) * maxRowsPerPage + index + 1 }}</td>
+                <td class="py-4 px-1">
+                  <div class="flex flex-col items-center gap-1">
+                    <span
+                      class="flex h-7 min-w-7 items-center justify-center rounded-full border px-2 text-xs font-black"
+                      :class="getWinnerBadgeClass(getAbsoluteIndex(index))"
+                    >
+                      {{ getAbsoluteIndex(index) + 1 }}
+                    </span>
+                    <span
+                      v-if="getWinnerRank(getAbsoluteIndex(index))"
+                      class="rounded border border-[#3041B3]/30 bg-white/80 px-1.5 py-0.5 text-[9px] font-black uppercase leading-none text-[#3041B3]"
+                    >
+                      Juara {{ getWinnerRank(getAbsoluteIndex(index)) }}
+                    </span>
+                  </div>
+                </td>
                 <td class="py-4">
                   <div class="flex justify-center">
-                    <span class="bg-[#9CBFF4] text-[#3041b3] px-4 py-0.5 rounded-full border border-[#3041b3] font-black text-sm min-w-[44px]">
+                    <span
+                      class="px-4 py-0.5 rounded-full border font-black text-sm min-w-[44px]"
+                      :class="getGantanganBadgeClass(getAbsoluteIndex(index))"
+                    >
                       {{ item.nomorGantangan }}
                     </span>
                   </div>
                 </td>
                 <td class="py-4 font-semibold">{{ item.totalAjuan !== null ? item.totalAjuan : '-' }}</td>
                 <td class="py-4 font-semibold">{{ item.hasilKoncer ? item.hasilKoncer : '-' }}</td>
-                <td class="py-4 font-black text-[#3041b3]">{{ item.totalPoin !== null ? item.totalPoin : '-' }}</td>
+                <td
+                  class="py-4 font-black"
+                  :class="isWinner(getAbsoluteIndex(index)) ? 'text-[#1E2A78]' : 'text-[#3041b3]'"
+                >
+                  {{ item.totalPoin !== null ? item.totalPoin : '-' }}
+                </td>
               </tr>
             </tbody>
           </table>
