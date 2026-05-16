@@ -298,7 +298,7 @@ onMounted(applyDateFilter)
                 <input
                   v-model="startDate"
                   type="date"
-                  :max="endDate || undefined"
+                  :max="endDate"
                   class="bg-transparent text-sm text-gray-700 outline-none cursor-pointer"
                 />
               </div>
@@ -310,7 +310,7 @@ onMounted(applyDateFilter)
                 <input
                   v-model="endDate"
                   type="date"
-                  :min="startDate || undefined"
+                  :min="startDate"
                   class="bg-transparent text-sm text-gray-700 outline-none cursor-pointer"
                 />
               </div>

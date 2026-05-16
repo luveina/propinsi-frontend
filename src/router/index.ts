@@ -32,7 +32,13 @@ const router = createRouter({
     },
     {
       path: '/',
-      redirect: { name: 'katalog-lomba' },
+      redirect: () => {
+        const userRaw = localStorage.getItem('user')
+        const user = userRaw ? JSON.parse(userRaw) : null
+        if (user?.role === 'ADMIN') return { name: 'manajemen-akun' }
+        if (user?.role === 'KOORDINATOR_LOMBA' || user?.role === 'KOORDINATOR_PENDAFTARAN') return { name: 'dashboard' }
+        return { name: 'katalog-lomba' }
+      },
     },
     {
       path: '/katalog-lomba',
@@ -173,7 +179,13 @@ const router = createRouter({
     // ─── Fallback ─────────────────────────────────────────────────────
     {
       path: '/:pathMatch(.*)*',
-      redirect: { name: 'katalog-lomba' },
+      redirect: () => {
+        const userRaw = localStorage.getItem('user')
+        const user = userRaw ? JSON.parse(userRaw) : null
+        if (user?.role === 'ADMIN') return { name: 'manajemen-akun' }
+        if (user?.role === 'KOORDINATOR_LOMBA' || user?.role === 'KOORDINATOR_PENDAFTARAN') return { name: 'dashboard' }
+        return { name: 'katalog-lomba' }
+      },
     },
   ],
 })
@@ -198,6 +210,8 @@ router.beforeEach((to, _from, next) => {
     // Redirect berdasarkan role
     if (user?.role === 'ADMIN') {
       return next({ name: 'manajemen-akun' })
+    } else if (user?.role === 'KOORDINATOR_LOMBA' || user?.role === 'KOORDINATOR_PENDAFTARAN') {
+      return next({ name: 'dashboard' })
     } else {
       return next({ name: 'katalog-lomba' })
     }
@@ -207,6 +221,11 @@ router.beforeEach((to, _from, next) => {
   if (to.meta.requiresGuest && isAuthenticated) {
     if (isFirstLogin) {
       return next({ name: 'change-password' })
+    }
+    if (user?.role === 'ADMIN') {
+      return next({ name: 'manajemen-akun' })
+    } else if (user?.role === 'KOORDINATOR_LOMBA' || user?.role === 'KOORDINATOR_PENDAFTARAN') {
+      return next({ name: 'dashboard' })
     }
     return next({ name: 'katalog-lomba' })
   }
