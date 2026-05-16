@@ -18,6 +18,12 @@ export const useDashboardStore = defineStore('dashboard', () => {
   const error = ref<string | null>(null)
 
   async function fetchAnalytics(startDate: string, endDate: string, jenisBurung?: string[], kelas?: string[]) {
+    const dateError = validateDateRange(startDate, endDate)
+    if (dateError) {
+      error.value = dateError
+      return
+    }
+
     loading.value = true
     error.value = null
     try {
@@ -76,6 +82,18 @@ export const useDashboardStore = defineStore('dashboard', () => {
 
   function clearError() {
     error.value = null
+  }
+
+  function validateDateRange(startDate: string, endDate: string): string | null {
+    if (!startDate || !endDate) {
+      return 'Tanggal mulai dan tanggal akhir wajib diisi'
+    }
+
+    if (startDate > endDate) {
+      return 'Tanggal mulai tidak boleh lebih dari tanggal akhir'
+    }
+
+    return null
   }
 
   return { analytics, loading, error, fetchAnalytics, clearError }

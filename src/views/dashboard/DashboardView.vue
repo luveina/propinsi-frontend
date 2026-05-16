@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref, computed, watch, onMounted } from 'vue'
+import { ref, computed, watch, onMounted, nextTick } from 'vue'
 import Sidebar from '@/components/Sidebar.vue'
 import { useAuthStore } from '@/stores/auth/auth.store'
 import { useDashboardStore } from '@/stores/dashboard/dashboard.store'
@@ -11,6 +11,7 @@ const store = useDashboardStore()
 const today = new Date()
 const startDate = ref<string>(new Date(today.getFullYear(), 0, 1).toISOString().split('T')[0] as string)
 const endDate = ref<string>(today.toISOString().split('T')[0] as string)
+const suppressFilterFetch = ref(false)
 
 // ─── Category filter ──────────────────────────────────────────────────────────
 const filterBirdType = ref<string[]>([])
@@ -38,6 +39,20 @@ const activeFilters = computed(() => {
   return res
 })
 
+const dateValidationError = computed(() => {
+  if (!startDate.value || !endDate.value) {
+    return 'Tanggal mulai dan tanggal akhir wajib diisi'
+  }
+
+  if (startDate.value > endDate.value) {
+    return 'Tanggal mulai tidak boleh lebih dari tanggal akhir'
+  }
+
+  return null
+})
+
+const analyticsError = computed(() => dateValidationError.value ?? store.error)
+
 function removeFilter(f: { type: 'bird' | 'class'; label: string }) {
   if (f.type === 'class') {
     filterClass.value = filterClass.value.filter(k => k !== f.label)
@@ -52,10 +67,12 @@ watch([startDate, endDate], () => {
 })
 
 watch(filterBirdType, () => {
+  if (suppressFilterFetch.value || dateValidationError.value) return
   store.fetchAnalytics(startDate.value, endDate.value, filterBirdType.value.length ? filterBirdType.value : undefined, filterClass.value.length ? filterClass.value : undefined)
 }, { deep: true })
 
 watch(filterClass, () => {
+  if (suppressFilterFetch.value || dateValidationError.value) return
   store.fetchAnalytics(startDate.value, endDate.value, filterBirdType.value.length ? filterBirdType.value : undefined, filterClass.value.length ? filterClass.value : undefined)
 }, { deep: true })
 
@@ -220,7 +237,15 @@ function clearFilter() {
 
 // ─── Initial + date-apply fetch ───────────────────────────────────────────────
 async function applyDateFilter() {
+  if (dateValidationError.value) {
+    store.clearError()
+    return
+  }
+
+  suppressFilterFetch.value = true
   clearFilter()
+  await nextTick()
+  suppressFilterFetch.value = false
   await store.fetchAnalytics(startDate.value, endDate.value)
   syncOptions()
 }
@@ -273,6 +298,7 @@ onMounted(applyDateFilter)
                 <input
                   v-model="startDate"
                   type="date"
+                  :max="endDate || undefined"
                   class="bg-transparent text-sm text-gray-700 outline-none cursor-pointer"
                 />
               </div>
@@ -284,6 +310,7 @@ onMounted(applyDateFilter)
                 <input
                   v-model="endDate"
                   type="date"
+                  :min="startDate || undefined"
                   class="bg-transparent text-sm text-gray-700 outline-none cursor-pointer"
                 />
               </div>
@@ -417,10 +444,10 @@ onMounted(applyDateFilter)
         </div>
 
         <!-- Error -->
-        <div v-if="store.error" class="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm font-medium flex items-center gap-3">
+        <div v-if="analyticsError" class="bg-red-50 border border-red-200 rounded-xl p-4 text-red-700 text-sm font-medium flex items-center gap-3">
           <svg class="w-5 h-5 shrink-0" fill="currentColor" viewBox="0 0 20 20"><path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zM8.707 7.293a1 1 0 00-1.414 1.414L8.586 10l-1.293 1.293a1 1 0 101.414 1.414L10 11.414l1.293 1.293a1 1 0 001.414-1.414L11.414 10l1.293-1.293a1 1 0 00-1.414-1.414L10 8.586 8.707 7.293z" clip-rule="evenodd"/></svg>
-          {{ store.error }}
-          <button @click="applyDateFilter" class="ml-auto underline cursor-pointer text-xs">Coba lagi</button>
+          {{ analyticsError }}
+          <button v-if="!dateValidationError" @click="applyDateFilter" class="ml-auto underline cursor-pointer text-xs">Coba lagi</button>
         </div>
 
         <!-- ── Line Chart ──────────────────────────────────────────────── -->
