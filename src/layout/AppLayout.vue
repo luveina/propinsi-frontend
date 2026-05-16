@@ -49,7 +49,7 @@ const drawerOpen = ref(false)
 
       <!-- Konten halaman -->
       <main class="flex-1 overflow-y-auto">
-        <RouterView />
+        <slot />
       </main>
     </div>
   </div>
