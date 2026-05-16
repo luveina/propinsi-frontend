@@ -57,9 +57,11 @@ export const useAuthStore = defineStore('auth', () => {
       if (data.data.firstLogin) {
         router.push('/change-password')
       } else {
-        // Redirect berdasarkan role user
-        if (user.value?.role === 'ADMIN') {
+        const role = user.value?.role
+        if (role === 'ADMIN') {
           router.push('/manajemen-akun')
+        } else if (role === 'KOORDINATOR_LOMBA' || role === 'KOORDINATOR_PENDAFTARAN') {
+          router.push('/dashboard')
         } else {
           router.push('/profile')
         }
@@ -107,9 +109,11 @@ export const useAuthStore = defineStore('auth', () => {
         user.value.isFirstLogin = false
         localStorage.setItem('user', JSON.stringify(user.value))
       }
-      // Redirect berdasarkan role user
-      if (user.value?.role === 'ADMIN') {
+      const role = user.value?.role
+      if (role === 'ADMIN') {
         router.push('/manajemen-akun')
+      } else if (role === 'KOORDINATOR_LOMBA' || role === 'KOORDINATOR_PENDAFTARAN') {
+        router.push('/dashboard')
       } else {
         router.push('/profile')
       }

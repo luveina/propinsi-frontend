@@ -31,6 +31,7 @@ export const useTicketStore = defineStore('ticket', () => {
       // Map response BE → shape Ticket interface di FE
       tickets.value = data.map((item: any) => ({
         id: item.id,
+        nama_peserta: item.namaPeserta ?? '',
         nama_lomba: item.namaLomba,
         tanggal: item.tanggal,
         lokasi: item.lokasi,
