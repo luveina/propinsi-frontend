@@ -159,6 +159,9 @@ const handleAction = () => {
       </div>
 
       <div v-if="standings && standings.juriSubmitted < standings.totalJuri" class="w-full max-w-xs text-center mb-10 shrink-0">
+        <p class="text-[12px] font-bold text-[#3041b3] mb-1">
+          Progres: {{ standings.juriSubmitted }}/{{ standings.totalJuri }} Juri Selesai
+        </p>
         <p class="text-[11px] text-blue-400 italic leading-relaxed">
           Silakan refresh halaman secara berkala untuk memperbarui hasil penjurian.
         </p>

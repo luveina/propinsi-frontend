@@ -40,6 +40,9 @@ const fetchStandings = async () => {
   }
 }
 
+const submittedCount = ref(0)
+const totalTarget = ref(4)
+
 const checkStatus = async () => {
   if (!lombaId.value) return
   try {
@@ -47,6 +50,8 @@ const checkStatus = async () => {
     isSubmittedLocally.value = status.hasSubmitted
     koncerFinished.value = status.koncerFinished
     waitingOtherJudges.value = status.hasSubmitted && !status.koncerFinished
+
+    submittedCount.value = status.totalJuriSubmitted || 0
 
     if (status.userVotes) {
       votes.value = status.userVotes
@@ -286,10 +291,16 @@ const handleGoPemenang = () => {
       <!-- Menunggu teks -->
       <div
         v-if="waitingOtherJudges && !koncerFinished"
-        class="w-full max-w-md mt-6 text-center text-[11px] text-blue-400 italic leading-relaxed"
+        class="w-full max-w-md mt-6 text-center shrink-0"
       >
-        Menunggu penilaian juri lain.<br />
-        Silakan refresh halaman secara berkala untuk dapat mengakses hasil koncer.
+        <p class="text-[12px] font-bold text-[#3041b3] mb-1">
+          Progres: {{ submittedCount }}/{{ totalTarget }} Juri Selesai
+        </p>
+        
+        <p class="text-[11px] text-blue-400 italic leading-relaxed">
+          Menunggu penilaian juri lain.<br />
+          Silakan refresh halaman secara berkala untuk dapat mengakses hasil koncer.
+        </p>
       </div>
 
       <!-- Bottom Actions -->
