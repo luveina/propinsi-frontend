@@ -419,9 +419,9 @@ onMounted(applyDateFilter)
             <div class="bg-white rounded-xl border border-[#D1E0FF] p-5 shadow-sm flex flex-col justify-between">
               <div class="flex items-center gap-2 mb-2 text-gray-500 text-sm font-medium">
                 <div class="w-8 h-8 rounded-full bg-[#FFE5E5] flex items-center justify-center shrink-0">
-                  <span class="text-red-500 font-bold text-lg leading-none">🦅</span>
+                  <span class="text-red-500 font-bold text-lg leading-none">🪑</span>
                 </div>
-                Rata-Rata Kehadiran Gantangan
+                Rata-Rata Okupansi Gantangan
               </div>
               <div class="text-2xl font-bold text-[#1C244F]">
                 {{ store.analytics?.occupancyRate || 0 }}%
@@ -432,12 +432,12 @@ onMounted(applyDateFilter)
             <div class="bg-white rounded-xl border border-[#D1E0FF] p-5 shadow-sm flex flex-col justify-between">
               <div class="flex items-center gap-2 mb-2 text-gray-500 text-sm font-medium">
                 <div class="w-8 h-8 rounded-full bg-[#E5F0FF] flex items-center justify-center shrink-0">
-                  <span class="text-blue-500 font-bold text-lg leading-none">🛍️</span>
+                  <span class="text-blue-500 font-bold text-lg leading-none">👥</span>
                 </div>
-                Rate Booking Success
+                Rata-Rata Kehadiran Peserta
               </div>
               <div class="text-2xl font-bold text-[#1C244F]">
-                {{ store.analytics?.bookingSuccessRate || 0 }}%
+                {{ store.analytics?.attendanceRate || 0 }}%
               </div>
             </div>
           </template>

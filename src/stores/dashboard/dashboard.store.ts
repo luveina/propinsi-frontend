@@ -65,8 +65,8 @@ export const useDashboardStore = defineStore('dashboard', () => {
       analytics.value = {
         totalTiketTerjual: Number(d.totalTiketTerjual ?? 0),
         totalRevenue: Number(d.totalRevenue ?? 0),
-        bookingSuccessRate: Number(d.bookingSuccessRate ?? 0),
         occupancyRate: Number(d.occupancyRate ?? 0),
+        attendanceRate: Number(d.attendanceRate ?? 0),
         top5Classes: mapClass(d.top5Classes),
         top5BirdTypes: mapBird(d.top5BirdTypes),
         trendData: mapTrend(d.trendData),
