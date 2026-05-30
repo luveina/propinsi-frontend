@@ -33,7 +33,7 @@ const fetchData = async () => {
   try {
     const [resReservasi, resLomba] = await Promise.all([getAllReservasi(), getAllLomba()])
     reservasiList.value = resReservasi
-    lombaOptions.value = resLomba.data || resLomba
+    lombaOptions.value = resLomba.content
   } catch (error) {
     console.error('Fetch error:', error)
   } finally {

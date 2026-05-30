@@ -34,13 +34,14 @@ const fetchLomba = async () => {
     // If user is a JURI, fetch only lombas where they are assigned as a judge
     const fetchFunction = authStore.user?.role === 'JURI' ? getLombaByJuri : getAllLomba
 
-    lombaList.value = await fetchFunction({
+    const response = await fetchFunction({
       jenisBurung: filterJenisBurung.value || undefined,
       status: filterStatus.value || undefined,
       sortBy: 'waktuTanggal',
       sortDir: sortDir.value,
       nama: searchQuery.value || undefined,
     })
+    lombaList.value = response.content
   } catch (e: any) {
     error.value = 'Gagal mengambil data lomba.'
     console.error(e)
