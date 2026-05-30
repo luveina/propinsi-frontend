@@ -32,6 +32,16 @@ const tempJenisBurung = ref('')
 const tempStatus = ref('')
 const tempSort = ref('asc')
 
+// Pagination
+const currentPage = ref(0)
+const totalPages = ref(0)
+const totalElements = ref(0)
+
+// Header title
+const headerTitle = computed(() => 
+  authStore.user?.role === 'KOORDINATOR_LOMBA' ? 'Manajemen Lomba' : 'Katalog Lomba'
+)
+
 // Fetch data
 const fetchLomba = async () => {
   loading.value = true
@@ -40,13 +50,18 @@ const fetchLomba = async () => {
     // If user is a JURI, fetch only lombas where they are assigned as a judge
     const fetchFunction = authStore.user?.role === 'JURI' ? getLombaByJuri : getAllLomba
 
-    lombaList.value = await fetchFunction({
+    const response = await fetchFunction({
       jenisBurung: filterJenisBurung.value || undefined,
       status: filterStatus.value || undefined,
       sortBy: 'waktuTanggal',
       sortDir: sortDir.value,
       nama: searchQuery.value || undefined,
+      page: currentPage.value,
+      size: 10,
     })
+    lombaList.value = response.content
+    totalPages.value = response.totalPages
+    totalElements.value = response.totalElements
   } catch (e: any) {
     error.value = 'Gagal mengambil data lomba. Pastikan server berjalan.'
     console.error(e)
@@ -55,9 +70,16 @@ const fetchLomba = async () => {
   }
 }
 
+const goToPage = (page: number) => {
+  if (page < 0 || page >= totalPages.value) return
+  currentPage.value = page
+  fetchLomba()
+}
+
 onMounted(fetchLomba)
 
 function onFilterChange() {
+  currentPage.value = 0
   fetchLomba()
 }
 
@@ -74,6 +96,7 @@ const applyFilter = () => {
   filterStatus.value = tempStatus.value
   sortDir.value = tempSort.value
   isFilterOpen.value = false
+  currentPage.value = 0
   fetchLomba()
 }
 
@@ -89,6 +112,7 @@ const closeMobileSidebar = () => {
 
 // Watch for search query changes
 watch(searchQuery, () => {
+  currentPage.value = 0
   fetchLomba()
 })
 
@@ -208,68 +232,31 @@ async function confirmDelete() {
     <!-- Main Content -->
     <div class="flex-1 flex flex-col overflow-hidden w-full">
       <!-- Desktop Header -->
-      <div
-        class="hidden md:!flex bg-white px-10 py-5 border-b border-gray-200 justify-between items-center shrink-0"
-      >
+      <div class="hidden md:!flex bg-white px-10 py-5 border-b border-gray-200 justify-between items-center shrink-0">
         <h1 class="text-4xl font-bold text-[#2E42B2] font-plus-jakarta">
           {{ authStore.user?.role === 'KOORDINATOR_LOMBA' ? 'Manajemen Lomba' : 'Katalog Lomba' }}
         </h1>
-        <RouterLink
-          to="/profile"
-          class="flex items-center gap-3 hover:opacity-80 transition-opacity no-underline"
-        >
+        <RouterLink to="/profile" class="flex items-center gap-3 hover:opacity-80 transition-opacity no-underline">
           <div class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center shrink-0">
-            <svg class="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 24 24">
-              <path
-                d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z"
-              />
-            </svg>
+            <svg class="w-6 h-6 text-gray-500" fill="currentColor" viewBox="0 0 24 24"><path d="M12 12c2.7 0 4.8-2.1 4.8-4.8S14.7 2.4 12 2.4 7.2 4.5 7.2 7.2 9.3 12 12 12zm0 2.4c-3.2 0-9.6 1.6-9.6 4.8v2.4h19.2v-2.4c0-3.2-6.4-4.8-9.6-4.8z" /></svg>
           </div>
           <div class="text-right">
-            <p class="font-semibold text-sm leading-tight text-gray-900 font-plus-jakarta">
-              {{ authStore.user?.fullName }}
-            </p>
-            <p class="text-xs text-gray-500 font-plus-jakarta">
-              {{
-                authStore.user?.role
-                  ?.replace(/_/g, ' ')
-                  .replace(/\b\w/g, (c: string) => c.toUpperCase())
-              }}
-            </p>
+            <p class="font-semibold text-sm leading-tight text-gray-900 font-plus-jakarta">{{ authStore.user?.fullName }}</p>
+            <p class="text-xs text-gray-500 font-plus-jakarta">{{ authStore.user?.role?.replace(/_/g, ' ').replace(/\b\w/g, (c: string) => c.toUpperCase()) }}</p>
           </div>
         </RouterLink>
       </div>
 
       <!-- Mobile Header -->
-      <header
-        class="md:!hidden bg-[#2E42B2] text-white px-4 py-4 flex items-center justify-between sticky top-0 z-40 shadow-md"
-      >
+      <header class="md:!hidden bg-[#2E42B2] text-white px-4 py-4 flex items-center justify-between sticky top-0 z-40 shadow-md">
         <button @click="isMobileSidebarOpen = true" class="p-1">
-          <svg
-            width="24"
-            height="24"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2.5"
-          >
-            <line x1="3" y1="12" x2="21" y2="12"></line>
-            <line x1="3" y1="6" x2="21" y2="6"></line>
-            <line x1="3" y1="18" x2="21" y2="18"></line>
-          </svg>
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
         </button>
         <h1 class="text-lg font-bold flex-1 text-center">
           {{ authStore.user?.role === 'KOORDINATOR_LOMBA' ? 'Manajemen Lomba' : 'Katalog Lomba' }}
         </h1>
-        <RouterLink
-          to="/profile"
-          class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center overflow-hidden"
-        >
-          <svg width="20" height="20" viewBox="0 0 24 24" fill="white">
-            <path
-              d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"
-            />
-          </svg>
+        <RouterLink to="/profile" class="w-9 h-9 rounded-full bg-white/20 flex items-center justify-center overflow-hidden">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 3c1.66 0 3 1.34 3 3s-1.34 3-3 3-3-1.34-3-3 1.34-3 3-3zm0 14.2c-2.5 0-4.71-1.28-6-3.22.03-1.99 4-3.08 6-3.08 1.99 0 5.97 1.09 6 3.08-1.29 1.94-3.5 3.22-6 3.22z"/></svg>
         </RouterLink>
       </header>
 
@@ -645,6 +632,43 @@ async function confirmDelete() {
             </div>
           </div>
 
+          <!-- Pagination Desktop -->
+          <div v-if="totalPages > 1" class="hidden md:!flex items-center justify-between mt-6 font-plus-jakarta">
+            <p class="text-sm text-gray-500">
+              Menampilkan {{ currentPage * 10 + 1 }}–{{ Math.min((currentPage + 1) * 10, totalElements) }}
+              dari {{ totalElements }} lomba
+            </p>
+            <div class="flex items-center gap-2">
+              <button
+                @click="goToPage(currentPage - 1)"
+                :disabled="currentPage === 0"
+                class="px-3 py-2 rounded-lg border border-[#2e42b2] text-[#2e42b2] text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#E8EDF5] transition-colors"
+              >
+                ← Sebelumnya
+              </button>
+
+              <template v-for="p in totalPages" :key="p">
+                <button
+                  @click="goToPage(p - 1)"
+                  :class="currentPage === p - 1
+                    ? 'bg-[#2e42b2] text-white'
+                    : 'bg-white text-[#2e42b2] hover:bg-[#E8EDF5]'"
+                  class="w-9 h-9 rounded-lg border border-[#2e42b2] text-sm font-semibold transition-colors"
+                >
+                  {{ p }}
+                </button>
+              </template>
+
+              <button
+                @click="goToPage(currentPage + 1)"
+                :disabled="currentPage >= totalPages - 1"
+                class="px-3 py-2 rounded-lg border border-[#2e42b2] text-[#2e42b2] text-sm font-semibold disabled:opacity-40 disabled:cursor-not-allowed hover:bg-[#E8EDF5] transition-colors"
+              >
+                Selanjutnya →
+              </button>
+            </div>
+          </div>
+
           <!-- Mobile List (Muncul hanya di layar kecil) -->
           <div class="md:!hidden space-y-4 pb-20">
             <div
@@ -726,135 +750,51 @@ async function confirmDelete() {
               </div>
             </div>
           </div>
+
+          <!-- Pagination Mobile -->
+          <div v-if="totalPages > 1" class="md:!hidden flex items-center justify-center gap-3 mt-4 pb-24">
+            <button
+              @click="goToPage(currentPage - 1)"
+              :disabled="currentPage === 0"
+              class="px-4 py-2 rounded-xl bg-[#E8EDF5] text-[#2E42B2] text-sm font-bold disabled:opacity-40"
+            >
+              ←
+            </button>
+
+            <span class="text-sm font-semibold text-[#2E42B2]">
+              {{ currentPage + 1 }} / {{ totalPages }}
+            </span>
+
+            <button
+              @click="goToPage(currentPage + 1)"
+              :disabled="currentPage >= totalPages - 1"
+              class="px-4 py-2 rounded-xl bg-[#E8EDF5] text-[#2E42B2] text-sm font-bold disabled:opacity-40"
+            >
+              →
+            </button>
+          </div>
         </div>
       </div>
     </div>
   </div>
-  <!-- Mobile Sidebar Overlay -->
-  <transition name="fade">
-    <div
-      v-if="isMobileSidebarOpen"
-      @click="closeMobileSidebar"
-      class="fixed inset-0 bg-black/40 z-50 md:hidden"
-    ></div>
-  </transition>
+  <Teleport to="body">
+    <Transition name="fade">
+      <div
+        v-if="isMobileSidebarOpen"
+        @click="isMobileSidebarOpen = false"
+        class="fixed inset-0 bg-black/50 z-[60] backdrop-blur-sm md:hidden"
+      ></div>
+    </Transition>
 
-  <!-- Mobile Sidebar -->
-  <transition name="slide-right">
-    <div
-      v-if="isMobileSidebarOpen"
-      class="fixed left-0 top-0 h-screen w-64 bg-[#314EAE] z-50 md:hidden overflow-y-auto shadow-xl"
-    >
-      <div class="pt-8 pb-2 px-4 flex items-center justify-center gap-3">
-        <img src="@/assets/siloburputih.png" alt="Logo" class="h-17 w-auto object-contain" />
+    <Transition name="slide-right">
+      <div
+        v-if="isMobileSidebarOpen"
+        class="fixed inset-y-0 left-0 z-[70] w-64 shadow-2xl md:hidden"
+      >
+        <Sidebar />
       </div>
-
-      <nav class="flex-1 px-4 pt-2 pb-6 space-y-2 mt-4">
-        <RouterLink
-          v-if="authStore.user?.role === 'ADMIN'"
-          to="/manajemen-akun"
-          @click="closeMobileSidebar"
-          class="flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-semibold transition-colors hover:bg-[#1E3A8A] text-white"
-          active-class="bg-[#1E3A8A] shadow-inner"
-        >
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"
-            ></path>
-          </svg>
-          Manajemen Akun
-        </RouterLink>
-
-        <RouterLink
-          v-else-if="authStore.user?.role === 'KOORDINATOR_LOMBA'"
-          to="/katalog-lomba"
-          @click="closeMobileSidebar"
-          class="flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-semibold transition-colors hover:bg-[#1E3A8A] text-white"
-          active-class="bg-[#1E3A8A] shadow-inner"
-        >
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-            ></path>
-          </svg>
-          Manajemen Lomba
-        </RouterLink>
-        <RouterLink
-          v-else
-          to="/katalog-lomba"
-          @click="closeMobileSidebar"
-          class="flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-semibold transition-colors hover:bg-[#1E3A8A] text-white"
-          active-class="bg-[#1E3A8A] shadow-inner"
-        >
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2m-3 7h3m-3 4h3m-6-4h.01M9 16h.01"
-            ></path>
-          </svg>
-          Katalog Lomba
-        </RouterLink>
-
-        <RouterLink
-          to="/profile"
-          @click="closeMobileSidebar"
-          class="flex items-center gap-3 px-4 py-3.5 rounded-lg text-sm font-semibold transition-colors hover:bg-[#1E3A8A] text-white"
-          active-class="bg-[#1E3A8A] shadow-inner"
-        >
-          <svg
-            class="w-5 h-5"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              stroke-width="2"
-              d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
-            ></path>
-          </svg>
-          Profil Saya
-        </RouterLink>
-      </nav>
-
-      <div class="p-5 mb-2">
-        <button
-          @click="authStore.logout()"
-          class="w-full bg-white text-[#314EAE] font-bold py-3 rounded-lg text-sm hover:bg-gray-100 transition-colors flex justify-center items-center shadow-md cursor-pointer"
-        >
-          Log Out
-        </button>
-      </div>
-    </div>
-  </transition>
+    </Transition>
+  </Teleport>
 
   <!-- Mobile Filter Bottom Sheet -->
   <transition name="slide-up">
