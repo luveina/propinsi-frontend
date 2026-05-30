@@ -60,6 +60,8 @@ export interface LombaFilterParams {
   sortBy?: string
   sortDir?: string
   nama?: string
+  page?: number
+  size?: number
 }
 
 export interface LombaItem {
@@ -84,7 +86,15 @@ export interface LombaItem {
   deskripsi: string
 }
 
-export const getAllLomba = async (params?: LombaFilterParams) => {
+export interface PageResponse<T> {
+  content: T[]
+  totalPages: number
+  totalElements: number
+  number: number
+  size: number
+}
+
+export const getAllLomba = async (params?: LombaFilterParams) : Promise<PageResponse<LombaItem>> => {
   const response = await axios.get(API_URL, {
     headers: getAuthHeaders(),
     params,
@@ -92,7 +102,7 @@ export const getAllLomba = async (params?: LombaFilterParams) => {
   return response.data
 }
 
-export const getLombaByJuri = async (params?: LombaFilterParams) => {
+export const getLombaByJuri = async (params?: LombaFilterParams) : Promise<PageResponse<LombaItem>> => {
   const response = await axios.get(`${API_URL}/by-juri`, {
     headers: getAuthHeaders(),
     params,
